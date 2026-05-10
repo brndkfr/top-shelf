@@ -1,0 +1,105 @@
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background for optimal contrast -->
+  <rect id="background" width="1200" height="700" fill="#1e1e24" />
+
+  <!-- ========================================== -->
+  <!-- OUTER AREAS (Benches & Officials' Table)   -->
+  <!-- ========================================== -->
+  <g id="outer-area" font-family="Arial, sans-serif" font-size="14" fill="#a0a0a0" text-anchor="middle">
+
+    <!-- Top: Player benches (10m long, starting 5m from center line) -->
+    <!-- Left bench (Home) -->
+    <rect id="bench-home" x="225" y="40" width="250" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="bench-home-seat" x="235" y="50" width="230" height="20" fill="#444" />
+    <text x="350" y="30">Spielerbank</text>
+
+    <!-- Right bench (Away) -->
+    <rect id="bench-away" x="725" y="40" width="250" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="bench-away-seat" x="735" y="50" width="230" height="20" fill="#444" />
+    <text x="850" y="30">Spielerbank</text>
+
+    <!-- Bottom: Officials' table and penalty benches -->
+    <!-- Left penalty bench (2m long, starting 1m from center) -->
+    <rect id="penalty-bench-left" x="525" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="penalty-bench-left-seat" x="530" y="630" width="40" height="20" fill="#444" />
+    <text x="550" y="680">Strafbank</text>
+
+    <!-- Officials' table (centered on center line) -->
+    <rect id="timekeeper-table" x="575" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="timekeeper-seat" x="580" y="630" width="40" height="20" fill="#444" />
+    <text x="600" y="680">Sekretariat</text>
+
+    <!-- Right penalty bench (2m long, starting 1m from center) -->
+    <rect id="penalty-bench-right" x="625" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="penalty-bench-right-seat" x="630" y="630" width="40" height="20" fill="#444" />
+    <text x="650" y="680">Strafbank</text>
+  </g>
+
+
+  <!-- ========================================== -->
+  <!-- THE PLAYING FIELD (offset to center)       -->
+  <!-- ========================================== -->
+  <!-- translate(100,100) gives the field 100px margin on all sides -->
+  <g id="field" transform="translate(100, 100)">
+
+    <!-- Blue field surface (40m × 20m → 1000×500px, 2m corner radius → rx="50") -->
+    <rect id="field-surface" width="1000" height="500" rx="50" ry="50" fill="#2c5a94" />
+
+    <!-- White boards (outline) -->
+    <rect id="field-border" x="0" y="0" width="1000" height="500" rx="50" ry="50" fill="none" stroke="#ffffff" stroke-width="4" />
+
+    <!-- Centre Line and Centre Spot (face-off) -->
+    <line id="center-line" x1="500" y1="0" x2="500" y2="500" stroke="#ffffff" stroke-width="2" />
+    <circle id="center-dot" cx="500" cy="250" r="4" fill="#ffffff" />
+
+    <!-- Substitution zone markings on the upper boards -->
+    <line id="sub-mark-1" x1="125" y1="0" x2="125" y2="15" stroke="#ffffff" stroke-width="3" />
+    <line id="sub-mark-2" x1="375" y1="0" x2="375" y2="15" stroke="#ffffff" stroke-width="3" />
+    <line id="sub-mark-3" x1="625" y1="0" x2="625" y2="15" stroke="#ffffff" stroke-width="3" />
+    <line id="sub-mark-4" x1="875" y1="0" x2="875" y2="15" stroke="#ffffff" stroke-width="3" />
+
+    <!-- Face-off marks (1.5m from boards) -->
+    <g id="faceoff-marks" stroke="#ffffff" stroke-width="2" fill="none">
+      <!-- On the center line -->
+      <path d="M 500 32.5 v 10 m -5 -5 h 10" />
+      <path d="M 500 467.5 v -10 m -5 5 h 10" />
+      <!-- Left goal line -->
+      <path d="M 71.25 32.5 v 10 m -5 -5 h 10" />
+      <path d="M 71.25 467.5 v -10 m -5 5 h 10" />
+      <!-- Right goal line -->
+      <path d="M 928.75 32.5 v 10 m -5 -5 h 10" />
+      <path d="M 928.75 467.5 v -10 m -5 5 h 10" />
+    </g>
+
+    <!-- LEFT HALF -->
+    <g id="left-half">
+      <!-- Goal line (2.85m from the boards) -->
+      <line id="goal-line-left" x1="71.25" y1="0" x2="71.25" y2="500" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Large goal crease (4×5m) -->
+      <rect id="crease-left" x="55" y="187.5" width="100" height="125" fill="none" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Goalkeeper Area (1×2.5m) -->
+      <rect id="goalkeeper-area-left" x="71.25" y="218.75" width="25" height="62.5" fill="#2c5a94" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Goal (cage extends behind the goal line) -->
+      <rect id="goal-left" x="56.25" y="230" width="15" height="40" fill="none" stroke="#d32f2f" stroke-width="4" />
+    </g>
+
+    <!-- RIGHT HALF -->
+    <g id="right-half">
+      <!-- Goal line -->
+      <line id="goal-line-right" x1="928.75" y1="0" x2="928.75" y2="500" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Large goal crease -->
+      <rect id="crease-right" x="845" y="187.5" width="100" height="125" fill="none" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Goalkeeper Area -->
+      <rect id="goalkeeper-area-right" x="903.75" y="218.75" width="25" height="62.5" fill="#2c5a94" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Goal -->
+      <rect id="goal-right" x="928.75" y="230" width="15" height="40" fill="none" stroke="#d32f2f" stroke-width="4" />
+    </g>
+
+  </g>
+</svg>
