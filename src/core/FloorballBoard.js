@@ -322,8 +322,8 @@ export class FloorballBoard {
     if (!this._dragging) return;
     this._dragMoved = true;
     const fp = this._toSvgPoint(clientX, clientY);
-    this._dragging.dataset.x = fp.x - this._dragOffset.x;
-    this._dragging.dataset.y = fp.y - this._dragOffset.y;
+    this._dragging.dataset.x = Math.min(1200, Math.max(0, fp.x - this._dragOffset.x));
+    this._dragging.dataset.y = Math.min(700,  Math.max(0, fp.y - this._dragOffset.y));
     this._updateTransform(this._dragging);
     if (this._dragging.id === this._id('ball') && this._shootingActive) {
       this._updateShootingLine();
