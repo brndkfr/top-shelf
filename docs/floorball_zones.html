@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Floorball</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+      gap: 24px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      letter-spacing: 0.05em;
+      color: #c8dde8;
+    }
+
+    #field-wrapper {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    #field-wrapper svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 8px 18px;
+      border: 2px solid;
+      border-radius: 6px;
+      background: transparent;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    button:hover { filter: brightness(1.2); }
+    button.active { color: #111; }
+
+    #rink-image, #zones-image { transition: opacity 0.25s ease; }
+    #rink-image.hidden, #zones-image.hidden { opacity: 0; pointer-events: none; }
+
+    button#btn-rink, button#btn-zones {
+      border-color: #4a90b8;
+      color: #4a90b8;
+    }
+    button#btn-rink.active, button#btn-zones.active {
+      background: #4a90b8;
+      color: #111;
+    }
+
+    button#btn-lang {
+      border-color: #888;
+      color: #888;
+      min-width: 52px;
+    }
+    button#btn-lang.active {
+      background: #888;
+      color: #111;
+    }
+
+    button#btn-shooting {
+      border-color: #e8c840;
+      color: #e8c840;
+    }
+    button#btn-shooting.active {
+      background: #e8c840;
+      color: #111;
+    }
+
+    button:disabled { opacity: 0.35; cursor: not-allowed; filter: none; }
+
+    button#btn-ideal-pos {
+      border-color: #40c880;
+      color: #40c880;
+    }
+    button#btn-ideal-pos.active {
+      background: #40c880;
+      color: #111;
+    }
+
+    .player-token          { cursor: grab; user-select: none; }
+    .player-token.dragging { cursor: grabbing; }
+    .player-token:hover    { filter: brightness(1.25); }
+
+    .size-control {
+      display: flex;
+      align-items: center;
+      border: 2px solid #666;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .size-control button {
+      border: none;
+      border-radius: 0;
+      padding: 6px 13px;
+      color: #aaa;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    #size-display {
+      padding: 0 8px;
+      font-size: 0.85rem;
+      color: #aaa;
+      min-width: 32px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Floorball</h1>
+
+  <div id="field-wrapper">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+
+      <defs>
+        <symbol id="sym-player" viewBox="0 0 100 100">
+          <path d="M 50 10 C 27.9 10 10 27.9 10 50 C 10 72.1 27.9 90 50 90 C 66.8 90 81.3 79.8 87.6 65 L 100 50 L 87.6 35 C 81.3 20.2 66.8 10 50 10 Z"
+                fill="#003871" stroke="#ffcc00" stroke-width="2"/>
+        </symbol>
+        <symbol id="sym-opponent" viewBox="0 0 100 100">
+          <path d="M 50 10 C 27.9 10 10 27.9 10 50 C 10 72.1 27.9 90 50 90 C 66.8 90 81.3 79.8 87.6 65 L 100 50 L 87.6 35 C 81.3 20.2 66.8 10 50 10 Z"
+                fill="#8b1a2a" stroke="#ffffff" stroke-width="2"/>
+        </symbol>
+        <symbol id="sym-player-goalie" viewBox="0 0 100 100">
+          <path d="M 45 15 C 15 15 10 30 10 50 C 10 70 15 85 45 85 C 65 85 75 75 75 50 C 75 25 65 15 45 15 Z"
+                fill="#003871" stroke="#ffcc00" stroke-width="2"/>
+          <g pointer-events="none" stroke="#ffcc00" fill="none">
+            <path d="M 65 25 C 95 30 95 70 65 75" stroke-width="3" stroke-linecap="round"/>
+            <line x1="68" y1="38" x2="88" y2="42" stroke-width="2"/>
+            <line x1="70" y1="50" x2="92" y2="50" stroke-width="2"/>
+            <line x1="68" y1="62" x2="88" y2="58" stroke-width="2"/>
+            <path d="M 75 28 Q 85 50 75 72" stroke-width="2"/>
+          </g>
+        </symbol>
+        <symbol id="sym-opponent-goalie" viewBox="0 0 100 100">
+          <path d="M 45 15 C 15 15 10 30 10 50 C 10 70 15 85 45 85 C 65 85 75 75 75 50 C 75 25 65 15 45 15 Z"
+                fill="#8b1a2a" stroke="#ffffff" stroke-width="2"/>
+          <g pointer-events="none" stroke="#ffffff" fill="none">
+            <path d="M 65 25 C 95 30 95 70 65 75" stroke-width="3" stroke-linecap="round"/>
+            <line x1="68" y1="38" x2="88" y2="42" stroke-width="2"/>
+            <line x1="70" y1="50" x2="92" y2="50" stroke-width="2"/>
+            <line x1="68" y1="62" x2="88" y2="58" stroke-width="2"/>
+            <path d="M 75 28 Q 85 50 75 72" stroke-width="2"/>
+          </g>
+        </symbol>
+        <symbol id="sym-ball" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="11" fill="#39ff14" stroke="#1a7a00" stroke-width="1.5"/>
+          <circle cx="8" cy="8" r="4" fill="rgba(255,255,255,0.35)"/>
+        </symbol>
+        <marker id="arrow-head" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="rgba(255,255,255,0.85)"/>
+        </marker>
+      </defs>
+
+      <image id="rink-image"  href="rink.svg"             x="0"   y="0"   width="1200" height="700"/>
+      <image id="zones-image" href="floorball_zones.svg" x="0" y="0" width="1200" height="700"/>
+
+      <g id="zone-labels-layer"></g>
+
+      <polygon id="shooting-triangle"
+               points="600,350 1028.75,330 1028.75,370"
+               fill="rgba(232,200,64,0.22)"
+               stroke="rgba(232,200,64,0.5)"
+               stroke-width="1"
+               display="none"/>
+
+      <line id="shooting-line"
+            x1="600" y1="350" x2="1036.25" y2="350"
+            stroke="rgba(255,255,255,0.75)"
+            stroke-width="2"
+            stroke-dasharray="10,5"
+            marker-end="url(#arrow-head)"
+            display="none"/>
+
+      <g id="players-layer"></g>
+
+    </svg>
+  </div>
+
+  <div class="controls">
+    <button id="btn-rink"  class="active">Rink</button>
+    <button id="btn-zones" class="active">Zones</button>
+    <button id="btn-shooting">Shooting Line</button>
+    <button id="btn-ideal-pos" disabled>Ideal Pos</button>
+    <button id="btn-lang">EN</button>
+    <div class="size-control">
+      <button id="btn-size-dec">−</button>
+      <span id="size-display">50</span>
+      <button id="btn-size-inc">+</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btn-rink').addEventListener('click', () => {
+      document.getElementById('rink-image').classList.toggle('hidden');
+      document.getElementById('btn-rink').classList.toggle('active');
+    });
+
+    document.getElementById('btn-zones').addEventListener('click', () => {
+      document.getElementById('zones-image').classList.toggle('hidden');
+      document.getElementById('btn-zones').classList.toggle('active');
+    });
+
+    // ── Player tokens ──────────────────────────────────────────────────────────
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const fieldSvg = document.querySelector('#field-wrapper svg');
+    let TOKEN_SIZE = 50;
+
+    function toFieldPoint(evt) {
+      const pt = fieldSvg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      return pt.matrixTransform(fieldSvg.getScreenCTM().inverse());
+    }
+
+    function updateTransform(token) {
+      const x = parseFloat(token.dataset.x);
+      const y = parseFloat(token.dataset.y);
+      const angle = parseFloat(token.dataset.angle ?? '0');
+      token.setAttribute('transform', `translate(${x},${y}) rotate(${angle})`);
+      const text = token.querySelector('text');
+      if (text) text.setAttribute('transform', `rotate(${-angle})`);
+    }
+
+    function renderToken(parent, { id, x, y, label, symbol, noLabel }, type) {
+      const half = TOKEN_SIZE / 2;
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('id', id);
+      g.setAttribute('class', 'player-token');
+      g.dataset.x = x;
+      g.dataset.y = y;
+      g.dataset.angle = '0';
+      updateTransform(g);
+
+      const use = document.createElementNS(SVG_NS, 'use');
+      use.setAttribute('href', symbol ?? (type === 'player' ? '#sym-player' : '#sym-opponent'));
+      use.setAttribute('x', -half);
+      use.setAttribute('y', -half);
+      use.setAttribute('width', TOKEN_SIZE);
+      use.setAttribute('height', TOKEN_SIZE);
+      g.appendChild(use);
+
+      const text = document.createElementNS(SVG_NS, 'text');
+      text.setAttribute('x', '0');
+      text.setAttribute('y', '0');
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('font-family', 'system-ui, -apple-system, sans-serif');
+      text.setAttribute('letter-spacing', '0.5');
+      text.setAttribute('font-size', '14');
+      text.setAttribute('font-weight', 'bold');
+      text.setAttribute('fill', type === 'player' ? '#ffcc00' : '#ffffff');
+      text.setAttribute('pointer-events', 'none');
+      text.textContent = label;
+      if (!noLabel) g.appendChild(text);
+
+      parent.appendChild(g);
+    }
+
+    const players = [
+      { id: 'player-g',  label: 'G',  x:  90, y: 250, symbol: '#sym-player-goalie' },
+      { id: 'player-ld', label: 'LD', x: 280, y: 155 },
+      { id: 'player-rd', label: 'RD', x: 280, y: 345 },
+      { id: 'player-c',  label: 'C',  x: 490, y: 250 },
+      { id: 'player-lw', label: 'LW', x: 650, y: 105 },
+      { id: 'player-rw', label: 'RW', x: 650, y: 395 },
+    ];
+    const opponents = [
+      { id: 'opponent-g',  label: 'G',  x: 920, y: 250, symbol: '#sym-opponent-goalie' },
+      { id: 'opponent-ld', label: 'LD', x: 730, y: 155 },
+      { id: 'opponent-rd', label: 'RD', x: 730, y: 345 },
+      { id: 'opponent-c',  label: 'C',  x: 510, y: 290 },
+      { id: 'opponent-lw', label: 'LW', x: 420, y: 105 },
+      { id: 'opponent-rw', label: 'RW', x: 420, y: 395 },
+    ];
+
+    const layer = document.getElementById('players-layer');
+    players.forEach(p   => renderToken(layer, p, 'player'));
+    opponents.forEach(p => renderToken(layer, p, 'opponent'));
+
+    // Ball
+    const ballG = document.createElementNS(SVG_NS, 'g');
+    ballG.setAttribute('id', 'ball');
+    ballG.setAttribute('class', 'player-token');
+    ballG.dataset.x = 600;
+    ballG.dataset.y = 350;
+    ballG.dataset.type = 'ball';
+    ballG.setAttribute('transform', 'translate(600,350)');
+    const ballUse = document.createElementNS(SVG_NS, 'use');
+    ballUse.setAttribute('href', '#sym-ball');
+    ballUse.setAttribute('x', '-12');
+    ballUse.setAttribute('y', '-12');
+    ballUse.setAttribute('width', '24');
+    ballUse.setAttribute('height', '24');
+    ballG.appendChild(ballUse);
+    layer.appendChild(ballG);
+
+    // ── Zone labels ───────────────────────────────────────────────────────────
+    const ZONE_LABELS = [
+      // SVG-space centers (field translate(100,100) applied)
+      { x: 810,      y: 185, rotate:   0, labels: { en: 'Pocket',    de: 'Tasche'      } },
+      { x: 810,      y: 515, rotate:   0, labels: { en: 'Pocket',    de: 'Tasche'      } },
+      { x: 790,      y: 350, rotate:   0, labels: { en: 'High Slot', de: 'Hoher Slot'  } },
+      { x: 955,      y: 350, rotate:   0, labels: { en: 'Low Slot',  de: 'Naher Slot'  } },
+      { x: 1064,     y: 250, rotate: -90, labels: { en: 'Playmaker', de: 'Playmaker'   } },
+      { x: 1064,     y: 450, rotate: -90, labels: { en: 'Playmaker', de: 'Playmaker'   } },
+    ];
+
+    let zoneLang = 'en';
+    const labelsLayer = document.getElementById('zone-labels-layer');
+
+    function renderZoneLabels() {
+      labelsLayer.innerHTML = '';
+      ZONE_LABELS.forEach(z => {
+        const text = document.createElementNS(SVG_NS, 'text');
+        text.setAttribute('x', z.x);
+        text.setAttribute('y', z.y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'central');
+        text.setAttribute('font-family', 'system-ui, -apple-system, sans-serif');
+        text.setAttribute('font-size', '13');
+        text.setAttribute('font-weight', '600');
+        text.setAttribute('fill', 'rgba(255,255,255,0.75)');
+        text.setAttribute('pointer-events', 'none');
+        text.setAttribute('letter-spacing', '0.5');
+        if (z.rotate) text.setAttribute('transform', `rotate(${z.rotate},${z.x},${z.y})`);
+        text.textContent = z.labels[zoneLang];
+        labelsLayer.appendChild(text);
+      });
+    }
+
+    const btnLang = document.getElementById('btn-lang');
+    btnLang.addEventListener('click', () => {
+      zoneLang = zoneLang === 'en' ? 'de' : 'en';
+      btnLang.textContent = zoneLang.toUpperCase();
+      btnLang.classList.toggle('active', zoneLang === 'de');
+      renderZoneLabels();
+    });
+
+    renderZoneLabels();
+
+    // ── Token size ────────────────────────────────────────────────────────────
+    const SIZE_STEP = 5;
+    const SIZE_MIN  = 20;
+    const SIZE_MAX  = 100;
+
+    function resizeTokens(newSize) {
+      TOKEN_SIZE = newSize;
+      document.getElementById('size-display').textContent = newSize;
+      const half = newSize / 2;
+      const fontSize = Math.round(newSize * 0.28);
+      document.querySelectorAll('.player-token').forEach(token => {
+        if (token.dataset.type === 'ball') return;
+        const use = token.querySelector('use');
+        use.setAttribute('x', -half);
+        use.setAttribute('y', -half);
+        use.setAttribute('width', newSize);
+        use.setAttribute('height', newSize);
+        const text = token.querySelector('text');
+        if (text) text.setAttribute('font-size', fontSize);
+      });
+    }
+
+    document.getElementById('btn-size-dec').addEventListener('click', () => {
+      resizeTokens(Math.max(SIZE_MIN, TOKEN_SIZE - SIZE_STEP));
+    });
+    document.getElementById('btn-size-inc').addEventListener('click', () => {
+      resizeTokens(Math.min(SIZE_MAX, TOKEN_SIZE + SIZE_STEP));
+    });
+
+    // ── Shooting line ──────────────────────────────────────────────────────────
+    const GOALS = {
+      left:  { x: 163.75,  y: 350 },
+      right: { x: 1036.25, y: 350 },
+    };
+    const GOAL_POSTS = {
+      left:  [{ x: 171.25, y: 330 }, { x: 171.25, y: 370 }],
+      right: [{ x: 1028.75, y: 330 }, { x: 1028.75, y: 370 }],
+    };
+    let shootingLineActive = false;
+    let shootingTarget = 'right';
+    const shootingLine = document.getElementById('shooting-line');
+    const shootingTriangle = document.getElementById('shooting-triangle');
+
+    function updateShootingLine() {
+      const ball = document.getElementById('ball');
+      const bx = parseFloat(ball.dataset.x);
+      const by = parseFloat(ball.dataset.y);
+      const goal = GOALS[shootingTarget];
+      const posts = GOAL_POSTS[shootingTarget];
+      shootingLine.setAttribute('x1', bx);
+      shootingLine.setAttribute('y1', by);
+      shootingLine.setAttribute('x2', goal.x);
+      shootingLine.setAttribute('y2', goal.y);
+      shootingTriangle.setAttribute('points',
+        `${bx},${by} ${posts[0].x},${posts[0].y} ${posts[1].x},${posts[1].y}`);
+      const goalieId = shootingTarget === 'right' ? 'opponent-g' : 'player-g';
+      const goalie = document.getElementById(goalieId);
+      const angle = Math.atan2(
+        by - parseFloat(goalie.dataset.y),
+        bx - parseFloat(goalie.dataset.x)
+      ) * 180 / Math.PI;
+      goalie.dataset.angle = angle;
+      updateTransform(goalie);
+    }
+
+    document.getElementById('btn-shooting').addEventListener('click', () => {
+      shootingLineActive = !shootingLineActive;
+      const display = shootingLineActive ? '' : 'none';
+      shootingLine.setAttribute('display', display);
+      shootingTriangle.setAttribute('display', display);
+      document.getElementById('btn-shooting').classList.toggle('active', shootingLineActive);
+      if (shootingLineActive) updateShootingLine();
+      document.getElementById('btn-ideal-pos').disabled = !shootingLineActive;
+    });
+
+    const GOAL_LINE_CENTERS = {
+      left:  { x: 171.25,  y: 350 },
+      right: { x: 1028.75, y: 350 },
+    };
+    const GOALIE_STAND_OFFSET = 65;
+
+    function calcIdealGoaliePos(bx, by) {
+      const origin = GOAL_LINE_CENTERS[shootingTarget];
+      const dx = bx - origin.x;
+      const dy = by - origin.y;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      return {
+        x: origin.x + (dx / len) * GOALIE_STAND_OFFSET,
+        y: origin.y + (dy / len) * GOALIE_STAND_OFFSET,
+        angle: Math.atan2(dy, dx) * 180 / Math.PI,
+      };
+    }
+
+    function animateToken(token, targetX, targetY, targetAngle, duration = 700) {
+      const startX = parseFloat(token.dataset.x);
+      const startY = parseFloat(token.dataset.y);
+      const startAngle = parseFloat(token.dataset.angle ?? '0');
+      const delta = ((targetAngle - startAngle) % 360 + 540) % 360 - 180;
+      const start = performance.now();
+      function step(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        token.dataset.x = startX + (targetX - startX) * ease;
+        token.dataset.y = startY + (targetY - startY) * ease;
+        token.dataset.angle = startAngle + delta * ease;
+        updateTransform(token);
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    document.getElementById('btn-ideal-pos').addEventListener('click', () => {
+      if (!shootingLineActive) return;
+      const ball = document.getElementById('ball');
+      const bx = parseFloat(ball.dataset.x);
+      const by = parseFloat(ball.dataset.y);
+      const goalieId = shootingTarget === 'right' ? 'opponent-g' : 'player-g';
+      const goalie = document.getElementById(goalieId);
+      const ideal = calcIdealGoaliePos(bx, by);
+      animateToken(goalie, ideal.x, ideal.y, ideal.angle);
+    });
+
+    // Drag (left-click drag = move) + click (no drag = rotate 45°)
+    let dragging   = null;
+    let dragMoved  = false;
+    let dragOffset = { x: 0, y: 0 };
+
+    document.querySelectorAll('.player-token').forEach(token => {
+      token.addEventListener('mousedown', e => {
+        e.preventDefault();
+        dragging  = token;
+        dragMoved = false;
+        token.classList.add('dragging');
+        token.parentNode.appendChild(token);
+        const fp = toFieldPoint(e);
+        dragOffset.x = fp.x - parseFloat(token.dataset.x);
+        dragOffset.y = fp.y - parseFloat(token.dataset.y);
+      });
+    });
+
+    fieldSvg.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      dragMoved = true;
+      const fp = toFieldPoint(e);
+      dragging.dataset.x = fp.x - dragOffset.x;
+      dragging.dataset.y = fp.y - dragOffset.y;
+      updateTransform(dragging);
+      if (dragging.id === 'ball' && shootingLineActive) updateShootingLine();
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      if (!dragMoved) {
+        if (dragging.dataset.type !== 'ball') {
+          const angle = (parseFloat(dragging.dataset.angle ?? '0') + 45) % 360;
+          dragging.dataset.angle = angle;
+          updateTransform(dragging);
+        } else if (shootingLineActive) {
+          shootingTarget = shootingTarget === 'right' ? 'left' : 'right';
+          updateShootingLine();
+        }
+      }
+      dragging.classList.remove('dragging');
+      dragging = null;
+    });
+  </script>
+
+</body>
+</html>

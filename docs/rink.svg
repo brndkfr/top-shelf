@@ -1,0 +1,105 @@
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dunkler Hintergrund für den perfekten Kontrast -->
+  <rect id="background" width="1200" height="700" fill="#1e1e24" />
+
+  <!-- ========================================== -->
+  <!-- AUSSENBEREICHE (Bänke & Sekretariat)       -->
+  <!-- ========================================== -->
+  <g id="outer-area" font-family="Arial, sans-serif" font-size="14" fill="#a0a0a0" text-anchor="middle">
+
+    <!-- Oben: Spielerbänke (10m lang, starten 5m von der Mittelinie) -->
+    <!-- Bank Links (Heim) -->
+    <rect id="bench-home" x="225" y="40" width="250" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="bench-home-seat" x="235" y="50" width="230" height="20" fill="#444" />
+    <text x="350" y="30">Spielerbank</text>
+
+    <!-- Bank Rechts (Gast) -->
+    <rect id="bench-away" x="725" y="40" width="250" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="bench-away-seat" x="735" y="50" width="230" height="20" fill="#444" />
+    <text x="850" y="30">Spielerbank</text>
+
+    <!-- Unten: Sekretariat und Strafbänke -->
+    <!-- Strafbank Links (2m lang, startet 1m von der Mitte) -->
+    <rect id="penalty-box-left" x="525" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="penalty-box-left-seat" x="530" y="630" width="40" height="20" fill="#444" />
+    <text x="550" y="680">Strafbank</text>
+
+    <!-- Spielsekretariat (Zentriert auf der Mittellinie) -->
+    <rect id="timekeeper-table" x="575" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="timekeeper-seat" x="580" y="630" width="40" height="20" fill="#444" />
+    <text x="600" y="680">Sekretariat</text>
+
+    <!-- Strafbank Rechts (2m lang, startet 1m von der Mitte) -->
+    <rect id="penalty-box-right" x="625" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
+    <rect id="penalty-box-right-seat" x="630" y="630" width="40" height="20" fill="#444" />
+    <text x="650" y="680">Strafbank</text>
+  </g>
+
+
+  <!-- ========================================== -->
+  <!-- DAS SPIELFELD (Verschoben in die Mitte)    -->
+  <!-- ========================================== -->
+  <!-- Durch 'translate(100, 100)' hat das Feld zu allen Seiten 100px Rand -->
+  <g id="field" transform="translate(100, 100)">
+
+    <!-- Blaue Bodenfläche (40m x 20m -> 1000px x 500px, 2m Eckenradius -> rx="50") -->
+    <rect id="field-surface" width="1000" height="500" rx="50" ry="50" fill="#2c5a94" />
+
+    <!-- Weiße Bande (Outline) -->
+    <rect id="field-border" x="0" y="0" width="1000" height="500" rx="50" ry="50" fill="none" stroke="#ffffff" stroke-width="4" />
+
+    <!-- Mittellinie und Bully-Mittelpunkt -->
+    <line id="center-line" x1="500" y1="0" x2="500" y2="500" stroke="#ffffff" stroke-width="2" />
+    <circle id="center-dot" cx="500" cy="250" r="4" fill="#ffffff" />
+
+    <!-- Markierungen der Auswechselzonen auf der oberen Bande -->
+    <line id="sub-mark-1" x1="125" y1="0" x2="125" y2="15" stroke="#ffffff" stroke-width="3" />
+    <line id="sub-mark-2" x1="375" y1="0" x2="375" y2="15" stroke="#ffffff" stroke-width="3" />
+    <line id="sub-mark-3" x1="625" y1="0" x2="625" y2="15" stroke="#ffffff" stroke-width="3" />
+    <line id="sub-mark-4" x1="875" y1="0" x2="875" y2="15" stroke="#ffffff" stroke-width="3" />
+
+    <!-- Face-off / Bullypunkte (1.5m von den Banden) -->
+    <g id="faceoff-marks" stroke="#ffffff" stroke-width="2" fill="none">
+      <!-- Auf der Mittellinie -->
+      <path d="M 500 32.5 v 10 m -5 -5 h 10" />
+      <path d="M 500 467.5 v -10 m -5 5 h 10" />
+      <!-- Linke Torlinie -->
+      <path d="M 71.25 32.5 v 10 m -5 -5 h 10" />
+      <path d="M 71.25 467.5 v -10 m -5 5 h 10" />
+      <!-- Rechte Torlinie -->
+      <path d="M 928.75 32.5 v 10 m -5 -5 h 10" />
+      <path d="M 928.75 467.5 v -10 m -5 5 h 10" />
+    </g>
+
+    <!-- LINKE SPIELHÄLFTE -->
+    <g id="left-half">
+      <!-- Torlinie (2.85m von der Bande entfernt) -->
+      <line id="goal-line-left" x1="71.25" y1="0" x2="71.25" y2="500" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Großer Torraum (4x5m) -->
+      <rect id="crease-left" x="55" y="187.5" width="100" height="125" fill="none" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Kleiner Schutzraum (1x2.5m) -->
+      <rect id="crease-small-left" x="71.25" y="218.75" width="25" height="62.5" fill="#2c5a94" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Rotes Tor (Käfig ragt physisch nach hinten) -->
+      <rect id="goal-left" x="56.25" y="230" width="15" height="40" fill="none" stroke="#d32f2f" stroke-width="4" />
+    </g>
+
+    <!-- RECHTE SPIELHÄLFTE -->
+    <g id="right-half">
+      <!-- Torlinie -->
+      <line id="goal-line-right" x1="928.75" y1="0" x2="928.75" y2="500" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Großer Torraum -->
+      <rect id="crease-right" x="845" y="187.5" width="100" height="125" fill="none" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Kleiner Schutzraum -->
+      <rect id="crease-small-right" x="903.75" y="218.75" width="25" height="62.5" fill="#2c5a94" stroke="#ffffff" stroke-width="2" />
+
+      <!-- Rotes Tor -->
+      <rect id="goal-right" x="928.75" y="230" width="15" height="40" fill="none" stroke="#d32f2f" stroke-width="4" />
+    </g>
+
+  </g>
+</svg>

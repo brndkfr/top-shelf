@@ -1,0 +1,23 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" id="player-jets">
+  <!-- Der Hauptkörper in Jets-Blau -->
+  <path 
+    id="player-shape"
+    d="M 50 10 C 27.9 10 10 27.9 10 50 C 10 72.1 27.9 90 50 90 C 66.8 90 81.3 79.8 87.6 65 L 100 50 L 87.6 35 C 81.3 20.2 66.8 10 50 10 Z"
+    fill="#003871" 
+    stroke="#ffcc00" 
+    stroke-width="2" 
+    cursor="pointer"
+  />
+
+  <!-- Die Spielernummer in Jets-Gelb -->
+  <text 
+    x="50" 
+    y="55" 
+    text-anchor="middle" 
+    fill="#ffcc00" 
+    font-family="Arial, sans-serif" 
+    font-size="28px" 
+    font-weight="bold" 
+    pointer-events="none"
+  >15</text>
+</svg>
