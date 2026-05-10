@@ -1,0 +1,40 @@
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+  <!-- Styles für die Interaktion und Farben der Zonen -->
+  <style>
+    .zone { 
+      transition: fill-opacity 0.3s;
+      cursor: pointer;
+    }
+    .zone:hover { fill-opacity: 0.8 !important; }
+    
+    /* Farben analog zu deinem ursprünglichen Bild */
+    .color-tasche { fill: #f8c8c8; fill-opacity: 0.6; }
+    .color-high-slot { fill: #db6e6e; fill-opacity: 0.7; }
+    .color-low-slot { fill: #8b1a2a; fill-opacity: 0.85; }
+    .color-playmaker { fill: #a53939; fill-opacity: 0.7; }
+  </style>
+
+  <!-- Transform verschiebt die Zonen exakt deckungsgleich über das Spielfeld -->
+  <g transform="translate(100, 100)">
+    
+    <!-- Pocket Top -->
+    <rect id="pocket-top" class="zone color-tasche" x="600" y="25" width="220" height="120" />
+
+    <!-- Pocket Bottom -->
+    <rect id="pocket-bottom" class="zone color-tasche" x="600" y="355" width="220" height="120" />
+
+    <!-- High Slot -->
+    <rect id="high-slot" class="zone color-high-slot" x="600" y="160" width="180" height="180" />
+
+    <!-- Low Slot (tip reaches exactly to the goal crease/goal line) -->
+    <!-- X: 780 (end of high slot) to 928.75 (goal line) -->
+    <polygon id="low-slot" class="zone color-low-slot" points="780,160 928.75,215 928.75,285 780,340" />
+
+    <!-- Playmaker Top (behind the goal to the right board) -->
+    <rect id="playmaker-top" class="zone color-playmaker" x="928.75" y="100" width="71.25" height="100" />
+
+    <!-- Playmaker Bottom (behind the goal to the right board) -->
+    <rect id="playmaker-bottom" class="zone color-playmaker" x="928.75" y="300" width="71.25" height="100" />
+
+  </g>
+</svg>

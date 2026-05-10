@@ -33,10 +33,20 @@ export function FloorballBoard({
   useEffect(() => { if (players)   boardRef.current?.setPlayers(players); },   [players]);
   useEffect(() => { if (opponents) boardRef.current?.setOpponents(opponents); }, [opponents]);
 
-  const layerRink  = layers?.rink;
-  const layerZones = layers?.zones;
-  useEffect(() => { if (layerRink  !== undefined) boardRef.current?.setLayer('rink',  layerRink);  }, [layerRink]);
-  useEffect(() => { if (layerZones !== undefined) boardRef.current?.setLayer('zones', layerZones); }, [layerZones]);
+  const layerRink             = layers?.rink;
+  const layerZones            = layers?.zones;
+  const layerZoneAttention    = layers?.zoneAttention;
+  const layerZoneAwareness    = layers?.zoneAwareness;
+  const layerZonePassing      = layers?.zonePassingFirst;
+  const layerZoneDanger       = layers?.zoneDanger;
+  const layerZoneSlot         = layers?.zoneSlot;
+  useEffect(() => { if (layerRink          !== undefined) boardRef.current?.setLayer('rink',           layerRink);          }, [layerRink]);
+  useEffect(() => { if (layerZones         !== undefined) boardRef.current?.setLayer('zones',          layerZones);         }, [layerZones]);
+  useEffect(() => { if (layerZoneAttention !== undefined) boardRef.current?.setLayer('zone-attention', layerZoneAttention); }, [layerZoneAttention]);
+  useEffect(() => { if (layerZoneAwareness !== undefined) boardRef.current?.setLayer('zone-awareness', layerZoneAwareness); }, [layerZoneAwareness]);
+  useEffect(() => { if (layerZonePassing   !== undefined) boardRef.current?.setLayer('zone-passing',   layerZonePassing);   }, [layerZonePassing]);
+  useEffect(() => { if (layerZoneDanger    !== undefined) boardRef.current?.setLayer('zone-danger',    layerZoneDanger);    }, [layerZoneDanger]);
+  useEffect(() => { if (layerZoneSlot      !== undefined) boardRef.current?.setLayer('zone-slot',      layerZoneSlot);      }, [layerZoneSlot]);
 
   // Wire callbacks (stable refs recommended — wrap in useCallback on the call site)
   useEffect(() => {

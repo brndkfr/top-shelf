@@ -1,1 +1,4 @@
-.claude
+.claude/*
+!.claude/CLAUDE.md
+node_modules
+dist

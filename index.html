@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Shelf — Floorball Board</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+      gap: 24px;
+      min-height: 100vh;
+    }
+
+    h1 { font-size: 1.25rem; letter-spacing: 0.05em; color: #c8dde8; }
+
+    #mount { width: 100%; max-width: 900px; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 8px 18px;
+      border: 2px solid;
+      border-radius: 6px;
+      background: transparent;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    button:hover { filter: brightness(1.2); }
+    button.active { color: #111; }
+    button:disabled { opacity: 0.35; cursor: not-allowed; filter: none; }
+
+    .btn-layer   { border-color: #4a90b8; color: #4a90b8; }
+    .btn-layer.active { background: #4a90b8; }
+
+    .btn-shoot   { border-color: #e8c840; color: #e8c840; }
+    .btn-shoot.active { background: #e8c840; }
+
+    .btn-ideal   { border-color: #40c880; color: #40c880; }
+    .btn-lang    { border-color: #888;    color: #888; min-width: 52px; }
+    .btn-lang.active { background: #888; }
+    .btn-reset   { border-color: #c06060; color: #c06060; }
+    .btn-editor  { border-color: #d4ac0d; color: #d4ac0d; }
+    .btn-editor.active { background: #d4ac0d; }
+    .btn-poly    { border-color: #a080e8; color: #a080e8; }
+    .btn-poly.active { background: #a080e8; }
+    .btn-poly-action { border-color: #888; color: #888; padding: 4px 10px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; background: transparent; cursor: pointer; white-space: nowrap; }
+    .btn-poly-action:hover { filter: brightness(1.2); }
+
+    .editor-bar {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #444;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .editor-bar code {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: #aed6f1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #btn-poly-close { border-color: #58d68d; color: #58d68d; }
+    #btn-poly-undo  { border-color: #e8a840; color: #e8a840; }
+    #btn-poly-clear { border-color: #c06060; color: #c06060; }
+    #btn-copy-coords {
+      border: 2px solid #58d68d;
+      border-radius: 6px;
+      color: #58d68d;
+      background: transparent;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    #btn-copy-coords:hover { filter: brightness(1.2); }
+
+    .size-control {
+      display: flex;
+      align-items: center;
+      border: 2px solid #666;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .size-control button {
+      border: none;
+      border-radius: 0;
+      padding: 6px 13px;
+      color: #aaa;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    #size-display {
+      padding: 0 8px;
+      font-size: 0.85rem;
+      color: #aaa;
+      min-width: 32px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Floorball</h1>
+  <div id="mount"></div>
+
+  <div id="editor-bar" class="editor-bar">
+    <code id="zone-coords">—</code>
+    <button id="btn-poly-close" class="btn-poly-action" style="display:none">Close Shape</button>
+    <button id="btn-poly-undo"  class="btn-poly-action" style="display:none">Undo</button>
+    <button id="btn-poly-clear" class="btn-poly-action" style="display:none">Clear</button>
+    <button id="btn-copy-coords">Copy</button>
+  </div>
+
+  <div class="controls">
+    <button id="btn-rink"         class="btn-layer active">Rink</button>
+    <button id="btn-zones"        class="btn-layer active">Zones</button>
+    <button id="btn-zone-attention"  class="btn-layer">Attention Zone</button>
+    <button id="btn-zone-awareness"  class="btn-layer">Awareness Zone</button>
+    <button id="btn-zone-passing"    class="btn-layer">Passing First</button>
+    <button id="btn-zone-danger"     class="btn-layer">Danger Zone</button>
+    <button id="btn-zone-slot"       class="btn-layer">Slot</button>
+    <button id="btn-edit-danger"     class="btn-editor">Edit Danger Zone</button>
+    <button id="btn-edit-passing"    class="btn-editor">Edit Passing Zone</button>
+    <button id="btn-poly-editor"     class="btn-poly">Polygon Editor</button>
+    <button id="btn-shoot"    class="btn-shoot">Shooting Line</button>
+    <button id="btn-ideal"    class="btn-ideal" disabled>Ideal Pos</button>
+    <button id="btn-lang"     class="btn-lang">EN</button>
+    <button id="btn-reset"    class="btn-reset">Reset</button>
+    <div class="size-control">
+      <button id="btn-size-dec">−</button>
+      <span   id="size-display">50</span>
+      <button id="btn-size-inc">+</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { FloorballBoard } from './src/index.js';
+
+    const board = new FloorballBoard(document.getElementById('mount'));
+    let lang     = 'en';
+    let shooting = false;
+    let tokenSize = 50;
+
+    const $ = id => document.getElementById(id);
+
+    $('btn-rink').addEventListener('click', () => {
+      const on = $('btn-rink').classList.toggle('active');
+      board.setLayer('rink', on);
+    });
+
+    $('btn-zones').addEventListener('click', () => {
+      const on = $('btn-zones').classList.toggle('active');
+      board.setLayer('zones', on);
+    });
+
+    $('btn-zone-attention').addEventListener('click', () => {
+      const on = $('btn-zone-attention').classList.toggle('active');
+      board.setLayer('zone-attention', on);
+    });
+
+    $('btn-zone-awareness').addEventListener('click', () => {
+      const on = $('btn-zone-awareness').classList.toggle('active');
+      board.setLayer('zone-awareness', on);
+    });
+
+    $('btn-zone-passing').addEventListener('click', () => {
+      const on = $('btn-zone-passing').classList.toggle('active');
+      board.setLayer('zone-passing', on);
+    });
+
+    $('btn-zone-danger').addEventListener('click', () => {
+      const on = $('btn-zone-danger').classList.toggle('active');
+      board.setLayer('zone-danger', on);
+    });
+
+    $('btn-zone-slot').addEventListener('click', () => {
+      const on = $('btn-zone-slot').classList.toggle('active');
+      board.setLayer('zone-slot', on);
+    });
+
+    $('btn-shoot').addEventListener('click', () => {
+      shooting = !shooting;
+      board.setShootingLine(shooting);
+      $('btn-shoot').classList.toggle('active', shooting);
+      $('btn-ideal').disabled = !shooting;
+    });
+
+    $('btn-ideal').addEventListener('click', () => {
+      board.moveGoalieToIdealPosition();
+    });
+
+    $('btn-lang').addEventListener('click', () => {
+      lang = lang === 'en' ? 'de' : 'en';
+      board.setLang(lang);
+      $('btn-lang').textContent = lang.toUpperCase();
+      $('btn-lang').classList.toggle('active', lang === 'de');
+    });
+
+    $('btn-reset').addEventListener('click', () => {
+      board.reset();
+      shooting = false;
+      $('btn-shoot').classList.remove('active');
+      $('btn-ideal').disabled = true;
+    });
+
+    $('btn-size-dec').addEventListener('click', () => {
+      tokenSize = Math.max(20, tokenSize - 5);
+      board.setTokenSize(tokenSize);
+      $('size-display').textContent = tokenSize;
+    });
+
+    $('btn-size-inc').addEventListener('click', () => {
+      tokenSize = Math.min(100, tokenSize + 5);
+      board.setTokenSize(tokenSize);
+      $('size-display').textContent = tokenSize;
+    });
+
+    board.on('tokenMoved', ({ id, x, y }) => {
+      console.log('moved', id, Math.round(x), Math.round(y));
+    });
+
+    // ── Zone editor ───────────────────────────────────────────────────────────
+    const editor = { active: false, dragging: false, side: 'right', offsetX: 0 };
+    const NS = 'http://www.w3.org/2000/svg';
+
+    const getSvg       = ()        => document.querySelector('#mount svg');
+    const getZoneFill  = name      => getSvg()?.querySelector(`[id$="-zone-${name}-fill"]`);
+    const getZoneLabel = name      => getSvg()?.querySelector(`[id$="-zone-${name}-label"]`);
+    const toSvgX       = (svg, cx) => {
+      const pt = svg.createSVGPoint();
+      pt.x = cx; pt.y = 0;
+      return pt.matrixTransform(svg.getScreenCTM().inverse()).x;
+    };
+
+    function refreshHandleEl(side, edgeX, midY) {
+      const g = document.getElementById(`zone-edit-handle-${side}`);
+      if (!g) return;
+      g.querySelector('.edit-line').setAttribute('x1', edgeX);
+      g.querySelector('.edit-line').setAttribute('x2', edgeX);
+      g.querySelector('.edit-pill').setAttribute('x', edgeX - 8);
+      g.querySelector('.edit-hit').setAttribute('x', edgeX - 16);
+      g.querySelectorAll('.edit-dot').forEach((dot, i) => {
+        dot.setAttribute('cx', edgeX);
+        dot.setAttribute('cy', midY + (i - 1) * 9);
+      });
+    }
+
+    function refreshHandle() {
+      const fill = getZoneFill('danger');
+      if (!fill) return;
+      const x    = parseFloat(fill.getAttribute('x'));
+      const w    = parseFloat(fill.getAttribute('width'));
+      const y    = parseFloat(fill.getAttribute('y'));
+      const h    = parseFloat(fill.getAttribute('height'));
+      const midY = y + h / 2;
+      refreshHandleEl('left',  x,     midY);
+      refreshHandleEl('right', x + w, midY);
+      const xi = Math.round(x), wi = Math.round(w);
+      $('zone-coords').textContent =
+        `x="${xi}" y="${Math.round(y)}" width="${wi}" height="${Math.round(h)}" rx="50"   →  left: ${xi}  right: ${xi + wi}`;
+    }
+
+    function makeHandleGroup(side, edgeX, y, h) {
+      const midY = y + h / 2;
+      const g    = document.createElementNS(NS, 'g');
+      g.setAttribute('id', `zone-edit-handle-${side}`);
+      g.style.cursor = 'ew-resize';
+
+      const hit = document.createElementNS(NS, 'rect');
+      hit.setAttribute('class', 'edit-hit');
+      hit.setAttribute('x', edgeX - 16); hit.setAttribute('y', y);
+      hit.setAttribute('width', 32);     hit.setAttribute('height', h);
+      hit.setAttribute('fill', 'transparent');
+
+      const line = document.createElementNS(NS, 'line');
+      line.setAttribute('class', 'edit-line');
+      line.setAttribute('x1', edgeX); line.setAttribute('y1', y);
+      line.setAttribute('x2', edgeX); line.setAttribute('y2', y + h);
+      line.setAttribute('stroke', 'rgba(255,255,255,0.75)');
+      line.setAttribute('stroke-width', 2);
+      line.setAttribute('stroke-dasharray', '8,5');
+      line.setAttribute('pointer-events', 'none');
+
+      const pill = document.createElementNS(NS, 'rect');
+      pill.setAttribute('class', 'edit-pill');
+      pill.setAttribute('x', edgeX - 8); pill.setAttribute('y', midY - 22);
+      pill.setAttribute('width', 16);    pill.setAttribute('height', 44);
+      pill.setAttribute('rx', 5);
+      pill.setAttribute('fill', 'white');
+      pill.setAttribute('stroke', '#666');
+      pill.setAttribute('stroke-width', 1.5);
+      pill.setAttribute('pointer-events', 'none');
+
+      for (let i = 0; i < 3; i++) {
+        const dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('class', 'edit-dot');
+        dot.setAttribute('cx', edgeX);
+        dot.setAttribute('cy', midY + (i - 1) * 9);
+        dot.setAttribute('r', 2.5);
+        dot.setAttribute('fill', '#999');
+        dot.setAttribute('pointer-events', 'none');
+        g.appendChild(dot);
+      }
+      g.appendChild(hit);
+      g.appendChild(line);
+      g.appendChild(pill);
+
+      g.addEventListener('mousedown', e => {
+        e.preventDefault(); e.stopPropagation();
+        const f  = getZoneFill('danger');
+        const ex = side === 'right'
+          ? parseFloat(f.getAttribute('x')) + parseFloat(f.getAttribute('width'))
+          : parseFloat(f.getAttribute('x'));
+        editor.offsetX  = toSvgX(getSvg(), e.clientX) - ex;
+        editor.side     = side;
+        editor.dragging = true;
+      });
+
+      return g;
+    }
+
+    function createHandles() {
+      if (document.getElementById('zone-edit-handle-right')) return;
+      const svg  = getSvg();
+      const fill = getZoneFill('danger');
+      if (!svg || !fill) return;
+      const x = parseFloat(fill.getAttribute('x'));
+      const w = parseFloat(fill.getAttribute('width'));
+      const y = parseFloat(fill.getAttribute('y'));
+      const h = parseFloat(fill.getAttribute('height'));
+      svg.appendChild(makeHandleGroup('left',  x,     y, h));
+      svg.appendChild(makeHandleGroup('right', x + w, y, h));
+    }
+
+    function removeHandles() {
+      document.getElementById('zone-edit-handle-left')?.remove();
+      document.getElementById('zone-edit-handle-right')?.remove();
+    }
+
+    $('btn-edit-danger').addEventListener('click', () => {
+      editor.active = !editor.active;
+      $('btn-edit-danger').classList.toggle('active', editor.active);
+      if (editor.active) {
+        board.setLayer('zone-danger', true);
+        $('btn-zone-danger').classList.add('active');
+        createHandles();
+        refreshHandle();
+        $('editor-bar').style.display = 'flex';
+      } else {
+        removeHandles();
+        $('editor-bar').style.display = 'none';
+      }
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!editor.dragging) return;
+      const svg  = getSvg();
+      const fill = getZoneFill('danger');
+      if (!svg || !fill) return;
+      const cur        = toSvgX(svg, e.clientX) - editor.offsetX;
+      const x          = parseFloat(fill.getAttribute('x'));
+      const w          = parseFloat(fill.getAttribute('width'));
+      const rightEdge  = x + w;
+      if (editor.side === 'right') {
+        fill.setAttribute('width', Math.round(Math.max(x + 50, Math.min(1100, cur)) - x));
+      } else {
+        const newX = Math.round(Math.max(0, Math.min(rightEdge - 50, cur)));
+        fill.setAttribute('x',     newX);
+        fill.setAttribute('width', Math.round(rightEdge - newX));
+      }
+      const label = getZoneLabel('danger');
+      if (label) {
+        const nx = parseFloat(fill.getAttribute('x'));
+        const nw = parseFloat(fill.getAttribute('width'));
+        label.setAttribute('x', Math.round(nx + nw / 2));
+      }
+      refreshHandle();
+    });
+
+    document.addEventListener('mouseup', () => { editor.dragging = false; });
+
+    $('btn-copy-coords').addEventListener('click', () => {
+      const text = $('zone-coords').textContent.split('→')[0].trim();
+      navigator.clipboard?.writeText(text).catch(() => {});
+      $('btn-copy-coords').textContent = 'Copied!';
+      setTimeout(() => { $('btn-copy-coords').textContent = 'Copy'; }, 1500);
+    });
+
+    // ── Passing zone editor ───────────────────────────────────────────────────
+    const passEditor = { active: false, dragging: null, offsetX: 0 };
+
+    const getPassFill  = () => getSvg()?.querySelector('[id$="-zone-passing-fill"]');
+    const getPassLabel = () => getSvg()?.querySelector('[id$="-zone-passing-label"]');
+
+    function applyPassGeom(rightX, rx) {
+      const fill = getPassFill();
+      if (!fill) return;
+      fill.setAttribute('width', rightX - 100);
+      fill.setAttribute('rx', rx);
+      const label = getPassLabel();
+      if (label) {
+        const cx = Math.round((100 + rightX) / 2);
+        label.setAttribute('x', cx);
+        label.setAttribute('transform', `rotate(-90,${cx},350)`);
+      }
+    }
+
+    function refreshPassHandles() {
+      const fill = getPassFill();
+      if (!fill) return;
+      const x     = parseFloat(fill.getAttribute('x'));
+      const w     = parseFloat(fill.getAttribute('width'));
+      const rx    = parseFloat(fill.getAttribute('rx'));
+      const right = x + w;
+
+      const rh = document.getElementById('pass-edit-handle-right');
+      if (rh) {
+        rh.querySelector('.edit-line').setAttribute('x1', right);
+        rh.querySelector('.edit-line').setAttribute('x2', right);
+        rh.querySelector('.edit-pill').setAttribute('x', right - 8);
+        rh.querySelector('.edit-hit').setAttribute('x', right - 16);
+        rh.querySelectorAll('.edit-dot').forEach((d, i) => {
+          d.setAttribute('cx', right); d.setAttribute('cy', 350 + (i - 1) * 9);
+        });
+      }
+
+      // rx handle sits at (x+rx, 100) — the top-edge arc start point
+      const rxh = document.getElementById('pass-edit-handle-rx');
+      if (rxh) {
+        const hx = x + rx;
+        rxh.querySelector('circle.rx-hit').setAttribute('cx', hx);
+        rxh.querySelector('circle.rx-vis').setAttribute('cx', hx);
+        rxh.querySelector('line.rx-line').setAttribute('x1', hx);
+        rxh.querySelector('line.rx-line').setAttribute('x2', hx);
+      }
+
+      $('zone-coords').textContent =
+        `x="100" y="100" width="${Math.round(w)}" height="500" rx="${Math.round(rx)}"   →  right: ${Math.round(right)}  rx: ${Math.round(rx)}`;
+    }
+
+    function createPassHandles() {
+      if (document.getElementById('pass-edit-handle-right')) return;
+      const svg  = getSvg();
+      const fill = getPassFill();
+      if (!svg || !fill || fill.tagName !== 'rect') return; // only works on rect-based zones
+      const x     = parseFloat(fill.getAttribute('x'));
+      const w     = parseFloat(fill.getAttribute('width'));
+      const rx    = parseFloat(fill.getAttribute('rx'));
+      const right = x + w;
+
+      const rg = makeHandleGroup('right', right, 100, 500);
+      rg.setAttribute('id', 'pass-edit-handle-right');
+      rg.querySelectorAll('.edit-dot').forEach((d, i) =>
+        d.setAttribute('cy', 350 + (i - 1) * 9));
+      rg.addEventListener('mousedown', e => {
+        e.preventDefault(); e.stopPropagation();
+        const f   = getPassFill();
+        const cur = parseFloat(f.getAttribute('x')) + parseFloat(f.getAttribute('width'));
+        passEditor.offsetX  = toSvgX(getSvg(), e.clientX) - cur;
+        passEditor.dragging = 'right';
+      });
+      svg.appendChild(rg);
+
+      // rx handle: circle on the top edge at (x+rx, 100)
+      const rxg = document.createElementNS(NS, 'g');
+      rxg.setAttribute('id', 'pass-edit-handle-rx');
+      rxg.style.cursor = 'ew-resize';
+
+      const rxHit = document.createElementNS(NS, 'circle');
+      rxHit.setAttribute('class', 'rx-hit');
+      rxHit.setAttribute('cx', x + rx); rxHit.setAttribute('cy', 100);
+      rxHit.setAttribute('r', 18); rxHit.setAttribute('fill', 'transparent');
+
+      const rxLine = document.createElementNS(NS, 'line');
+      rxLine.setAttribute('class', 'rx-line');
+      rxLine.setAttribute('x1', x + rx); rxLine.setAttribute('y1', 86);
+      rxLine.setAttribute('x2', x + rx); rxLine.setAttribute('y2', 114);
+      rxLine.setAttribute('stroke', 'rgba(255,255,255,0.75)');
+      rxLine.setAttribute('stroke-width', 2);
+      rxLine.setAttribute('pointer-events', 'none');
+
+      const rxVis = document.createElementNS(NS, 'circle');
+      rxVis.setAttribute('class', 'rx-vis');
+      rxVis.setAttribute('cx', x + rx); rxVis.setAttribute('cy', 100);
+      rxVis.setAttribute('r', 8);
+      rxVis.setAttribute('fill', '#f0a060'); rxVis.setAttribute('stroke', 'white');
+      rxVis.setAttribute('stroke-width', 2);
+      rxVis.setAttribute('pointer-events', 'none');
+
+      rxg.appendChild(rxHit); rxg.appendChild(rxLine); rxg.appendChild(rxVis);
+      svg.appendChild(rxg);
+
+      rxg.addEventListener('mousedown', e => {
+        e.preventDefault(); e.stopPropagation();
+        const f  = getPassFill();
+        const hx = parseFloat(f.getAttribute('x')) + parseFloat(f.getAttribute('rx'));
+        passEditor.offsetX  = toSvgX(getSvg(), e.clientX) - hx;
+        passEditor.dragging = 'rx';
+      });
+    }
+
+    function removePassHandles() {
+      document.getElementById('pass-edit-handle-right')?.remove();
+      document.getElementById('pass-edit-handle-rx')?.remove();
+    }
+
+    $('btn-edit-passing').addEventListener('click', () => {
+      if (editor.active) {
+        editor.active = false;
+        $('btn-edit-danger').classList.remove('active');
+        removeHandles();
+      }
+      passEditor.active = !passEditor.active;
+      $('btn-edit-passing').classList.toggle('active', passEditor.active);
+      if (passEditor.active) {
+        board.setLayer('zone-passing', true);
+        $('btn-zone-passing').classList.add('active');
+        createPassHandles();
+        refreshPassHandles();
+        $('editor-bar').style.display = 'flex';
+      } else {
+        removePassHandles();
+        $('editor-bar').style.display = 'none';
+      }
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!passEditor.dragging) return;
+      const svg  = getSvg();
+      const fill = getPassFill();
+      if (!svg || !fill) return;
+      const cur   = toSvgX(svg, e.clientX) - passEditor.offsetX;
+      const x     = parseFloat(fill.getAttribute('x'));
+      const w     = parseFloat(fill.getAttribute('width'));
+      const rx    = parseFloat(fill.getAttribute('rx'));
+      const right = x + w;
+      if (passEditor.dragging === 'right') {
+        applyPassGeom(Math.round(Math.max(x + 50, Math.min(1100, cur))), rx);
+      } else {
+        // cur = x + newRx  →  newRx = cur - x; constrain to [5, w/2, 250]
+        const newRx = Math.max(5, Math.min(w / 2, Math.min(250, cur - x)));
+        applyPassGeom(right, Math.round(newRx));
+      }
+      refreshPassHandles();
+    });
+
+    document.addEventListener('mouseup', () => { passEditor.dragging = null; });
+
+    // ── Polygon editor ────────────────────────────────────────────────────────
+    const poly = { active: false, points: [], closed: false, group: null };
+
+    function toSvgPt(svg, cx, cy) {
+      const pt = svg.createSVGPoint();
+      pt.x = cx; pt.y = cy;
+      return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    function polyPointsStr() {
+      return poly.points.map(p => `${p.x},${p.y}`).join(' ');
+    }
+
+    function updatePolyCoords() {
+      $('zone-coords').textContent = poly.points.length
+        ? `points="${polyPointsStr()}"`
+        : 'Click on the board to place points. Click the gold dot to close.';
+    }
+
+    function renderPoly() {
+      if (!poly.group) return;
+      // Keep only the overlay (first child); remove the rest
+      while (poly.group.children.length > 1) poly.group.lastChild.remove();
+
+      const pts = poly.points;
+      if (!pts.length) return;
+
+      // Filled polygon (when closed)
+      if (poly.closed && pts.length >= 3) {
+        const pg = document.createElementNS(NS, 'polygon');
+        pg.setAttribute('points', polyPointsStr());
+        pg.setAttribute('fill', 'rgba(160,128,232,0.18)');
+        pg.setAttribute('stroke', 'rgba(160,128,232,0.85)');
+        pg.setAttribute('stroke-width', 1.5);
+        pg.setAttribute('pointer-events', 'none');
+        poly.group.appendChild(pg);
+      }
+
+      // Edges
+      const n = pts.length;
+      const edgeCount = poly.closed ? n : n - 1;
+      for (let i = 0; i < edgeCount; i++) {
+        const a = pts[i], b = pts[(i + 1) % n];
+        const ln = document.createElementNS(NS, 'line');
+        ln.setAttribute('x1', a.x); ln.setAttribute('y1', a.y);
+        ln.setAttribute('x2', b.x); ln.setAttribute('y2', b.y);
+        ln.setAttribute('stroke', 'rgba(255,255,255,0.65)');
+        ln.setAttribute('stroke-width', 1.5);
+        if (!poly.closed) ln.setAttribute('stroke-dasharray', '6,3');
+        ln.setAttribute('pointer-events', 'none');
+        poly.group.appendChild(ln);
+      }
+
+      // Closing-hint ring on first dot when ≥3 points and open
+      if (!poly.closed && pts.length >= 3) {
+        const ring = document.createElementNS(NS, 'circle');
+        ring.setAttribute('cx', pts[0].x); ring.setAttribute('cy', pts[0].y);
+        ring.setAttribute('r', 14);
+        ring.setAttribute('fill', 'transparent');
+        ring.setAttribute('stroke', 'rgba(255,204,0,0.55)');
+        ring.setAttribute('stroke-width', 2);
+        ring.setAttribute('stroke-dasharray', '4,3');
+        ring.setAttribute('pointer-events', 'none');
+        poly.group.appendChild(ring);
+      }
+
+      // Dots — draggable
+      pts.forEach((p, i) => {
+        const dot = document.createElementNS(NS, 'circle');
+        dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y);
+        dot.setAttribute('r', i === 0 ? 7 : 5);
+        dot.setAttribute('fill', i === 0 ? '#ffcc00' : 'white');
+        dot.setAttribute('stroke', i === 0 ? '#aa8800' : '#555');
+        dot.setAttribute('stroke-width', 1.5);
+        dot.setAttribute('cursor', 'move');
+
+        dot.addEventListener('mousedown', e => {
+          e.preventDefault(); e.stopPropagation();
+          const idx = i;
+          const onMove = e => {
+            const sp = toSvgPt(getSvg(), e.clientX, e.clientY);
+            poly.points[idx] = { x: Math.round(sp.x), y: Math.round(sp.y) };
+            renderPoly();
+            updatePolyCoords();
+          };
+          const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+          };
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        });
+
+        poly.group.appendChild(dot);
+      });
+
+      updatePolyCoords();
+    }
+
+    function activatePoly() {
+      const svg = getSvg();
+      poly.points = []; poly.closed = false;
+      poly.group  = document.createElementNS(NS, 'g');
+      poly.group.setAttribute('id', 'poly-editor-group');
+      svg.appendChild(poly.group);
+
+      // Transparent overlay — captures clicks on empty board area
+      const overlay = document.createElementNS(NS, 'rect');
+      overlay.setAttribute('x', 0); overlay.setAttribute('y', 0);
+      overlay.setAttribute('width', 1200); overlay.setAttribute('height', 700);
+      overlay.setAttribute('fill', 'transparent');
+      overlay.setAttribute('cursor', 'crosshair');
+      poly.group.appendChild(overlay);
+
+      overlay.addEventListener('click', e => {
+        if (poly.closed) return;
+        const sp = toSvgPt(getSvg(), e.clientX, e.clientY);
+        const x  = Math.round(sp.x), y = Math.round(sp.y);
+        // Click near first point → close
+        if (poly.points.length >= 3) {
+          const dx = x - poly.points[0].x, dy = y - poly.points[0].y;
+          if (Math.sqrt(dx*dx + dy*dy) < 20) { closePoly(); return; }
+        }
+        poly.points.push({ x, y });
+        renderPoly();
+      });
+
+      $('btn-poly-close').style.display = '';
+      $('btn-poly-undo').style.display  = '';
+      $('btn-poly-clear').style.display = '';
+    }
+
+    function closePoly() {
+      if (poly.points.length < 3) return;
+      poly.closed = true;
+      $('btn-poly-close').style.display = 'none';
+      renderPoly();
+    }
+
+    function deactivatePoly() {
+      document.getElementById('poly-editor-group')?.remove();
+      poly.group  = null;
+      poly.points = [];
+      poly.closed = false;
+      $('btn-poly-close').style.display = 'none';
+      $('btn-poly-undo').style.display  = 'none';
+      $('btn-poly-clear').style.display = 'none';
+      $('editor-bar').style.display = 'none';
+    }
+
+    $('btn-poly-editor').addEventListener('click', () => {
+      // Close other editors
+      if (editor.active)     { editor.active = false;     $('btn-edit-danger').classList.remove('active');  removeHandles(); }
+      if (passEditor.active) { passEditor.active = false; $('btn-edit-passing').classList.remove('active'); removePassHandles(); }
+
+      poly.active = !poly.active;
+      $('btn-poly-editor').classList.toggle('active', poly.active);
+      if (poly.active) {
+        activatePoly();
+        $('editor-bar').style.display = 'flex';
+        updatePolyCoords();
+      } else {
+        deactivatePoly();
+      }
+    });
+
+    $('btn-poly-close').addEventListener('click', closePoly);
+
+    $('btn-poly-undo').addEventListener('click', () => {
+      if (poly.closed) { poly.closed = false; $('btn-poly-close').style.display = ''; }
+      else             { poly.points.pop(); }
+      renderPoly();
+    });
+
+    $('btn-poly-clear').addEventListener('click', () => {
+      poly.points = []; poly.closed = false;
+      $('btn-poly-close').style.display = '';
+      renderPoly();
+    });
+  </script>
+
+</body>
+</html>

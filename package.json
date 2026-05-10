@@ -1,0 +1,48 @@
+{
+  "name": "top-shelf",
+  "version": "0.1.0",
+  "description": "Interactive floorball tactical board",
+  "type": "module",
+  "main": "dist/top-shelf.umd.js",
+  "module": "dist/top-shelf.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/top-shelf.esm.js",
+      "require": "./dist/top-shelf.umd.js"
+    },
+    "./react": {
+      "import": "./dist/top-shelf.react.esm.js",
+      "require": "./dist/top-shelf.react.umd.js"
+    }
+  },
+  "files": ["dist", "src"],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:react": "vite build --config vite.react.config.js",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "react-dom": { "optional": true }
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "jsdom": "^25.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "vite": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}
