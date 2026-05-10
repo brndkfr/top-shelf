@@ -301,7 +301,9 @@ export class FloorballBoard {
     const pt = this._svg.createSVGPoint();
     pt.x = clientX;
     pt.y = clientY;
-    return pt.matrixTransform(this._svg.getScreenCTM().inverse());
+    const ctm = this._svg.getScreenCTM();
+    if (!ctm) return pt;
+    return pt.matrixTransform(ctm.inverse());
   }
 
   // ── Private: drag/click handling ─────────────────────────────────────────────
