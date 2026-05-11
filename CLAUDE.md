@@ -1,5 +1,8 @@
 # Project conventions
 
+## Writing code
+Before writing code, explain the approach and edge cases.
+
 ## SVG element IDs
 
 Every SVG element must have an `id` attribute. No anonymous elements.

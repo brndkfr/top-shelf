@@ -126,16 +126,16 @@ export class FloorballBoard {
             font-size="16" font-weight="600" letter-spacing="0.5"
             fill="rgba(120,200,100,0.9)">Awareness Zone</text>
     </g>
-    <g id="${u}-zone-passing" display="none">
-      <path id="${u}-zone-passing-fill"
+    <g id="${u}-zone-passing-first" display="none">
+      <path id="${u}-zone-passing-first-fill"
             d="M 150,100 L 299,100 L 210,130 L 175,175 L 172,250 L 172,450 L 175,525 L 210,570 L 299,600 L 150,600 L 114,586 L 100,550 L 100,150 L 114,114 Z"
             fill="rgba(255,165,100,0.25)" stroke="rgba(255,165,100,0.65)" stroke-width="1.5"/>
-      <text id="${u}-zone-passing-label" x="136" y="350" text-anchor="middle"
+      <text id="${u}-zone-passing-first-label" x="136" y="350" text-anchor="middle"
             dominant-baseline="central"
             transform="rotate(-90,136,350)"
             font-family="system-ui, -apple-system, sans-serif"
             font-size="16" font-weight="600" letter-spacing="0.5"
-            fill="rgba(255,185,120,0.9)">Passing First</text>
+            fill="rgba(255,185,120,0.9)">Passing-First-Zone</text>
     </g>
     <g id="${u}-zone-danger" display="none">
       <rect id="${u}-zone-danger-fill"
@@ -454,7 +454,7 @@ export class FloorballBoard {
   }
 
   setLayer(name, visible) {
-    if (name === 'zone-awareness' || name === 'zone-attention' || name === 'zone-danger' || name === 'zone-slot' || name === 'zone-passing') {
+    if (name === 'zone-awareness' || name === 'zone-attention' || name === 'zone-danger' || name === 'zone-slot' || name === 'zone-passing-first') {
       this._q(name).setAttribute('display', visible ? '' : 'none');
       return this;
     }

@@ -44,7 +44,7 @@ export function FloorballBoard({
   useEffect(() => { if (layerZones         !== undefined) boardRef.current?.setLayer('zones',          layerZones);         }, [layerZones]);
   useEffect(() => { if (layerZoneAttention !== undefined) boardRef.current?.setLayer('zone-attention', layerZoneAttention); }, [layerZoneAttention]);
   useEffect(() => { if (layerZoneAwareness !== undefined) boardRef.current?.setLayer('zone-awareness', layerZoneAwareness); }, [layerZoneAwareness]);
-  useEffect(() => { if (layerZonePassing   !== undefined) boardRef.current?.setLayer('zone-passing',   layerZonePassing);   }, [layerZonePassing]);
+  useEffect(() => { if (layerZonePassing   !== undefined) boardRef.current?.setLayer('zone-passing-first',   layerZonePassing);   }, [layerZonePassing]);
   useEffect(() => { if (layerZoneDanger    !== undefined) boardRef.current?.setLayer('zone-danger',    layerZoneDanger);    }, [layerZoneDanger]);
   useEffect(() => { if (layerZoneSlot      !== undefined) boardRef.current?.setLayer('zone-slot',      layerZoneSlot);      }, [layerZoneSlot]);
 

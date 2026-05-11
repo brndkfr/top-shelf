@@ -140,7 +140,7 @@
     <button id="btn-zones"        class="btn-layer active">Zones</button>
     <button id="btn-zone-attention"  class="btn-layer">Attention Zone</button>
     <button id="btn-zone-awareness"  class="btn-layer">Awareness Zone</button>
-    <button id="btn-zone-passing"    class="btn-layer">Passing First</button>
+    <button id="btn-zone-passing-first"    class="btn-layer">Passing-First-Zone</button>
     <button id="btn-zone-danger"     class="btn-layer">Danger Zone</button>
     <button id="btn-zone-slot"       class="btn-layer">Slot</button>
     <button id="btn-edit-danger"     class="btn-editor">Edit Danger Zone</button>
@@ -187,9 +187,9 @@
       board.setLayer('zone-awareness', on);
     });
 
-    $('btn-zone-passing').addEventListener('click', () => {
-      const on = $('btn-zone-passing').classList.toggle('active');
-      board.setLayer('zone-passing', on);
+    $('btn-zone-passing-first').addEventListener('click', () => {
+      const on = $('btn-zone-passing-first').classList.toggle('active');
+      board.setLayer('zone-passing-first', on);
     });
 
     $('btn-zone-danger').addEventListener('click', () => {
@@ -413,8 +413,8 @@
     // ── Passing zone editor ───────────────────────────────────────────────────
     const passEditor = { active: false, dragging: null, offsetX: 0 };
 
-    const getPassFill  = () => getSvg()?.querySelector('[id$="-zone-passing-fill"]');
-    const getPassLabel = () => getSvg()?.querySelector('[id$="-zone-passing-label"]');
+    const getPassFill  = () => getSvg()?.querySelector('[id$="-zone-passing-first-fill"]');
+    const getPassLabel = () => getSvg()?.querySelector('[id$="-zone-passing-first-label"]');
 
     function applyPassGeom(rightX, rx) {
       const fill = getPassFill();
@@ -537,8 +537,8 @@
       passEditor.active = !passEditor.active;
       $('btn-edit-passing').classList.toggle('active', passEditor.active);
       if (passEditor.active) {
-        board.setLayer('zone-passing', true);
-        $('btn-zone-passing').classList.add('active');
+        board.setLayer('zone-passing-first', true);
+        $('btn-zone-passing-first').classList.add('active');
         createPassHandles();
         refreshPassHandles();
         $('editor-bar').style.display = 'flex';
