@@ -33,20 +33,32 @@ export function FloorballBoard({
   useEffect(() => { if (players)   boardRef.current?.setPlayers(players); },   [players]);
   useEffect(() => { if (opponents) boardRef.current?.setOpponents(opponents); }, [opponents]);
 
-  const layerRink             = layers?.rink;
-  const layerZones            = layers?.zones;
-  const layerZoneAttention    = layers?.zoneAttention;
-  const layerZoneAwareness    = layers?.zoneAwareness;
-  const layerZonePassing      = layers?.zonePassingFirst;
-  const layerZoneDanger       = layers?.zoneDanger;
-  const layerZoneSlot         = layers?.zoneSlot;
-  useEffect(() => { if (layerRink          !== undefined) boardRef.current?.setLayer('rink',           layerRink);          }, [layerRink]);
-  useEffect(() => { if (layerZones         !== undefined) boardRef.current?.setLayer('zones',          layerZones);         }, [layerZones]);
-  useEffect(() => { if (layerZoneAttention !== undefined) boardRef.current?.setLayer('zone-attention', layerZoneAttention); }, [layerZoneAttention]);
-  useEffect(() => { if (layerZoneAwareness !== undefined) boardRef.current?.setLayer('zone-awareness', layerZoneAwareness); }, [layerZoneAwareness]);
-  useEffect(() => { if (layerZonePassing   !== undefined) boardRef.current?.setLayer('zone-passing-first',   layerZonePassing);   }, [layerZonePassing]);
-  useEffect(() => { if (layerZoneDanger    !== undefined) boardRef.current?.setLayer('zone-danger',    layerZoneDanger);    }, [layerZoneDanger]);
-  useEffect(() => { if (layerZoneSlot      !== undefined) boardRef.current?.setLayer('zone-slot',      layerZoneSlot);      }, [layerZoneSlot]);
+  const layerRink                   = layers?.rink;
+  const layerZones                  = layers?.zones;
+  const layerZonesLeft              = layers?.zonesLeft;
+  const layerZoneAttention          = layers?.zoneAttention;
+  const layerZoneAwareness          = layers?.zoneAwareness;
+  const layerZonePassing            = layers?.zonePassingFirst;
+  const layerZoneDanger             = layers?.zoneDanger;
+  const layerZoneSlot               = layers?.zoneSlot;
+  const layerZoneAttentionRight     = layers?.zoneAttentionRight;
+  const layerZoneAwarenessLeft      = layers?.zoneAwarenessLeft;
+  const layerZonePassingFirstRight  = layers?.zonePassingFirstRight;
+  const layerZoneDangerRight        = layers?.zoneDangerRight;
+  const layerZoneSlotRight          = layers?.zoneSlotRight;
+  useEffect(() => { if (layerRink                  !== undefined) boardRef.current?.setLayer('rink',                       layerRink);                  }, [layerRink]);
+  useEffect(() => { if (layerZones                 !== undefined) boardRef.current?.setLayer('zones',                      layerZones);                 }, [layerZones]);
+  useEffect(() => { if (layerZonesLeft             !== undefined) boardRef.current?.setLayer('zones-left',                 layerZonesLeft);             }, [layerZonesLeft]);
+  useEffect(() => { if (layerZoneAttention         !== undefined) boardRef.current?.setLayer('zone-attention',             layerZoneAttention);         }, [layerZoneAttention]);
+  useEffect(() => { if (layerZoneAwareness         !== undefined) boardRef.current?.setLayer('zone-awareness',             layerZoneAwareness);         }, [layerZoneAwareness]);
+  useEffect(() => { if (layerZonePassing           !== undefined) boardRef.current?.setLayer('zone-passing-first',         layerZonePassing);           }, [layerZonePassing]);
+  useEffect(() => { if (layerZoneDanger            !== undefined) boardRef.current?.setLayer('zone-danger',                layerZoneDanger);            }, [layerZoneDanger]);
+  useEffect(() => { if (layerZoneSlot              !== undefined) boardRef.current?.setLayer('zone-slot',                  layerZoneSlot);              }, [layerZoneSlot]);
+  useEffect(() => { if (layerZoneAttentionRight    !== undefined) boardRef.current?.setLayer('zone-attention-right',       layerZoneAttentionRight);    }, [layerZoneAttentionRight]);
+  useEffect(() => { if (layerZoneAwarenessLeft     !== undefined) boardRef.current?.setLayer('zone-awareness-left',        layerZoneAwarenessLeft);     }, [layerZoneAwarenessLeft]);
+  useEffect(() => { if (layerZonePassingFirstRight !== undefined) boardRef.current?.setLayer('zone-passing-first-right',   layerZonePassingFirstRight); }, [layerZonePassingFirstRight]);
+  useEffect(() => { if (layerZoneDangerRight       !== undefined) boardRef.current?.setLayer('zone-danger-right',          layerZoneDangerRight);       }, [layerZoneDangerRight]);
+  useEffect(() => { if (layerZoneSlotRight         !== undefined) boardRef.current?.setLayer('zone-slot-right',            layerZoneSlotRight);         }, [layerZoneSlotRight]);
 
   // Wire callbacks (stable refs recommended — wrap in useCallback on the call site)
   useEffect(() => {

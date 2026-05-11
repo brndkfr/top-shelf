@@ -28,6 +28,27 @@
       flex-wrap: wrap;
       gap: 10px;
       justify-content: center;
+      align-items: flex-start;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .ctrl-label {
+      width: 100%;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555;
     }
 
     button {
@@ -136,25 +157,52 @@
   </div>
 
   <div class="controls">
-    <button id="btn-rink"         class="btn-layer active">Rink</button>
-    <button id="btn-zones"        class="btn-layer active">Zones</button>
-    <button id="btn-zone-attention"  class="btn-layer">Attention Zone</button>
-    <button id="btn-zone-awareness"  class="btn-layer">Awareness Zone</button>
-    <button id="btn-zone-passing-first"    class="btn-layer">Passing-First-Zone</button>
-    <button id="btn-zone-danger"     class="btn-layer">Danger Zone</button>
-    <button id="btn-zone-slot"       class="btn-layer">Slot</button>
-    <button id="btn-edit-danger"     class="btn-editor">Edit Danger Zone</button>
-    <button id="btn-edit-passing"    class="btn-editor">Edit Passing Zone</button>
-    <button id="btn-poly-editor"     class="btn-poly">Polygon Editor</button>
-    <button id="btn-shoot"    class="btn-shoot">Shooting Line</button>
-    <button id="btn-ideal"    class="btn-ideal" disabled>Ideal Pos</button>
-    <button id="btn-lang"     class="btn-lang">EN</button>
-    <button id="btn-reset"    class="btn-reset">Reset</button>
-    <div class="size-control">
-      <button id="btn-size-dec">−</button>
-      <span   id="size-display">50</span>
-      <button id="btn-size-inc">+</button>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Rink</span>
+      <button id="btn-rink" class="btn-layer active">Rink</button>
     </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Attack</span>
+      <button id="btn-zones"      class="btn-layer active">Zones (R)</button>
+      <button id="btn-zones-left" class="btn-layer">Zones (L)</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Goalie Zones</span>
+      <button id="btn-zone-slot"                class="btn-layer">Slot (L)</button>
+      <button id="btn-zone-slot-right"          class="btn-layer">Slot (R)</button>
+      <button id="btn-zone-danger"              class="btn-layer">Danger (L)</button>
+      <button id="btn-zone-danger-right"        class="btn-layer">Danger (R)</button>
+      <button id="btn-zone-passing-first"       class="btn-layer">Passing-First (L)</button>
+      <button id="btn-zone-passing-first-right" class="btn-layer">Passing-First (R)</button>
+      <button id="btn-zone-attention"           class="btn-layer">Attention (R→L)</button>
+      <button id="btn-zone-attention-right"     class="btn-layer">Attention (L→R)</button>
+      <button id="btn-zone-awareness-left"      class="btn-layer">Awareness (L)</button>
+      <button id="btn-zone-awareness"           class="btn-layer">Awareness (R)</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Tools</span>
+      <button id="btn-edit-danger"  class="btn-editor">Edit Danger</button>
+      <button id="btn-edit-passing" class="btn-editor">Edit Passing</button>
+      <button id="btn-poly-editor"  class="btn-poly">Polygon</button>
+      <button id="btn-shoot"        class="btn-shoot">Shooting Line</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Board</span>
+      <button id="btn-ideal" class="btn-ideal" disabled>Ideal Pos</button>
+      <button id="btn-lang"  class="btn-lang">EN</button>
+      <button id="btn-reset" class="btn-reset">Reset</button>
+      <div class="size-control">
+        <button id="btn-size-dec">−</button>
+        <span   id="size-display">50</span>
+        <button id="btn-size-inc">+</button>
+      </div>
+    </div>
+
   </div>
 
   <script type="module">
@@ -200,6 +248,36 @@
     $('btn-zone-slot').addEventListener('click', () => {
       const on = $('btn-zone-slot').classList.toggle('active');
       board.setLayer('zone-slot', on);
+    });
+
+    $('btn-zones-left').addEventListener('click', () => {
+      const on = $('btn-zones-left').classList.toggle('active');
+      board.setLayer('zones-left', on);
+    });
+
+    $('btn-zone-attention-right').addEventListener('click', () => {
+      const on = $('btn-zone-attention-right').classList.toggle('active');
+      board.setLayer('zone-attention-right', on);
+    });
+
+    $('btn-zone-awareness-left').addEventListener('click', () => {
+      const on = $('btn-zone-awareness-left').classList.toggle('active');
+      board.setLayer('zone-awareness-left', on);
+    });
+
+    $('btn-zone-passing-first-right').addEventListener('click', () => {
+      const on = $('btn-zone-passing-first-right').classList.toggle('active');
+      board.setLayer('zone-passing-first-right', on);
+    });
+
+    $('btn-zone-danger-right').addEventListener('click', () => {
+      const on = $('btn-zone-danger-right').classList.toggle('active');
+      board.setLayer('zone-danger-right', on);
+    });
+
+    $('btn-zone-slot-right').addEventListener('click', () => {
+      const on = $('btn-zone-slot-right').classList.toggle('active');
+      board.setLayer('zone-slot-right', on);
     });
 
     $('btn-shoot').addEventListener('click', () => {

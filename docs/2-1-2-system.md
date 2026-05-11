@@ -7,13 +7,22 @@
 
 ## Die Grundaufstellung
 
-Das 2:1:2 bedeutet: **2 Verteidiger, 1 Center, 2 Stürmer** — plus Goalie.
+Das 2:1:2 — bei Swiss Unihockey auch **„Würfelsystem"** oder **„5er Würfel"** genannt — bedeutet: **2 Verteidiger, 1 Center, 2 Stürmer** — plus Goalie.
+
+Der Name kommt von der Form, die die fünf Feldspieler auf dem Feld bilden: Sie sehen aus wie die **⚄ Fünf auf einem Würfelgesicht**. Das Würfelsystem ist das Grundsystem im Swiss Way und ideal für U13/U15.
 
 ```
-         🥅  Goalie
-      [V1]   [V2]       ← Verteidiger:  "Die Mauer"
-          [C]            ← Center:       "Das Gehirn"
-      [S1]   [S2]       ← Stürmer:      "Die Pfeile"
+     ─────────── eigene Hälfte ─────────────
+    ┌────────────────────────────────────┐
+    │       ╔═════════════╗             │
+    │       ║  🥅 Goalie  ║             │
+    │       ╚═════════════╝             │
+    │  [V1]       [V2]  ← "Die Mauer"  │
+    │        [C]        ← "Das Gehirn" │
+    │  [S1]       [S2]  ← "Die Pfeile" │
+    ├──────────── · ────────────────────┤  Mittellinie
+    │       gegnerische Hälfte          │
+    └────────────────────────────────────┘
 ```
 
 **Positionen & Metaphern:**
@@ -34,10 +43,17 @@ Das 2:1:2 bedeutet: **2 Verteidiger, 1 Center, 2 Stürmer** — plus Goalie.
 Wenn der Gegner den Ball in unserer Hälfte hat, ziehen wir uns **geordnet** zurück.
 
 ```
-             🥅
-        [V1]   [V2]        ← Letzte Linie — nie durchbrechen lassen
-            [C]             ← Deckt den High Slot
-        [S1]   [S2]        ← Erste Defensivlinie, Passwege zustellen
+     ─────────── eigene Hälfte ─────────────
+    ┌────────────────────────────────────┐
+    │       ╔═════════════╗             │
+    │       ║     🥅      ║             │
+    │       ╚═════════════╝             │
+    │  [V1]     [V2]  ← letzte Linie   │
+    │      [C]        ← High Slot       │
+    │  [S1]     [S2]  ← 1. Presslinie  │
+    ├──────────── · ────────────────────┤  Mittellinie
+    │  ← Gegner baut hier auf →        │
+    └────────────────────────────────────┘
 ```
 
 **Slot-Verteidigung:**
@@ -49,6 +65,12 @@ Wenn der Gegner den Ball in unserer Hälfte hat, ziehen wir uns **geordnet** zur
 - Alle vier Feldspieler bilden eine kompakte Box um das Tor
 - Box bleibt zusammen — kein Einzelkämpfer läuft aus der Formation
 - Lautstark kommunizieren: „Mein Ball!", „Dein Mann!", „Achtung Rücken!"
+
+**Compact Block — Swiss Way Prinzip:**
+- Das Würfelsystem lebt vom **gemeinsamen Verschieben**: alle fünf schieben sich als Einheit nach links oder rechts
+- Nicht alleine pressen — wer alleine läuft, reisst Löcher ins System
+- Je kompakter der Block, desto schwieriger hat es der Gegner, sich durchzuspielen
+- **Achtung:** Das Würfelsystem ist für Gegner leicht zu lesen — der Block muss diszipliniert bleiben, sonst entstehen Lücken
 
 **Passwege zustellen:**
 - Nicht nur auf den Ball starren — den eigenen Gegner im Blick behalten
@@ -62,15 +84,24 @@ Wenn der Gegner den Ball in unserer Hälfte hat, ziehen wir uns **geordnet** zur
 Wenn der Gegner den Ball in **seiner eigenen Hälfte** aufbaut, greifen wir sofort an!
 
 ```
-  [S1]──► DRUCK        [S2] sichert nächsten Gegner ab
-              [C] lauert auf Pässe / fängt ab
-         [V1]   [V2]  bleiben kompakt
+     ─────────── eigene Hälfte ─────────────
+    ┌────────────────────────────────────┐
+    │      [V1]   [V2]  bleiben kompakt │
+    ├──────────── · ────────────────────┤  Mittellinie
+    │       [C]  lauert / fängt ab      │
+    │  [S2] 2. Welle    [S1]──► DRUCK  │
+    │                                   │
+    │       ╔═════════════╗             │
+    │       ║     🥅      ║  gegn. Tor │
+    │       ╚═════════════╝             │
+    └────────────────────────────────────┘
+     ─────── gegnerische Hälfte ─────────
 ```
 
 **Rollen beim Forechecking:**
 
-- **S1 — „Erster Angreifer" (Druck):**
-  Geht sofort auf den Ball-Gegner zu. Ziel: kein ruhiger Aufbau, kein langer Pass. Druck, Druck, Druck!
+- **S1 — „Steuerflügel" (Druck + Steuern):**
+  Läuft **im Bogen zur Mitte** in Höhe der gegnerischen Verteidiger — nicht einfach geradeaus sprinten. Ziel: den Gegner in die gewünschte Richtung lenken und gleichzeitig eine 2-gegen-1-Situation mit dem eigenen Verteidiger schaffen. Druck, Druck, Druck!
 
 - **S2 — „Zweite Welle" (Absichern):**
   Deckt den nächsten wahrscheinlichen Passempfänger. Wenn S1 den Ball verliert, übernimmt S2.
@@ -79,9 +110,9 @@ Wenn der Gegner den Ball in **seiner eigenen Hälfte** aufbaut, greifen wir sofo
   Positioniert sich zwischen den gegnerischen Aufbau-Spielern. Fängt kurze Pässe ab, verbindet Druck und Abwehr.
 
 - **Verteidiger V1/V2:**
-  Bleiben kompakt und rücken **nicht** zu weit vor. Sichern den Rücken.
+  Bleiben kompakt und rücken **nicht** zu weit vor. Sichern den Rücken — ein tiefer Pass des Gegners darf nicht in eine freie Tiefe führen.
 
-> **Faustregel:** S1 presst, S2 sichert — **niemals** beide auf denselben Spieler!
+> **Faustregel:** S1 steuert im Bogen, S2 sichert — **niemals** beide auf denselben Spieler!
 
 ---
 
@@ -90,11 +121,18 @@ Wenn der Gegner den Ball in **seiner eigenen Hälfte** aufbaut, greifen wir sofo
 Im Angriff denken wir immer in **Dreiecken**.
 
 ```
-   [S1]              [S2]
-       ↘            ↙
-            [C]              ← Center = Drehscheibe
-       ↗            ↖
-   [V1]              [V2]   ← V rücken moderat vor
+     ─────── gegnerische Hälfte ─────────
+    ┌────────────────────────────────────┐
+    │       ╔═════════════╗             │
+    │       ║     🥅      ║  gegn. Tor │
+    │       ╚═════════════╝             │
+    │  [S1]           [S2]              │
+    │     ↘          ↙                 │
+    │          [C]       ← Drehscheibe  │
+    │     ↗          ↖                 │
+    │  [V1]           [V2]  ← moderat  │
+    ├──────────── · ────────────────────┤  Mittellinie
+    └────────────────────────────────────┘
 ```
 
 **Dreiecksbildung:**
@@ -105,10 +143,16 @@ Im Angriff denken wir immer in **Dreiecken**.
 **Corner-Play (Ball in der Ecke):**
 
 ```
-      Ecke                        Tor
-   [S1 holt Ball]    [C im Slot!]  🥅
-                      [S2 zweiter Pfosten]
-   [V1 sichert Halbfeld]
+     ─────── gegnerische Hälfte ─────────
+    ┌────────────────────────────────────┐
+    │╔══════╗   ╔═════════════╗         │
+    │║S1 in ║──►║     🥅      ║         │
+    │║ Ecke ║   ╚═════════════╝         │
+    │╚══════╝        [C im Slot!]       │
+    │            [S2 zweiter Pfosten]   │
+    │  [V1 sichert Halbfeld]            │
+    ├──────────── · ────────────────────┤  Mittellinie
+    └────────────────────────────────────┘
 ```
 
 - **Wer besetzt den Slot?** Der **Center** — immer, ohne Ausnahme!
@@ -131,7 +175,7 @@ Ball gewonnen → S1/S2 SPRINT in die Tiefe
 ```
 
 - Erste zwei Sekunden sind entscheidend — Tempo!
-- Stürmer sprinten sofort in den freien Raum
+- Stürmer sprinten sofort in den freien Raum — tiefer Pass an die Bande ist eine starke Option
 - Nicht warten, nicht zögern — Gegner ist noch nicht organisiert
 
 **Bei Ballverlust — sofort zurück!**
@@ -168,6 +212,12 @@ Ball verloren → SOFORT ZURÜCK → Box aufbauen
 - **Korrektur:** Center hat die **Pflicht**, den Slot zu besetzen — bei Strafe gilt das Tor nicht
 - **Übung:** Tore aus der Ecke zählen nur, wenn C nachweislich im Slot stand
 
+**Fehler 4: Steuerflügel presst geradeaus statt im Bogen**
+
+- **Problem:** S1 sprintet direkt auf den Gegner zu — der weicht zur Seite aus und hat freie Bahn
+- **Korrektur:** S1 läuft im Bogen zur Mitte hin, um den Gegner in eine bestimmte Richtung zu lenken und 2-gegen-1 zu erzwingen
+- **Übung:** Mit Hütchen einen Bogen markieren — S1 muss den Hütchenbogen laufen, nicht den direkten Weg
+
 ---
 
 ## Die 3 Goldenen Regeln
@@ -188,13 +238,22 @@ Ball verloren → SOFORT ZURÜCK → Box aufbauen
 
 ## Basic Formation
 
-The 2:1:2 means: **2 defenders, 1 center, 2 forwards** — plus goalkeeper.
+The 2:1:2 — in Swiss Unihockey also known as the **"Würfelsystem"** or **"5er Würfel" (Dice System)** — means: **2 defenders, 1 center, 2 forwards** — plus goalkeeper.
+
+The name comes from the shape the five field players form on the rink: they look like the **⚄ five on a dice face**. The Würfel System is the foundation formation of the Swiss Way and ideal for U13/U15.
 
 ```
-         🥅  Goalkeeper
-      [D1]   [D2]       ← Defenders:  "The Wall"
-          [C]            ← Center:     "The Brain"
-      [F1]   [F2]       ← Forwards:   "The Arrows"
+     ──────────── own half ───────────────
+    ┌────────────────────────────────────┐
+    │       ╔═════════════╗             │
+    │       ║ 🥅 Goalkeeper║             │
+    │       ╚═════════════╝             │
+    │  [D1]       [D2]  ← "The Wall"   │
+    │        [C]        ← "The Brain"  │
+    │  [F1]       [F2]  ← "The Arrows" │
+    ├──────────── · ────────────────────┤  centre line
+    │       opponent's half             │
+    └────────────────────────────────────┘
 ```
 
 **Positions & Metaphors:**
@@ -215,10 +274,17 @@ The 2:1:2 means: **2 defenders, 1 center, 2 forwards** — plus goalkeeper.
 When the opponent has the ball in our half, we retreat in an **organized** manner.
 
 ```
-             🥅
-        [D1]   [D2]        ← Last line — never let anyone through
-            [C]             ← Covers the High Slot
-        [F1]   [F2]        ← First defensive line, block passing lanes
+     ──────────── own half ───────────────
+    ┌────────────────────────────────────┐
+    │       ╔═════════════╗             │
+    │       ║     🥅      ║             │
+    │       ╚═════════════╝             │
+    │  [D1]     [D2]  ← last line      │
+    │      [C]        ← High Slot       │
+    │  [F1]     [F2]  ← press line     │
+    ├──────────── · ────────────────────┤  centre line
+    │  ← opponent builds up here →     │
+    └────────────────────────────────────┘
 ```
 
 **Slot Defense:**
@@ -230,6 +296,12 @@ When the opponent has the ball in our half, we retreat in an **organized** manne
 - All four field players form a compact box around the goal
 - The box stays together — no lone wolves running out of position
 - Communicate loudly: "My ball!", "Your man!", "Watch your back!"
+
+**Compact Block — Swiss Way Principle:**
+- The Würfel System lives by **collective shifting**: all five players slide left or right as one unit
+- No individual pressing — breaking out of the unit tears holes in the system
+- The more compact the block, the harder it is for the opponent to find a way through
+- **Note:** The Würfel System is easy for experienced opponents to read — the block must stay disciplined, or gaps will open
 
 **Blocking Passing Lanes:**
 - Don't stare at the ball — keep your own opponent in sight
@@ -243,15 +315,24 @@ When the opponent has the ball in our half, we retreat in an **organized** manne
 When the opponent builds up in **their own half**, we attack immediately!
 
 ```
-  [F1]──► PRESSURE     [F2] covers next opponent
-              [C] lurks for passes / intercepts
-         [D1]   [D2]  stay compact
+     ──────────── own half ───────────────
+    ┌────────────────────────────────────┐
+    │      [D1]   [D2]  stay compact    │
+    ├──────────── · ────────────────────┤  centre line
+    │       [C]  lurks / intercepts     │
+    │  [F2] cover       [F1]──► PRESS  │
+    │                                   │
+    │       ╔═════════════╗             │
+    │       ║     🥅      ║  opp. goal │
+    │       ╚═════════════╝             │
+    └────────────────────────────────────┘
+     ──────── opponent's half ───────────
 ```
 
 **Roles during Forechecking:**
 
-- **F1 — "First Attacker" (Pressure):**
-  Goes directly at the ball-carrier. Goal: no comfortable build-up, no long pass. Pressure, pressure, pressure!
+- **F1 — "Steering Wing" (Pressure + Steering):**
+  Runs **in an arc toward the centre** at the height of the opposing defenders — not a straight sprint. Goal: steer the opponent into the desired direction and simultaneously create a 2v1 situation together with your own defender. Pressure, pressure, pressure!
 
 - **F2 — "Second Wave" (Cover):**
   Covers the most likely next pass receiver. If F1 loses the ball, F2 takes over.
@@ -260,9 +341,9 @@ When the opponent builds up in **their own half**, we attack immediately!
   Positions between the opponent's build-up players. Intercepts short passes, bridges pressure and defense.
 
 - **Defenders D1/D2:**
-  Stay compact and do **not** push too far forward. Secure the back.
+  Stay compact and do **not** push too far forward. Secure the back — a deep pass from the opponent must not find open space behind.
 
-> **Rule of thumb:** F1 presses, F2 covers — **never** both on the same player at once!
+> **Rule of thumb:** F1 steers in an arc, F2 covers — **never** both on the same player at once!
 
 ---
 
@@ -271,11 +352,18 @@ When the opponent builds up in **their own half**, we attack immediately!
 In attack, we always think in **triangles**.
 
 ```
-   [F1]              [F2]
-       ↘            ↙
-            [C]              ← Center = pivot point
-       ↗            ↖
-   [D1]              [D2]   ← Defenders push up moderately
+     ──────── opponent's half ───────────
+    ┌────────────────────────────────────┐
+    │       ╔═════════════╗             │
+    │       ║     🥅      ║  opp. goal │
+    │       ╚═════════════╝             │
+    │  [F1]           [F2]              │
+    │     ↘          ↙                 │
+    │          [C]       ← pivot point  │
+    │     ↗          ↖                 │
+    │  [D1]           [D2]  ← push up  │
+    ├──────────── · ────────────────────┤  centre line
+    └────────────────────────────────────┘
 ```
 
 **Triangle Formation:**
@@ -286,10 +374,16 @@ In attack, we always think in **triangles**.
 **Corner Play (Ball in the corner):**
 
 ```
-      Corner                     Goal
-   [F1 retrieves ball]  [C in the slot!]  🥅
-                          [F2 far post]
-   [D1 secures half-field]
+     ──────── opponent's half ───────────
+    ┌────────────────────────────────────┐
+    │╔══════╗   ╔═════════════╗         │
+    │║F1 in ║──►║     🥅      ║         │
+    │║corner║   ╚═════════════╝         │
+    │╚══════╝        [C in slot!]       │
+    │            [F2 far post]          │
+    │  [D1 secures half-field]          │
+    ├──────────── · ────────────────────┤  centre line
+    └────────────────────────────────────┘
 ```
 
 - **Who occupies the slot?** The **Center** — always, no exceptions!
@@ -312,7 +406,7 @@ Ball won → F1/F2 SPRINT into depth
 ```
 
 - The first two seconds are decisive — go!
-- Forwards sprint immediately into open space
+- Forwards sprint immediately into open space — a deep pass along the boards is a strong option
 - Don't wait, don't hesitate — the opponent is still disorganized
 
 **On ball loss — get back immediately!**
@@ -348,6 +442,12 @@ Ball lost → BACK IMMEDIATELY → Build the box
 - **Problem:** During attack everyone is in the corner, nobody at the goal — no target, no goal
 - **Fix:** Center has the **duty** to occupy the slot — goal doesn't count if they weren't there
 - **Drill:** Goals from the corner only count if C was visibly in the slot
+
+**Mistake 4: Steering wing presses straight instead of arcing**
+
+- **Problem:** F1 sprints directly at the opponent — who sidesteps and has a clear lane
+- **Fix:** F1 runs an arc toward the centre to steer the opponent into a corner and force a 2v1
+- **Drill:** Mark the arc with cones — F1 must follow the cone path, not the direct line
 
 ---
 

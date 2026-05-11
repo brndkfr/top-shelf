@@ -1,7 +1,7 @@
 import {
   SVG_NS, GOALS, GOAL_POSTS, GOAL_LINE_CENTERS, GOALIE_STAND_OFFSET,
   DEFAULT_TOKEN_SIZE, TOKEN_SIZE_MIN, TOKEN_SIZE_MAX,
-  DEFAULT_PLAYERS, DEFAULT_OPPONENTS, ZONE_LABELS,
+  DEFAULT_PLAYERS, DEFAULT_OPPONENTS, ZONE_LABELS, ZONE_LABELS_LEFT,
   PLAYER_PATH, GOALIE_PATH, GOALIE_CAGE,
 } from './constants.js';
 import { animateToken } from './animation.js';
@@ -25,12 +25,12 @@ export class FloorballBoard {
       lang:      'en',
       tokenSize: DEFAULT_TOKEN_SIZE,
       layers:    { rink: true, zones: true },
-      home:      { color: '#003871', accent: '#ffcc00' },
+      home:      { color: '#003DA5', accent: '#FFCD00' },
       away:      { color: '#8b1a2a', accent: '#ffffff' },
       players:   DEFAULT_PLAYERS,
       opponents: DEFAULT_OPPONENTS,
       ...options,
-      home: { color: '#003871', accent: '#ffcc00', ...options.home },
+      home: { color: '#003DA5', accent: '#FFCD00', ...options.home },
       away: { color: '#8b1a2a', accent: '#ffffff', ...options.away },
     };
 
@@ -106,6 +106,11 @@ export class FloorballBoard {
          x="0" y="0" width="1200" height="700"
          style="transition:opacity 0.25s ease"
          opacity="${layers.zones ? 1 : 0}"/>
+  <image id="${u}-zones-left-image" href="${svgDataUri(zonesSvgRaw)}"
+         x="0" y="0" width="1200" height="700"
+         transform="translate(1200,0) scale(-1,1)"
+         style="transition:opacity 0.25s ease"
+         opacity="${layers.zonesLeft ? 1 : 0}"/>
 
   <g id="${u}-goalie-zones" pointer-events="none">
     <g id="${u}-zone-attention" display="none">
@@ -156,9 +161,60 @@ export class FloorballBoard {
             dominant-baseline="central"
             fill="rgba(255,130,130,0.9)">Slot</text>
     </g>
+
+    <!-- ── Mirrored zones for the right goal end (x' = 1200 − x) ── -->
+    <g id="${u}-zone-attention-right" display="none">
+      <path id="${u}-zone-attention-right-fill"
+            d="M 725,100 L 350,100 L 350,600 L 725,600 Z"
+            fill="rgba(255,210,60,0.22)" stroke="rgba(255,210,60,0.65)" stroke-width="1.5"/>
+      <text id="${u}-zone-attention-right-label" x="537" y="132" text-anchor="middle"
+            font-family="system-ui, -apple-system, sans-serif"
+            font-size="16" font-weight="600" letter-spacing="0.5"
+            fill="rgba(255,210,60,0.9)">Attention Zone</text>
+    </g>
+    <g id="${u}-zone-awareness-left" display="none">
+      <path id="${u}-zone-awareness-left-fill"
+            d="M 433,100 L 150,100 A 50,50 0 0,0 100,150 L 100,550 A 50,50 0 0,0 150,600 L 433,600 Z"
+            fill="rgba(80,240,80,0.26)" stroke="rgba(80,240,80,0.75)" stroke-width="1.5"/>
+      <text id="${u}-zone-awareness-left-label" x="266" y="132" text-anchor="middle"
+            font-family="system-ui, -apple-system, sans-serif"
+            font-size="16" font-weight="600" letter-spacing="0.5"
+            fill="rgba(120,200,100,0.9)">Awareness Zone</text>
+    </g>
+    <g id="${u}-zone-passing-first-right" display="none">
+      <path id="${u}-zone-passing-first-right-fill"
+            d="M 1050,100 L 901,100 L 990,130 L 1025,175 L 1028,250 L 1028,450 L 1025,525 L 990,570 L 901,600 L 1050,600 L 1086,586 L 1100,550 L 1100,150 L 1086,114 Z"
+            fill="rgba(255,165,100,0.25)" stroke="rgba(255,165,100,0.65)" stroke-width="1.5"/>
+      <text id="${u}-zone-passing-first-right-label" x="1064" y="350" text-anchor="middle"
+            dominant-baseline="central"
+            transform="rotate(90,1064,350)"
+            font-family="system-ui, -apple-system, sans-serif"
+            font-size="16" font-weight="600" letter-spacing="0.5"
+            fill="rgba(255,185,120,0.9)">Passing-First-Zone</text>
+    </g>
+    <g id="${u}-zone-danger-right" display="none">
+      <rect id="${u}-zone-danger-right-fill"
+            x="645" y="100" width="400" height="500" rx="50"
+            fill="rgba(255,100,100,0.18)" stroke="rgba(255,100,100,0.6)" stroke-width="1.5"/>
+      <text id="${u}-zone-danger-right-label" x="845" y="140" text-anchor="middle"
+            font-family="system-ui, -apple-system, sans-serif"
+            font-size="16" font-weight="600" letter-spacing="0.5"
+            fill="rgba(255,130,130,0.9)">Danger Zone</text>
+    </g>
+    <g id="${u}-zone-slot-right" display="none">
+      <path id="${u}-zone-slot-right-fill"
+            d="M 1029,288 L 779,250 L 779,450 L 1029,412 Z"
+            fill="rgba(255,80,80,0.28)" stroke="rgba(255,80,80,0.7)" stroke-width="1.5"/>
+      <text id="${u}-zone-slot-right-label" x="850" y="350" text-anchor="middle"
+            font-family="system-ui, -apple-system, sans-serif"
+            font-size="16" font-weight="600" letter-spacing="0.5"
+            dominant-baseline="central"
+            fill="rgba(255,130,130,0.9)">Slot</text>
+    </g>
   </g>
 
   <g id="${u}-zone-labels"></g>
+  <g id="${u}-zone-labels-left"></g>
 
   <polygon id="${u}-shooting-triangle"
            points="600,350 1028.75,330 1028.75,370"
@@ -288,9 +344,13 @@ export class FloorballBoard {
   // ── Private: zone labels ──────────────────────────────────────────────────────
 
   _renderZoneLabels() {
-    const layer = this._q('zone-labels');
+    this._fillZoneLabels(this._q('zone-labels'),      ZONE_LABELS);
+    this._fillZoneLabels(this._q('zone-labels-left'), ZONE_LABELS_LEFT);
+  }
+
+  _fillZoneLabels(layer, labels) {
     layer.innerHTML = '';
-    ZONE_LABELS.forEach(z => {
+    labels.forEach(z => {
       const text = document.createElementNS(SVG_NS, 'text');
       text.setAttribute('x', z.x);
       text.setAttribute('y', z.y);
@@ -454,7 +514,10 @@ export class FloorballBoard {
   }
 
   setLayer(name, visible) {
-    if (name === 'zone-awareness' || name === 'zone-attention' || name === 'zone-danger' || name === 'zone-slot' || name === 'zone-passing-first') {
+    if (name === 'zone-awareness'       || name === 'zone-attention'       ||
+        name === 'zone-danger'          || name === 'zone-slot'            || name === 'zone-passing-first' ||
+        name === 'zone-awareness-left'  || name === 'zone-attention-right' ||
+        name === 'zone-danger-right'    || name === 'zone-slot-right'      || name === 'zone-passing-first-right') {
       this._q(name).setAttribute('display', visible ? '' : 'none');
       return this;
     }
@@ -462,6 +525,9 @@ export class FloorballBoard {
     if (el) el.setAttribute('opacity', visible ? 1 : 0);
     if (name === 'zones') {
       this._q('zone-labels').setAttribute('display', visible ? '' : 'none');
+    }
+    if (name === 'zones-left') {
+      this._q('zone-labels-left').setAttribute('display', visible ? '' : 'none');
     }
     return this;
   }

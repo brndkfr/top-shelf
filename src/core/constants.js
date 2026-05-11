@@ -51,6 +51,16 @@ export const ZONE_LABELS = [
   { x: 1064, y: 450, rotate: -90, labels: { en: 'Playmaker', de: 'Playmaker'  } },
 ];
 
+// Mirror of ZONE_LABELS reflected around x=600 (x' = 1200 - x), Playmaker rotation flipped
+export const ZONE_LABELS_LEFT = [
+  { x: 390,  y: 185, rotate:   0, labels: { en: 'Pocket',    de: 'Tasche'     } },
+  { x: 390,  y: 515, rotate:   0, labels: { en: 'Pocket',    de: 'Tasche'     } },
+  { x: 410,  y: 350, rotate:   0, labels: { en: 'High Slot', de: 'Hoher Slot' } },
+  { x: 245,  y: 350, rotate:   0, labels: { en: 'Low Slot',  de: 'Naher Slot' } },
+  { x: 136,  y: 250, rotate:  90, labels: { en: 'Playmaker', de: 'Playmaker'  } },
+  { x: 136,  y: 450, rotate:  90, labels: { en: 'Playmaker', de: 'Playmaker'  } },
+];
+
 export const PLAYER_PATH  = 'M 50 10 C 27.9 10 10 27.9 10 50 C 10 72.1 27.9 90 50 90 C 66.8 90 81.3 79.8 87.6 65 L 100 50 L 87.6 35 C 81.3 20.2 66.8 10 50 10 Z';
 export const GOALIE_PATH  = 'M 45 15 C 15 15 10 30 10 50 C 10 70 15 85 45 85 C 65 85 75 75 75 50 C 75 25 65 15 45 15 Z';
 export const GOALIE_CAGE  = `
