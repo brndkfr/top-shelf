@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { FloorballBoard } from './FloorballBoard.js';
 import { TOKEN_SIZE_MIN, TOKEN_SIZE_MAX, DEFAULT_PLAYERS } from './constants.js';
+import { SCENARIOS } from './scenarios.js';
 
 let mount, board;
 
@@ -255,6 +256,58 @@ describe('event emitter', () => {
     board.off('tokenMoved', handler);
     board._emit('tokenMoved', { id: 'test', x: 0, y: 0, angle: 0 });
     expect(handler).not.toHaveBeenCalled();
+  });
+});
+
+// ── loadScenario ──────────────────────────────────────────────────────────────
+
+describe('loadScenario', () => {
+  it('ignores unknown scenario names', () => {
+    expect(() => board.loadScenario('no-such-scenario')).not.toThrow();
+    expect(mount.querySelectorAll('[data-type="player"]').length).toBe(DEFAULT_PLAYERS.length);
+  });
+
+  it('moves players to the scenario positions', () => {
+    board.loadScenario('defensiv-212');
+    const scenario = SCENARIOS['defensiv-212'];
+    for (const p of scenario.players) {
+      const token = board._q(p.id);
+      expect(parseFloat(token.dataset.x)).toBeCloseTo(p.x);
+      expect(parseFloat(token.dataset.y)).toBeCloseTo(p.y);
+    }
+  });
+
+  it('moves opponents to the scenario positions', () => {
+    board.loadScenario('defensiv-212');
+    const scenario = SCENARIOS['defensiv-212'];
+    for (const o of scenario.opponents) {
+      const token = board._q(o.id);
+      expect(parseFloat(token.dataset.x)).toBeCloseTo(o.x);
+      expect(parseFloat(token.dataset.y)).toBeCloseTo(o.y);
+    }
+  });
+
+  it('turns on only the layers declared in the scenario', () => {
+    board.setLayer('zones', true);
+    board.setLayer('zone-danger', true);
+    board.loadScenario('defensiv-212');
+    expect(board._q('zones-image').getAttribute('opacity')).toBe('0');
+    expect(board._q('zone-danger').getAttribute('display')).toBe('none');
+    expect(board._q('rink-image').getAttribute('opacity')).toBe('1');
+    expect(board._q('zone-slot').getAttribute('display')).toBe('');
+  });
+
+  it('turns off all layers for the neutral scenario except rink', () => {
+    board.setLayer('zones', true);
+    board.setLayer('zone-awareness', true);
+    board.loadScenario('neutral');
+    expect(board._q('zones-image').getAttribute('opacity')).toBe('0');
+    expect(board._q('zone-awareness').getAttribute('display')).toBe('none');
+    expect(board._q('rink-image').getAttribute('opacity')).toBe('1');
+  });
+
+  it('returns the board instance for chaining', () => {
+    expect(board.loadScenario('forechecking')).toBe(board);
   });
 });
 

@@ -9,6 +9,7 @@ export function FloorballBoard({
   players,
   opponents,
   layers,
+  scenario,
   onTokenMoved,
   onTokenRotated,
   onGoalSwitched,
@@ -32,6 +33,7 @@ export function FloorballBoard({
   useEffect(() => { boardRef.current?.setTeams(home, away); },     [home, away]);
   useEffect(() => { if (players)   boardRef.current?.setPlayers(players); },   [players]);
   useEffect(() => { if (opponents) boardRef.current?.setOpponents(opponents); }, [opponents]);
+  useEffect(() => { if (scenario) boardRef.current?.loadScenario(scenario); },  [scenario]);
 
   const layerRink                   = layers?.rink;
   const layerZones                  = layers?.zones;

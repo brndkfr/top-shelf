@@ -5,6 +5,7 @@ import {
   PLAYER_PATH, GOALIE_PATH, GOALIE_CAGE,
 } from './constants.js';
 import { animateToken } from './animation.js';
+import { SCENARIOS } from './scenarios.js';
 import rinkSvgRaw   from '../assets/rink.svg?raw';
 import zonesSvgRaw  from '../assets/zones.svg?raw';
 
@@ -658,6 +659,26 @@ export class FloorballBoard {
     updateSym(`${this._uid}-sym-opponent-goalie`,  a.color, a.accent);
     this._svg.querySelectorAll('[data-type="player"] text').forEach(t => t.setAttribute('fill', h.accent));
     this._svg.querySelectorAll('[data-type="opponent"] text').forEach(t => t.setAttribute('fill', a.accent));
+    return this;
+  }
+
+  static get _ALL_LAYER_NAMES() {
+    return [
+      'rink', 'zones', 'zones-left',
+      'zone-attention', 'zone-awareness', 'zone-passing-first', 'zone-danger', 'zone-slot',
+      'zone-attention-right', 'zone-awareness-left', 'zone-passing-first-right',
+      'zone-danger-right', 'zone-slot-right',
+    ];
+  }
+
+  loadScenario(name) {
+    const scenario = SCENARIOS[name];
+    if (!scenario) return this;
+    for (const n of FloorballBoard._ALL_LAYER_NAMES) this.setLayer(n, false);
+    for (const [n, v] of Object.entries(scenario.layers)) this.setLayer(n, v);
+    this.setPlayers(scenario.players);
+    this.setOpponents(scenario.opponents);
+    this.reset();
     return this;
   }
 

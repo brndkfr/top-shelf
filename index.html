@@ -79,6 +79,8 @@
     .btn-editor.active { background: #d4ac0d; }
     .btn-poly    { border-color: #a080e8; color: #a080e8; }
     .btn-poly.active { background: #a080e8; }
+    .btn-line    { border-color: #40c8e8; color: #40c8e8; }
+    .btn-line.active { background: #40c8e8; }
     .btn-poly-action { border-color: #888; color: #888; padding: 4px 10px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; background: transparent; cursor: pointer; white-space: nowrap; }
     .btn-poly-action:hover { filter: brightness(1.2); }
 
@@ -159,6 +161,15 @@
   <div class="controls">
 
     <div class="ctrl-group">
+      <span class="ctrl-label">Scenarios</span>
+      <button id="btn-scenario-neutral" class="btn-layer">Neutral</button>
+      <button id="btn-scenario-def"     class="btn-layer">Deep 2:1:2</button>
+      <button id="btn-scenario-press"   class="btn-layer">Forecheck</button>
+      <button id="btn-scenario-atk"     class="btn-layer">Triangles</button>
+      <button id="btn-scenario-corner"  class="btn-layer">Corner</button>
+    </div>
+
+    <div class="ctrl-group">
       <span class="ctrl-label">Rink</span>
       <button id="btn-rink" class="btn-layer active">Rink</button>
     </div>
@@ -188,6 +199,7 @@
       <button id="btn-edit-danger"  class="btn-editor">Edit Danger</button>
       <button id="btn-edit-passing" class="btn-editor">Edit Passing</button>
       <button id="btn-poly-editor"  class="btn-poly">Polygon</button>
+      <button id="btn-line-editor"  class="btn-line">Line</button>
       <button id="btn-shoot"        class="btn-shoot">Shooting Line</button>
     </div>
 
@@ -214,6 +226,63 @@
     let tokenSize = 50;
 
     const $ = id => document.getElementById(id);
+
+    const LAYER_BTNS = {
+      'rink':                    'btn-rink',
+      'zones':                   'btn-zones',
+      'zones-left':              'btn-zones-left',
+      'zone-attention':          'btn-zone-attention',
+      'zone-awareness':          'btn-zone-awareness',
+      'zone-passing-first':      'btn-zone-passing-first',
+      'zone-danger':             'btn-zone-danger',
+      'zone-slot':               'btn-zone-slot',
+      'zone-attention-right':    'btn-zone-attention-right',
+      'zone-awareness-left':     'btn-zone-awareness-left',
+      'zone-passing-first-right':'btn-zone-passing-first-right',
+      'zone-danger-right':       'btn-zone-danger-right',
+      'zone-slot-right':         'btn-zone-slot-right',
+    };
+
+    function syncLayerButtons(activeLayers) {
+      for (const [layer, btnId] of Object.entries(LAYER_BTNS)) {
+        const btn = $(btnId);
+        if (btn) btn.classList.toggle('active', !!activeLayers[layer]);
+      }
+      shooting = false;
+      $('btn-shoot').classList.remove('active');
+      $('btn-ideal').disabled = true;
+    }
+
+    const SCENARIO_BTNS = ['btn-scenario-neutral','btn-scenario-def','btn-scenario-press','btn-scenario-atk','btn-scenario-corner'];
+    function setActiveScenarioBtn(activeId) {
+      SCENARIO_BTNS.forEach(id => $(id).classList.toggle('active', id === activeId));
+    }
+
+    $('btn-scenario-neutral').addEventListener('click', () => {
+      board.loadScenario('neutral');
+      syncLayerButtons({ rink: true });
+      setActiveScenarioBtn('btn-scenario-neutral');
+    });
+    $('btn-scenario-def').addEventListener('click', () => {
+      board.loadScenario('defensiv-212');
+      syncLayerButtons({ rink: true, 'zone-slot': true });
+      setActiveScenarioBtn('btn-scenario-def');
+    });
+    $('btn-scenario-press').addEventListener('click', () => {
+      board.loadScenario('forechecking');
+      syncLayerButtons({ rink: true });
+      setActiveScenarioBtn('btn-scenario-press');
+    });
+    $('btn-scenario-atk').addEventListener('click', () => {
+      board.loadScenario('triangle-attack');
+      syncLayerButtons({ rink: true, 'zone-slot-right': true });
+      setActiveScenarioBtn('btn-scenario-atk');
+    });
+    $('btn-scenario-corner').addEventListener('click', () => {
+      board.loadScenario('corner-play');
+      syncLayerButtons({ rink: true, 'zone-slot-right': true });
+      setActiveScenarioBtn('btn-scenario-corner');
+    });
 
     $('btn-rink').addEventListener('click', () => {
       const on = $('btn-rink').classList.toggle('active');
@@ -802,6 +871,7 @@
       // Close other editors
       if (editor.active)     { editor.active = false;     $('btn-edit-danger').classList.remove('active');  removeHandles(); }
       if (passEditor.active) { passEditor.active = false; $('btn-edit-passing').classList.remove('active'); removePassHandles(); }
+      if (lineTool.active)   { lineTool.active = false;   $('btn-line-editor').classList.remove('active');  deactivateLineTool(); }
 
       poly.active = !poly.active;
       $('btn-poly-editor').classList.toggle('active', poly.active);
@@ -823,9 +893,194 @@
     });
 
     $('btn-poly-clear').addEventListener('click', () => {
+      if (lineTool.active) return;
       poly.points = []; poly.closed = false;
       $('btn-poly-close').style.display = '';
       renderPoly();
+    });
+
+    // ── Line tool ─────────────────────────────────────────────────────────────
+    const lineTool = { active: false, lines: [], placing: false, tempStart: null, group: null };
+
+    function ensureLineArrow(svg) {
+      if (svg.querySelector('#line-tool-arrow')) return;
+      const defs = svg.querySelector('defs');
+      if (!defs) return;
+      const marker = document.createElementNS(NS, 'marker');
+      marker.setAttribute('id', 'line-tool-arrow');
+      marker.setAttribute('markerWidth', '8'); marker.setAttribute('markerHeight', '8');
+      marker.setAttribute('refX', '7');        marker.setAttribute('refY', '3');
+      marker.setAttribute('orient', 'auto');
+      const path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', 'M0,0 L0,6 L8,3 z');
+      path.setAttribute('fill', 'rgba(64,200,232,0.9)');
+      marker.appendChild(path);
+      defs.appendChild(marker);
+    }
+
+    function renderLineSegments() {
+      if (!lineTool.group) return;
+      const preview = lineTool.group.querySelector('#line-tool-preview');
+      // Remove everything except overlay (first child) and preview line
+      Array.from(lineTool.group.children).forEach(el => {
+        if (el !== lineTool.group.firstChild && el.id !== 'line-tool-preview') el.remove();
+      });
+
+      lineTool.lines.forEach((seg, li) => {
+        const ln = document.createElementNS(NS, 'line');
+        ln.setAttribute('x1', seg.x1); ln.setAttribute('y1', seg.y1);
+        ln.setAttribute('x2', seg.x2); ln.setAttribute('y2', seg.y2);
+        ln.setAttribute('stroke', 'rgba(64,200,232,0.85)');
+        ln.setAttribute('stroke-width', '2');
+        ln.setAttribute('marker-end', 'url(#line-tool-arrow)');
+        ln.setAttribute('pointer-events', 'none');
+        lineTool.group.appendChild(ln);
+
+        [['x1','y1',false], ['x2','y2',true]].forEach(([xk, yk, isEnd]) => {
+          const dot = document.createElementNS(NS, 'circle');
+          dot.setAttribute('cx', seg[xk]); dot.setAttribute('cy', seg[yk]);
+          dot.setAttribute('r', 5);
+          dot.setAttribute('fill', isEnd ? '#ffcc00' : 'white');
+          dot.setAttribute('stroke', isEnd ? '#aa8800' : '#555');
+          dot.setAttribute('stroke-width', 1.5);
+          dot.setAttribute('cursor', 'move');
+          dot.addEventListener('mousedown', e => {
+            e.preventDefault(); e.stopPropagation();
+            const onMove = ev => {
+              const sp = toSvgPt(getSvg(), ev.clientX, ev.clientY);
+              lineTool.lines[li][xk] = Math.round(sp.x);
+              lineTool.lines[li][yk] = Math.round(sp.y);
+              renderLineSegments();
+            };
+            const onUp = () => {
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup',  onUp);
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup',  onUp);
+          });
+          lineTool.group.appendChild(dot);
+        });
+      });
+
+      // Anchor dot shown while first click is placed but second hasn't happened yet
+      if (lineTool.placing && lineTool.tempStart) {
+        const sd = document.createElementNS(NS, 'circle');
+        sd.setAttribute('cx', lineTool.tempStart.x); sd.setAttribute('cy', lineTool.tempStart.y);
+        sd.setAttribute('r', 5); sd.setAttribute('fill', 'white');
+        sd.setAttribute('stroke', '#555');         sd.setAttribute('stroke-width', 1.5);
+        sd.setAttribute('pointer-events', 'none');
+        lineTool.group.appendChild(sd);
+      }
+
+      updateLineCoords();
+    }
+
+    function updateLineCoords() {
+      const last = lineTool.lines[lineTool.lines.length - 1];
+      $('zone-coords').textContent = last
+        ? `x1="${last.x1}" y1="${last.y1}" x2="${last.x2}" y2="${last.y2}"`
+        : 'Click to place start point, click again to complete the line.';
+    }
+
+    function activateLineTool() {
+      const svg = getSvg();
+      ensureLineArrow(svg);
+      lineTool.lines = []; lineTool.placing = false; lineTool.tempStart = null;
+      lineTool.group = document.createElementNS(NS, 'g');
+      lineTool.group.setAttribute('id', 'line-tool-group');
+      svg.appendChild(lineTool.group);
+
+      const overlay = document.createElementNS(NS, 'rect');
+      overlay.setAttribute('x', 0); overlay.setAttribute('y', 0);
+      overlay.setAttribute('width', 1200); overlay.setAttribute('height', 700);
+      overlay.setAttribute('fill', 'transparent');
+      overlay.setAttribute('cursor', 'crosshair');
+      lineTool.group.appendChild(overlay);
+
+      overlay.addEventListener('click', e => {
+        const sp = toSvgPt(getSvg(), e.clientX, e.clientY);
+        const x = Math.round(sp.x), y = Math.round(sp.y);
+        if (!lineTool.placing) {
+          lineTool.tempStart = { x, y };
+          lineTool.placing   = true;
+          renderLineSegments();
+        } else {
+          lineTool.lines.push({ x1: lineTool.tempStart.x, y1: lineTool.tempStart.y, x2: x, y2: y });
+          lineTool.placing   = false;
+          lineTool.tempStart = null;
+          lineTool.group.querySelector('#line-tool-preview')?.remove();
+          renderLineSegments();
+        }
+      });
+
+      $('btn-poly-close').style.display = 'none';
+      $('btn-poly-undo').style.display  = '';
+      $('btn-poly-clear').style.display = '';
+    }
+
+    function deactivateLineTool() {
+      document.getElementById('line-tool-group')?.remove();
+      lineTool.group = null; lineTool.lines = [];
+      lineTool.placing = false; lineTool.tempStart = null;
+      $('btn-poly-undo').style.display  = 'none';
+      $('btn-poly-clear').style.display = 'none';
+      $('editor-bar').style.display = 'none';
+    }
+
+    // Preview line follows cursor while first point is placed
+    document.addEventListener('mousemove', e => {
+      if (!lineTool.active || !lineTool.placing || !lineTool.group) return;
+      const sp = toSvgPt(getSvg(), e.clientX, e.clientY);
+      let preview = lineTool.group.querySelector('#line-tool-preview');
+      if (!preview) {
+        preview = document.createElementNS(NS, 'line');
+        preview.setAttribute('id', 'line-tool-preview');
+        preview.setAttribute('stroke', 'rgba(64,200,232,0.4)');
+        preview.setAttribute('stroke-width', '1.5');
+        preview.setAttribute('stroke-dasharray', '6,3');
+        preview.setAttribute('pointer-events', 'none');
+        lineTool.group.appendChild(preview);
+      }
+      preview.setAttribute('x1', lineTool.tempStart.x); preview.setAttribute('y1', lineTool.tempStart.y);
+      preview.setAttribute('x2', Math.round(sp.x));     preview.setAttribute('y2', Math.round(sp.y));
+    });
+
+    $('btn-line-editor').addEventListener('click', () => {
+      if (editor.active)     { editor.active = false;     $('btn-edit-danger').classList.remove('active');  removeHandles(); }
+      if (passEditor.active) { passEditor.active = false; $('btn-edit-passing').classList.remove('active'); removePassHandles(); }
+      if (poly.active)       { poly.active = false;       $('btn-poly-editor').classList.remove('active');  deactivatePoly(); }
+
+      lineTool.active = !lineTool.active;
+      $('btn-line-editor').classList.toggle('active', lineTool.active);
+      if (lineTool.active) {
+        activateLineTool();
+        $('editor-bar').style.display = 'flex';
+        updateLineCoords();
+      } else {
+        deactivateLineTool();
+      }
+    });
+
+    // Undo: cancel in-progress placement or remove last segment
+    $('btn-poly-undo').addEventListener('click', () => {
+      if (!lineTool.active) return;
+      if (lineTool.placing) {
+        lineTool.placing = false; lineTool.tempStart = null;
+        lineTool.group.querySelector('#line-tool-preview')?.remove();
+        renderLineSegments();
+      } else {
+        lineTool.lines.pop();
+        renderLineSegments();
+      }
+    });
+
+    // Clear: remove all line segments
+    $('btn-poly-clear').addEventListener('click', () => {
+      if (!lineTool.active) return;
+      lineTool.lines = []; lineTool.placing = false; lineTool.tempStart = null;
+      lineTool.group.querySelector('#line-tool-preview')?.remove();
+      renderLineSegments();
     });
   </script>
 
