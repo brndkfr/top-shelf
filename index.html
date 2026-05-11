@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top Shelf — Floorball Board</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+      gap: 24px;
+      min-height: 100vh;
+    }
+
+    h1 { font-size: 1.25rem; letter-spacing: 0.05em; color: #c8dde8; }
+
+    #mount { width: 100%; max-width: 900px; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .ctrl-label {
+      width: 100%;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    button {
+      padding: 8px 18px;
+      border: 2px solid;
+      border-radius: 6px;
+      background: transparent;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    button:hover { filter: brightness(1.2); }
+    button.active { color: #111; }
+    button:disabled { opacity: 0.35; cursor: not-allowed; filter: none; }
+
+    .btn-layer   { border-color: #4a90b8; color: #4a90b8; }
+    .btn-layer.active { background: #4a90b8; }
+
+    .btn-shoot   { border-color: #e8c840; color: #e8c840; }
+    .btn-shoot.active { background: #e8c840; }
+
+    .btn-ideal   { border-color: #40c880; color: #40c880; }
+    .btn-lang    { border-color: #888;    color: #888; min-width: 52px; }
+    .btn-lang.active { background: #888; }
+    .btn-reset   { border-color: #c06060; color: #c06060; }
+    .btn-editor  { border-color: #d4ac0d; color: #d4ac0d; }
+    .btn-editor.active { background: #d4ac0d; }
+    .btn-poly    { border-color: #a080e8; color: #a080e8; }
+    .btn-poly.active { background: #a080e8; }
+    .btn-line    { border-color: #40c8e8; color: #40c8e8; }
+    .btn-line.active { background: #40c8e8; }
+    .btn-poly-action { border-color: #888; color: #888; padding: 4px 10px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; background: transparent; cursor: pointer; white-space: nowrap; }
+    .btn-poly-action:hover { filter: brightness(1.2); }
+
+    .editor-bar {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #444;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .editor-bar code {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.78rem;
+      color: #aed6f1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #btn-poly-close { border-color: #58d68d; color: #58d68d; }
+    #btn-poly-undo  { border-color: #e8a840; color: #e8a840; }
+    #btn-poly-clear { border-color: #c06060; color: #c06060; }
+    #btn-copy-coords {
+      border: 2px solid #58d68d;
+      border-radius: 6px;
+      color: #58d68d;
+      background: transparent;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    #btn-copy-coords:hover { filter: brightness(1.2); }
+
+    .size-control {
+      display: flex;
+      align-items: center;
+      border: 2px solid #666;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .size-control button {
+      border: none;
+      border-radius: 0;
+      padding: 6px 13px;
+      color: #aaa;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    #size-display {
+      padding: 0 8px;
+      font-size: 0.85rem;
+      color: #aaa;
+      min-width: 32px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+  <script type="module" crossorigin src="/top-shelf/assets/index-Dkf1VNbD.js"></script>
+</head>
+<body>
+
+  <h1>Floorball</h1>
+  <div id="mount"></div>
+
+  <div id="editor-bar" class="editor-bar">
+    <code id="zone-coords">—</code>
+    <button id="btn-poly-close" class="btn-poly-action" style="display:none">Close Shape</button>
+    <button id="btn-poly-undo"  class="btn-poly-action" style="display:none">Undo</button>
+    <button id="btn-poly-clear" class="btn-poly-action" style="display:none">Clear</button>
+    <button id="btn-copy-coords">Copy</button>
+  </div>
+
+  <div class="controls">
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Scenarios</span>
+      <button id="btn-scenario-neutral" class="btn-layer">Neutral</button>
+      <button id="btn-scenario-def"     class="btn-layer">Deep 2:1:2</button>
+      <button id="btn-scenario-press"   class="btn-layer">Forecheck</button>
+      <button id="btn-scenario-atk"     class="btn-layer">Triangles</button>
+      <button id="btn-scenario-corner"  class="btn-layer">Corner</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Rink</span>
+      <button id="btn-rink" class="btn-layer active">Rink</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Attack</span>
+      <button id="btn-zones"      class="btn-layer active">Zones (R)</button>
+      <button id="btn-zones-left" class="btn-layer">Zones (L)</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Goalie Zones</span>
+      <button id="btn-zone-slot"                class="btn-layer">Slot (L)</button>
+      <button id="btn-zone-slot-right"          class="btn-layer">Slot (R)</button>
+      <button id="btn-zone-danger"              class="btn-layer">Danger (L)</button>
+      <button id="btn-zone-danger-right"        class="btn-layer">Danger (R)</button>
+      <button id="btn-zone-passing-first"       class="btn-layer">Passing-First (L)</button>
+      <button id="btn-zone-passing-first-right" class="btn-layer">Passing-First (R)</button>
+      <button id="btn-zone-attention"           class="btn-layer">Attention (R→L)</button>
+      <button id="btn-zone-attention-right"     class="btn-layer">Attention (L→R)</button>
+      <button id="btn-zone-awareness-left"      class="btn-layer">Awareness (L)</button>
+      <button id="btn-zone-awareness"           class="btn-layer">Awareness (R)</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Tools</span>
+      <button id="btn-edit-danger"  class="btn-editor">Edit Danger</button>
+      <button id="btn-edit-passing" class="btn-editor">Edit Passing</button>
+      <button id="btn-poly-editor"  class="btn-poly">Polygon</button>
+      <button id="btn-line-editor"  class="btn-line">Line</button>
+      <button id="btn-shoot"        class="btn-shoot">Shooting Line</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Board</span>
+      <button id="btn-ideal" class="btn-ideal" disabled>Ideal Pos</button>
+      <button id="btn-lang"  class="btn-lang">EN</button>
+      <button id="btn-reset" class="btn-reset">Reset</button>
+      <div class="size-control">
+        <button id="btn-size-dec">−</button>
+        <span   id="size-display">50</span>
+        <button id="btn-size-inc">+</button>
+      </div>
+    </div>
+
+  </div>
+
+
+</body>
+</html>
