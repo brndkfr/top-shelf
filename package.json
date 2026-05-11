@@ -20,6 +20,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:react": "vite build --config vite.react.config.js",
+    "build:demo": "vite build --config vite.demo.config.js",
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run"
