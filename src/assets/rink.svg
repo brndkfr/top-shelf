@@ -11,28 +11,23 @@
     <!-- Left bench (Home) -->
     <rect id="bench-home" x="225" y="40" width="250" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
     <rect id="bench-home-seat" x="235" y="50" width="230" height="20" fill="#444" />
-    <text x="350" y="30">Spielerbank</text>
 
     <!-- Right bench (Away) -->
     <rect id="bench-away" x="725" y="40" width="250" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
     <rect id="bench-away-seat" x="735" y="50" width="230" height="20" fill="#444" />
-    <text x="850" y="30">Spielerbank</text>
 
     <!-- Bottom: Officials' table and penalty benches -->
     <!-- Left penalty bench (2m long, starting 1m from center) -->
     <rect id="penalty-bench-left" x="525" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
     <rect id="penalty-bench-left-seat" x="530" y="630" width="40" height="20" fill="#444" />
-    <text x="550" y="680">Strafbank</text>
 
     <!-- Officials' table (centered on center line) -->
     <rect id="timekeeper-table" x="575" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
     <rect id="timekeeper-seat" x="580" y="630" width="40" height="20" fill="#444" />
-    <text x="600" y="680">Sekretariat</text>
 
     <!-- Right penalty bench (2m long, starting 1m from center) -->
     <rect id="penalty-bench-right" x="625" y="620" width="50" height="40" fill="none" stroke="#a0a0a0" stroke-dasharray="4,4" stroke-width="2" />
     <rect id="penalty-bench-right-seat" x="630" y="630" width="40" height="20" fill="#444" />
-    <text x="650" y="680">Strafbank</text>
   </g>
 
 

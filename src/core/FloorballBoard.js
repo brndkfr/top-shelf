@@ -1,7 +1,7 @@
 import {
   SVG_NS, GOALS, GOAL_POSTS, GOAL_LINE_CENTERS, GOALIE_STAND_OFFSET,
   DEFAULT_TOKEN_SIZE, TOKEN_SIZE_MIN, TOKEN_SIZE_MAX,
-  DEFAULT_PLAYERS, DEFAULT_OPPONENTS, ZONE_LABELS, ZONE_LABELS_LEFT,
+  DEFAULT_PLAYERS, DEFAULT_OPPONENTS, ZONE_LABELS, ZONE_LABELS_LEFT, RINK_LABELS,
   PLAYER_PATH, GOALIE_PATH, GOALIE_CAGE,
 } from './constants.js';
 import { animateToken } from './animation.js';
@@ -51,7 +51,9 @@ export class FloorballBoard {
     this._buildSvg();
     this._renderAllTokens();
     this._renderZoneLabels();
+    this._renderRinkLabels();
     if (!this._opts.layers.zones) this._q('zone-labels').setAttribute('display', 'none');
+    if (!this._opts.layers.rink)  this._q('rink-labels').setAttribute('display', 'none');
     this._bindEvents();
   }
 
@@ -214,6 +216,7 @@ export class FloorballBoard {
     </g>
   </g>
 
+  <g id="${u}-rink-labels" pointer-events="none"></g>
   <g id="${u}-zone-labels"></g>
   <g id="${u}-zone-labels-left"></g>
 
@@ -350,6 +353,22 @@ export class FloorballBoard {
   _renderZoneLabels() {
     this._fillZoneLabels(this._q('zone-labels'),      ZONE_LABELS);
     this._fillZoneLabels(this._q('zone-labels-left'), ZONE_LABELS_LEFT);
+  }
+
+  _renderRinkLabels() {
+    const layer = this._q('rink-labels');
+    layer.innerHTML = '';
+    RINK_LABELS.forEach(z => {
+      const text = document.createElementNS(SVG_NS, 'text');
+      text.setAttribute('x', z.x);
+      text.setAttribute('y', z.y);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('font-family', 'Arial, sans-serif');
+      text.setAttribute('font-size',   '14');
+      text.setAttribute('fill',        '#a0a0a0');
+      text.textContent = z.labels[this._lang] ?? z.labels.en;
+      layer.appendChild(text);
+    });
   }
 
   _fillZoneLabels(layer, labels) {
@@ -527,6 +546,9 @@ export class FloorballBoard {
     }
     const el = this._q(`${name}-image`);
     if (el) el.setAttribute('opacity', visible ? 1 : 0);
+    if (name === 'rink') {
+      this._q('rink-labels').setAttribute('display', visible ? '' : 'none');
+    }
     if (name === 'zones') {
       this._q('zone-labels').setAttribute('display', visible ? '' : 'none');
     }
@@ -539,6 +561,7 @@ export class FloorballBoard {
   setLang(lang) {
     this._lang = lang;
     this._renderZoneLabels();
+    this._renderRinkLabels();
     return this;
   }
 

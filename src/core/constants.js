@@ -61,7 +61,15 @@ export const ZONE_LABELS_LEFT = [
   { x: 136,  y: 450, rotate:  90, labels: { en: 'Playmaker', de: 'Playmaker'  } },
 ];
 
-export const PLAYER_PATH  = 'M 50 10 C 27.9 10 10 27.9 10 50 C 10 72.1 27.9 90 50 90 C 66.8 90 81.3 79.8 87.6 65 L 100 50 L 87.6 35 C 81.3 20.2 66.8 10 50 10 Z';
+export const RINK_LABELS = [
+  { x: 350, y: 30,  labels: { en: 'Team Bench',    de: 'Spielerbank' } },
+  { x: 850, y: 30,  labels: { en: 'Team Bench',    de: 'Spielerbank' } },
+  { x: 550, y: 680, labels: { en: 'Penalty Bench', de: 'Strafbank'   } },
+  { x: 600, y: 680, labels: { en: 'Officials',     de: 'Sekretariat' } },
+  { x: 650, y: 680, labels: { en: 'Penalty Bench', de: 'Strafbank'   } },
+];
+
+export const PLAYER_PATH  ='M 50 10 C 27.9 10 10 27.9 10 50 C 10 72.1 27.9 90 50 90 C 66.8 90 81.3 79.8 87.6 65 L 100 50 L 87.6 35 C 81.3 20.2 66.8 10 50 10 Z';
 export const GOALIE_PATH  = 'M 45 15 C 15 15 10 30 10 50 C 10 70 15 85 45 85 C 65 85 75 75 75 50 C 75 25 65 15 45 15 Z';
 export const GOALIE_CAGE  = `
   <path d="M 65 25 C 95 30 95 70 65 75" stroke-width="3" stroke-linecap="round" fill="none"/>
