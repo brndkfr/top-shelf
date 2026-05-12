@@ -75,6 +75,7 @@
     .btn-lang    { border-color: #888;    color: #888; min-width: 52px; }
     .btn-lang.active { background: #888; }
     .btn-reset   { border-color: #c06060; color: #c06060; }
+    .btn-capture { border-color: #58d68d; color: #58d68d; }
     .btn-editor  { border-color: #d4ac0d; color: #d4ac0d; }
     .btn-editor.active { background: #d4ac0d; }
     .btn-poly    { border-color: #a080e8; color: #a080e8; }
@@ -224,9 +225,12 @@
 
     <div class="ctrl-group">
       <span class="ctrl-label">Board</span>
-      <button id="btn-ideal" class="btn-ideal" disabled>Ideal Pos</button>
-      <button id="btn-lang"  class="btn-lang">EN</button>
-      <button id="btn-reset" class="btn-reset">Reset</button>
+      <button id="btn-ideal"        class="btn-ideal"   disabled>Ideal Pos</button>
+      <button id="btn-lang"         class="btn-lang">EN</button>
+      <button id="btn-reset"        class="btn-reset">Reset</button>
+      <button id="btn-capture-home" class="btn-capture">Cap Home</button>
+      <button id="btn-capture-away" class="btn-capture">Cap Away</button>
+      <button id="btn-capture-all"  class="btn-capture">Cap All</button>
       <div class="size-control">
         <button id="btn-size-dec">−</button>
         <span   id="size-display">50</span>
@@ -392,6 +396,34 @@
       $('btn-shoot').classList.remove('active');
       $('btn-ideal').disabled = true;
     });
+
+    function captureAndCopy(scope, btn) {
+      const pos = board.getPositions();
+      const fmt = (key, arr) => {
+        const lines = arr.map(p => {
+          const parts = [`id: '${p.id}'`];
+          if (p.label)  parts.push(`label: '${p.label}'`);
+          if (p.symbol) parts.push(`symbol: '${p.symbol}'`);
+          parts.push(`x: ${p.x}`, `y: ${p.y}`);
+          if (p.angle)  parts.push(`angle: ${p.angle}`);
+          return `  { ${parts.join(', ')} }`;
+        }).join(',\n');
+        return `${key}: [\n${lines}\n]`;
+      };
+      let snippet;
+      if (scope === 'home') snippet = fmt('players',   pos.players);
+      if (scope === 'away') snippet = fmt('opponents', pos.opponents);
+      if (scope === 'all')  snippet = fmt('players', pos.players) + ',\n' + fmt('opponents', pos.opponents);
+      navigator.clipboard.writeText(snippet).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      });
+    }
+
+    $('btn-capture-home').addEventListener('click', (e) => captureAndCopy('home', e.currentTarget));
+    $('btn-capture-away').addEventListener('click', (e) => captureAndCopy('away', e.currentTarget));
+    $('btn-capture-all' ).addEventListener('click', (e) => captureAndCopy('all',  e.currentTarget));
 
     $('btn-size-dec').addEventListener('click', () => {
       tokenSize = Math.max(20, tokenSize - 5);

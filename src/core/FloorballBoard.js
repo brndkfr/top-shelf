@@ -258,6 +258,9 @@ export class FloorballBoard {
     g.setAttribute('id',    `${u}-${def.id}`);
     g.setAttribute('class', `${u}-token`);
     g.dataset.type   = type;
+    g.dataset.tid    = def.id;
+    g.dataset.label  = def.label  ?? '';
+    g.dataset.symbol = def.symbol ?? `sym-${type}`;
     g.dataset.x      = def.x;
     g.dataset.y      = def.y;
     g.dataset.angle  = '0';
@@ -680,6 +683,24 @@ export class FloorballBoard {
     this.setOpponents(scenario.opponents);
     this.reset();
     return this;
+  }
+
+  getPositions() {
+    const read = (type) =>
+      [...this._q('tokens').querySelectorAll(`[data-type="${type}"]`)]
+        .map(t => {
+          const angle = Math.round(parseFloat(t.dataset.angle ?? '0'));
+          const obj = {
+            id:     t.dataset.tid,
+            label:  t.dataset.label  || undefined,
+            symbol: t.dataset.symbol || undefined,
+            x: Math.round(parseFloat(t.dataset.x)),
+            y: Math.round(parseFloat(t.dataset.y)),
+          };
+          if (angle !== 0) obj.angle = angle;
+          return obj;
+        });
+    return { players: read('player'), opponents: read('opponent') };
   }
 
   destroy() {
