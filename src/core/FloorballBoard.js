@@ -68,6 +68,13 @@ export class FloorballBoard {
     this._cancelGoalieAnim = null;
     this._animFrameId      = null;
 
+    // Zoom / pan state
+    this._vb       = { x: 0, y: 0, w: 1200, h: 700 };
+    this._pinch    = null;   // { dist } when two fingers are down
+    this._panning  = false;
+    this._panStart = null;   // { clientX, clientY, vbX, vbY }
+    this._lastTap  = 0;
+
     // Event subscriptions
     this._handlers = {};
 
@@ -513,28 +520,137 @@ export class FloorballBoard {
     this._dragging = null;
   }
 
+  // ── Private: zoom / pan helpers ──────────────────────────────────────────────
+
+  _pinchDist(touches) {
+    const dx = touches[1].clientX - touches[0].clientX;
+    const dy = touches[1].clientY - touches[0].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  _pinchCenter(touches) {
+    return {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2,
+    };
+  }
+
+  _applyVb() {
+    const { x, y, w, h } = this._vb;
+    this._svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+  }
+
+  _zoomVbToward(clientX, clientY, newScale) {
+    const clamped = Math.max(1, Math.min(5, newScale));
+    if (clamped <= 1) {
+      this._vb = { x: 0, y: 0, w: 1200, h: 700 };
+      this._applyVb();
+      return;
+    }
+    const pt = this._svg.createSVGPoint();
+    pt.x = clientX; pt.y = clientY;
+    const sp = pt.matrixTransform(this._svg.getScreenCTM().inverse());
+    const newW = 1200 / clamped;
+    const newH = 700  / clamped;
+    let newX = sp.x - (sp.x - this._vb.x) * (newW / this._vb.w);
+    let newY = sp.y - (sp.y - this._vb.y) * (newH / this._vb.h);
+    newX = Math.max(0, Math.min(1200 - newW, newX));
+    newY = Math.max(0, Math.min(700  - newH, newY));
+    this._vb = { x: newX, y: newY, w: newW, h: newH };
+    this._applyVb();
+  }
+
   // ── Private: event binding ───────────────────────────────────────────────────
 
   _bindEvents() {
-    // Store bound handlers for cleanup
-    this._onMouseMove  = (e) => this._handleMove(e.clientX, e.clientY);
-    this._onMouseUp    = ()  => this._handleUp();
-    this._onTouchMove  = (e) => { e.preventDefault(); this._handleMove(e.touches[0].clientX, e.touches[0].clientY); };
-    this._onTouchEnd   = ()  => this._handleUp();
+    this._onMouseMove = (e) => this._handleMove(e.clientX, e.clientY);
+    this._onMouseUp   = ()  => this._handleUp();
+
+    this._onTouchMove = (e) => {
+      e.preventDefault();
+      if (this._pinch && e.touches.length >= 2) {
+        const newDist   = this._pinchDist(e.touches);
+        const newCenter = this._pinchCenter(e.touches);
+        const curScale  = 1200 / this._vb.w;
+        this._zoomVbToward(newCenter.x, newCenter.y, curScale * (newDist / this._pinch.dist));
+        this._pinch.dist = newDist;
+      } else if (this._panning && e.touches.length === 1) {
+        const rect  = this._svg.getBoundingClientRect();
+        const svgDx = (e.touches[0].clientX - this._panStart.clientX) / rect.width  * this._vb.w;
+        const svgDy = (e.touches[0].clientY - this._panStart.clientY) / rect.height * this._vb.h;
+        this._vb.x = Math.max(0, Math.min(1200 - this._vb.w, this._panStart.vbX - svgDx));
+        this._vb.y = Math.max(0, Math.min(700  - this._vb.h, this._panStart.vbY - svgDy));
+        this._applyVb();
+      } else if (e.touches.length === 1) {
+        this._handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    };
+
+    this._onTouchEnd = (e) => {
+      if (this._pinch) {
+        if (e.touches.length < 2) {
+          this._pinch = null;
+          // Transition remaining finger to pan (if still zoomed)
+          if (e.touches.length === 1 && this._vb.w < 1200) {
+            this._panning  = true;
+            this._panStart = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, vbX: this._vb.x, vbY: this._vb.y };
+          }
+        }
+        return;
+      }
+      if (this._panning) {
+        if (e.touches.length === 0) { this._panning = false; this._panStart = null; }
+        return;
+      }
+      this._handleUp();
+    };
+
+    this._onWheel = (e) => {
+      e.preventDefault();
+      const factor    = e.deltaY > 0 ? 1 / 1.12 : 1.12;
+      const curScale  = 1200 / this._vb.w;
+      this._zoomVbToward(e.clientX, e.clientY, curScale * factor);
+    };
 
     this._svg.addEventListener('mousemove', this._onMouseMove);
-    window.addEventListener('mouseup',      this._onMouseUp);
+    window.addEventListener('mouseup',   this._onMouseUp);
     window.addEventListener('touchmove', this._onTouchMove, { passive: false });
-    window.addEventListener('touchend',     this._onTouchEnd);
+    window.addEventListener('touchend',  this._onTouchEnd);
+    this._svg.addEventListener('wheel',  this._onWheel, { passive: false });
 
-    // Attach per-token mousedown/touchstart after tokens are rendered
     this._svg.addEventListener('mousedown', (e) => {
       const token = e.target.closest(`.${this._uid}-token`);
       if (token) { e.preventDefault(); this._startDrag(token, e.clientX, e.clientY); }
     });
+
     this._svg.addEventListener('touchstart', (e) => {
+      if (e.touches.length >= 2) {
+        e.preventDefault();
+        this._handleUp();
+        this._pinch   = { dist: this._pinchDist(e.touches) };
+        this._panning = false;
+        return;
+      }
+      // Double-tap: reset zoom
+      const now = Date.now();
+      if (now - this._lastTap < 280 && this._vb.w < 1200) {
+        e.preventDefault();
+        this._vb = { x: 0, y: 0, w: 1200, h: 700 };
+        this._applyVb();
+        this._lastTap = 0;
+        return;
+      }
+      this._lastTap = now;
+
       const token = e.target.closest(`.${this._uid}-token`);
-      if (token) { e.preventDefault(); this._startDrag(token, e.touches[0].clientX, e.touches[0].clientY); }
+      if (token) {
+        e.preventDefault();
+        this._startDrag(token, e.touches[0].clientX, e.touches[0].clientY);
+      } else if (this._vb.w < 1200) {
+        e.preventDefault();
+        this._panning  = true;
+        this._panStart = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, vbX: this._vb.x, vbY: this._vb.y };
+      }
     }, { passive: false });
   }
 
@@ -787,11 +903,18 @@ export class FloorballBoard {
     return this;
   }
 
+  resetZoom() {
+    this._vb = { x: 0, y: 0, w: 1200, h: 700 };
+    this._applyVb();
+    return this;
+  }
+
   destroy() {
-    this._svg.removeEventListener('mousemove',  this._onMouseMove);
-    window.removeEventListener('touchmove',  this._onTouchMove);
-    window.removeEventListener('mouseup',  this._onMouseUp);
-    window.removeEventListener('touchend', this._onTouchEnd);
+    this._svg.removeEventListener('mousemove', this._onMouseMove);
+    this._svg.removeEventListener('wheel',     this._onWheel);
+    window.removeEventListener('touchmove', this._onTouchMove);
+    window.removeEventListener('mouseup',   this._onMouseUp);
+    window.removeEventListener('touchend',  this._onTouchEnd);
     if (this._cancelGoalieAnim) this._cancelGoalieAnim();
     this._mount.removeChild(this._svg);
     this._handlers = {};

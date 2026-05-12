@@ -308,8 +308,9 @@
     </div>
     <div class="sheet-section">Settings</div>
     <div class="sheet-row">
-      <button id="btn-lang"  class="sbtn btn-lang">EN</button>
-      <button id="btn-reset" class="sbtn btn-reset">Reset</button>
+      <button id="btn-lang"       class="sbtn btn-lang">EN</button>
+      <button id="btn-reset"      class="sbtn btn-reset">Reset</button>
+      <button id="btn-reset-zoom" class="sbtn btn-reset">Reset Zoom</button>
       <div class="size-control">
         <button id="btn-size-dec">−</button>
         <span   id="size-display">50</span>
@@ -507,6 +508,10 @@
       shooting = false;
       $('btn-shoot').classList.remove('active');
       $('btn-ideal').disabled = true;
+    });
+
+    $('btn-reset-zoom').addEventListener('click', () => {
+      board.resetZoom();
     });
 
     function captureAndCopy(scope, btn) {
