@@ -69,7 +69,7 @@ export class FloorballBoard {
 
     const markup = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700"
-     style="width:100%;height:auto;display:block">
+     style="width:100%;height:auto;display:block;touch-action:none">
   <defs>
     <style>
       .${u}-token { cursor: grab; user-select: none; }
@@ -479,7 +479,7 @@ export class FloorballBoard {
 
     this._svg.addEventListener('mousemove', this._onMouseMove);
     window.addEventListener('mouseup',      this._onMouseUp);
-    this._svg.addEventListener('touchmove', this._onTouchMove, { passive: false });
+    window.addEventListener('touchmove', this._onTouchMove, { passive: false });
     window.addEventListener('touchend',     this._onTouchEnd);
 
     // Attach per-token mousedown/touchstart after tokens are rendered
@@ -684,7 +684,7 @@ export class FloorballBoard {
 
   destroy() {
     this._svg.removeEventListener('mousemove',  this._onMouseMove);
-    this._svg.removeEventListener('touchmove',  this._onTouchMove);
+    window.removeEventListener('touchmove',  this._onTouchMove);
     window.removeEventListener('mouseup',  this._onMouseUp);
     window.removeEventListener('touchend', this._onTouchEnd);
     if (this._cancelGoalieAnim) this._cancelGoalieAnim();
