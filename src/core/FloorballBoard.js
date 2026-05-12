@@ -15,6 +15,28 @@ function svgDataUri(raw) {
   return 'data:image/svg+xml,' + encodeURIComponent(raw);
 }
 
+function lerpWaypoints(waypoints, t) {
+  if (waypoints.length < 2) return waypoints[0];
+  const segs = [];
+  let total = 0;
+  for (let i = 1; i < waypoints.length; i++) {
+    const dx = waypoints[i].x - waypoints[i-1].x;
+    const dy = waypoints[i].y - waypoints[i-1].y;
+    const len = Math.sqrt(dx*dx + dy*dy) || 0.001;
+    total += len;
+    segs.push({ len, a: waypoints[i-1], b: waypoints[i] });
+  }
+  let dist = t * total;
+  for (const seg of segs) {
+    if (dist <= seg.len) {
+      const st = dist / seg.len;
+      return { x: seg.a.x + st*(seg.b.x-seg.a.x), y: seg.a.y + st*(seg.b.y-seg.a.y) };
+    }
+    dist -= seg.len;
+  }
+  return waypoints[waypoints.length - 1];
+}
+
 export class FloorballBoard {
   // ── Construction ────────────────────────────────────────────────────────────
 
@@ -44,6 +66,7 @@ export class FloorballBoard {
     this._dragMoved      = false;
     this._dragOffset     = { x: 0, y: 0 };
     this._cancelGoalieAnim = null;
+    this._animFrameId      = null;
 
     // Event subscriptions
     this._handlers = {};
@@ -724,6 +747,44 @@ export class FloorballBoard {
           return obj;
         });
     return { players: read('player'), opponents: read('opponent') };
+  }
+
+  lockTokens(locked) {
+    this._q('tokens').querySelectorAll(`.${this._uid}-token`)
+      .forEach(t => { t.style.pointerEvents = locked ? 'none' : ''; });
+    return this;
+  }
+
+  animatePaths(paths, duration = 3000) {
+    return new Promise(resolve => {
+      const layer = this._q('tokens');
+      const entries = paths
+        .map(({ id, waypoints }) => {
+          const token = [...layer.querySelectorAll('[data-tid]')]
+            .find(t => t.dataset.tid === id);
+          return token ? { token, waypoints } : null;
+        })
+        .filter(Boolean);
+      const start = performance.now();
+      const tick = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        entries.forEach(({ token, waypoints }) => {
+          const pos = lerpWaypoints(waypoints, t);
+          token.dataset.x = pos.x;
+          token.dataset.y = pos.y;
+          this._updateTransform(token);
+        });
+        if (t < 1) { this._animFrameId = requestAnimationFrame(tick); }
+        else        { this._animFrameId = null; resolve(); }
+      };
+      if (this._animFrameId) cancelAnimationFrame(this._animFrameId);
+      this._animFrameId = requestAnimationFrame(tick);
+    });
+  }
+
+  stopAnimation() {
+    if (this._animFrameId) { cancelAnimationFrame(this._animFrameId); this._animFrameId = null; }
+    return this;
   }
 
   destroy() {
