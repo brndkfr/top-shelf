@@ -7,235 +7,351 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body { height: 100dvh; overflow: hidden; background: #000; }
+
     body {
-      background: #111;
-      color: #eee;
-      font-family: Arial, Helvetica, sans-serif;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 32px 16px;
-      gap: 24px;
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      color: #fff;
     }
 
-    h1 { font-size: 1.25rem; letter-spacing: 0.05em; color: #c8dde8; }
-
-    #mount { width: 100%; max-width: 900px; }
-
-    .controls {
+    /* Board fills all available space */
+    #mount {
+      flex: 1;
+      min-height: 0;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      align-items: center;
       justify-content: center;
-      align-items: flex-start;
+      overflow: hidden;
     }
+    #mount svg { max-width: 100%; max-height: 100%; width: auto; height: auto; display: block; }
 
-    .ctrl-group {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.03);
-    }
-
-    .ctrl-label {
-      width: 100%;
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #555;
-    }
-
-    button {
-      padding: 8px 18px;
-      border: 2px solid;
-      border-radius: 6px;
-      background: transparent;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-    }
-    button:hover { filter: brightness(1.2); }
-    button.active { color: #111; }
-    button:disabled { opacity: 0.35; cursor: not-allowed; filter: none; }
-
-    .btn-layer   { border-color: #4a90b8; color: #4a90b8; }
-    .btn-layer.active { background: #4a90b8; }
-
-    .btn-shoot   { border-color: #e8c840; color: #e8c840; }
-    .btn-shoot.active { background: #e8c840; }
-
-    .btn-ideal   { border-color: #40c880; color: #40c880; }
-    .btn-lang    { border-color: #888;    color: #888; min-width: 52px; }
-    .btn-lang.active { background: #888; }
-    .btn-reset   { border-color: #c06060; color: #c06060; }
-    .btn-editor  { border-color: #d4ac0d; color: #d4ac0d; }
-    .btn-editor.active { background: #d4ac0d; }
-    .btn-poly    { border-color: #a080e8; color: #a080e8; }
-    .btn-poly.active { background: #a080e8; }
-    .btn-line    { border-color: #40c8e8; color: #40c8e8; }
-    .btn-line.active { background: #40c8e8; }
-    .btn-poly-action { border-color: #888; color: #888; padding: 4px 10px; font-size: 0.8rem; font-weight: 600; border-radius: 6px; background: transparent; cursor: pointer; white-space: nowrap; }
-    .btn-poly-action:hover { filter: brightness(1.2); }
-
+    /* ── Tool status bar (floating pill, top-center) ─────────────────────────── */
     .editor-bar {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
       display: none;
       align-items: center;
-      gap: 12px;
-      padding: 8px 16px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid #444;
-      border-radius: 6px;
-      width: 100%;
-      max-width: 900px;
+      gap: 8px;
+      padding: 7px 14px;
+      background: rgba(28,28,30,0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 0.5px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      white-space: nowrap;
+      max-width: calc(100vw - 32px);
     }
     .editor-bar code {
-      flex: 1;
-      font-family: monospace;
-      font-size: 0.78rem;
-      color: #aed6f1;
-      white-space: nowrap;
+      font-family: 'Menlo', 'Monaco', monospace;
+      font-size: 0.72rem;
+      color: rgba(174,214,241,0.9);
+      max-width: 160px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    #btn-poly-close { border-color: #58d68d; color: #58d68d; }
-    #btn-poly-undo  { border-color: #e8a840; color: #e8a840; }
-    #btn-poly-clear { border-color: #c06060; color: #c06060; }
-    #btn-copy-coords {
-      border: 2px solid #58d68d;
-      border-radius: 6px;
-      color: #58d68d;
-      background: transparent;
-      padding: 4px 12px;
-      font-size: 0.8rem;
+
+    /* ── Tool bar action buttons ─────────────────────────────────────────────── */
+    .tbar-btn {
+      padding: 5px 11px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.09);
+      color: #fff;
+      font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: background 0.15s;
       white-space: nowrap;
     }
-    #btn-copy-coords:hover { filter: brightness(1.2); }
+    .tbar-btn:active { background: rgba(255,255,255,0.2); }
 
+    /* ── Bottom tab bar ──────────────────────────────────────────────────────── */
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      background: rgba(18,18,20,0.97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 0.5px solid rgba(255,255,255,0.1);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 4px 8px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.38);
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s;
+    }
+    .tab-btn svg { width: 22px; height: 22px; }
+    .tab-btn.active { color: #4a9eff; }
+
+    /* ── Sheet backdrop ──────────────────────────────────────────────────────── */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+    }
+    .sheet-backdrop.open { display: block; }
+
+    /* ── Sheet ───────────────────────────────────────────────────────────────── */
+    .sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 150;
+      background: rgba(26,26,28,0.98);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-radius: 16px 16px 0 0;
+      border-top: 0.5px solid rgba(255,255,255,0.1);
+      padding: 8px 16px 80px;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+    .sheet.open { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      margin: 0 auto 14px;
+    }
+
+    .sheet-section {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.3);
+      margin: 12px 0 8px;
+    }
+    .sheet-section:first-of-type { margin-top: 0; }
+
+    .sheet-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 4px;
+      align-items: center;
+    }
+
+    /* ── Sheet buttons ───────────────────────────────────────────────────────── */
+    .sbtn {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1.5px solid;
+      background: transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: background 0.15s, opacity 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sbtn:active { opacity: 0.65; }
+    .sbtn.active { color: #111 !important; }
+    .sbtn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-layer          { border-color: #4a90b8; color: #4a90b8; }
+    .btn-layer.active   { background: #4a90b8; }
+    .btn-shoot          { border-color: #e8c840; color: #e8c840; }
+    .btn-shoot.active   { background: #e8c840; }
+    .btn-ideal          { border-color: #40c880; color: #40c880; }
+    .btn-lang           { border-color: #888; color: #888; min-width: 52px; }
+    .btn-lang.active    { background: #888; }
+    .btn-reset          { border-color: #c06060; color: #c06060; }
+    .btn-capture        { border-color: #58d68d; color: #58d68d; }
+    .btn-anim           { border-color: #e87040; color: #e87040; }
+    .btn-anim.active    { background: #e87040; }
+    .btn-editor         { border-color: #d4ac0d; color: #d4ac0d; }
+    .btn-editor.active  { background: #d4ac0d; }
+    .btn-poly           { border-color: #a080e8; color: #a080e8; }
+    .btn-poly.active    { background: #a080e8; }
+    .btn-line           { border-color: #40c8e8; color: #40c8e8; }
+    .btn-line.active    { background: #40c8e8; }
+
+    /* ── Size control ────────────────────────────────────────────────────────── */
     .size-control {
       display: flex;
       align-items: center;
-      border: 2px solid #666;
-      border-radius: 6px;
+      border: 1.5px solid #666;
+      border-radius: 10px;
       overflow: hidden;
     }
     .size-control button {
       border: none;
       border-radius: 0;
-      padding: 6px 13px;
+      padding: 7px 14px;
+      background: transparent;
       color: #aaa;
       font-size: 1.1rem;
       line-height: 1;
+      cursor: pointer;
     }
+    .size-control button:active { background: rgba(255,255,255,0.1); }
     #size-display {
-      padding: 0 8px;
+      padding: 0 10px;
       font-size: 0.85rem;
       color: #aaa;
-      min-width: 32px;
+      min-width: 36px;
       text-align: center;
       font-variant-numeric: tabular-nums;
     }
-
-    @media (max-width: 600px) {
-      body { padding: 12px 8px; gap: 12px; }
-      h1 { font-size: 1rem; }
-      button { padding: 10px 14px; }
-      .ctrl-group { padding: 6px 8px; }
-    }
-
-    @media (orientation: landscape) and (max-height: 500px) {
-      html, body { height: 100dvh; overflow: hidden; }
-      body { flex-direction: row; padding: 0; gap: 0; align-items: stretch; }
-      h1 { display: none; }
-      #mount { flex: 0 0 auto; height: 100dvh; width: auto; max-width: unset; }
-      #mount svg { width: auto !important; height: 100dvh !important; }
-      #editor-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: unset; border-radius: 0; }
-      .controls { flex-direction: column; flex-wrap: nowrap; overflow-y: auto; height: 100dvh; padding: 8px; gap: 8px; align-items: stretch; width: 200px; flex-shrink: 0; justify-content: flex-start; }
-      .ctrl-group { flex-direction: column; align-items: stretch; }
-      button { padding: 8px 10px; font-size: 0.8rem; }
-    }
   </style>
-  <script type="module" crossorigin src="/top-shelf/assets/index-DRqIpYX9.js"></script>
+  <script type="module" crossorigin src="/top-shelf/assets/index-B9QSFUHq.js"></script>
 </head>
 <body>
 
-  <h1>Floorball</h1>
   <div id="mount"></div>
 
+  <!-- Active tool status bar -->
   <div id="editor-bar" class="editor-bar">
     <code id="zone-coords">—</code>
-    <button id="btn-poly-close" class="btn-poly-action" style="display:none">Close Shape</button>
-    <button id="btn-poly-undo"  class="btn-poly-action" style="display:none">Undo</button>
-    <button id="btn-poly-clear" class="btn-poly-action" style="display:none">Clear</button>
-    <button id="btn-copy-coords">Copy</button>
+    <button id="btn-poly-close" class="tbar-btn" style="display:none">Close</button>
+    <button id="btn-poly-undo"  class="tbar-btn" style="display:none">Undo</button>
+    <button id="btn-poly-clear" class="tbar-btn" style="display:none">Clear</button>
+    <button id="btn-copy-coords" class="tbar-btn">Copy</button>
+    <button id="btn-anim-play"  class="tbar-btn" style="display:none">Play</button>
+    <button id="btn-anim-reset" class="tbar-btn" style="display:none">Reset</button>
+    <button id="btn-anim-clear" class="tbar-btn" style="display:none">Clear</button>
   </div>
 
-  <div class="controls">
+  <!-- Sheet backdrop -->
+  <div id="sheet-backdrop" class="sheet-backdrop"></div>
 
-    <div class="ctrl-group">
-      <span class="ctrl-label">Scenarios</span>
-      <button id="btn-scenario-neutral" class="btn-layer">Neutral</button>
-      <button id="btn-scenario-def"     class="btn-layer">Deep 2:1:2</button>
-      <button id="btn-scenario-press"   class="btn-layer">Forecheck</button>
-      <button id="btn-scenario-atk"     class="btn-layer">Triangles</button>
-      <button id="btn-scenario-corner"  class="btn-layer">Corner</button>
+  <!-- Scenes sheet -->
+  <div id="sheet-scenes" class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-section">Scenarios</div>
+    <div class="sheet-row">
+      <button id="btn-scenario-neutral"    class="sbtn btn-layer">Neutral</button>
+      <button id="btn-scenario-def"        class="sbtn btn-layer">Deep 2:1:2</button>
+      <button id="btn-scenario-press"      class="sbtn btn-layer">Forecheck</button>
+      <button id="btn-scenario-atk"        class="sbtn btn-layer">Triangles</button>
+      <button id="btn-scenario-corner"     class="sbtn btn-layer">Corner</button>
     </div>
-
-    <div class="ctrl-group">
-      <span class="ctrl-label">Rink</span>
-      <button id="btn-rink" class="btn-layer active">Rink</button>
+    <div class="sheet-section">Scripted</div>
+    <div class="sheet-row">
+      <button id="btn-scenario-transition" class="sbtn btn-anim">Transition</button>
     </div>
+  </div>
 
-    <div class="ctrl-group">
-      <span class="ctrl-label">Attack</span>
-      <button id="btn-zones"      class="btn-layer active">Zones (R)</button>
-      <button id="btn-zones-left" class="btn-layer">Zones (L)</button>
+  <!-- Layers sheet -->
+  <div id="sheet-layers" class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-section">Field</div>
+    <div class="sheet-row">
+      <button id="btn-rink"       class="sbtn btn-layer active">Rink</button>
+      <button id="btn-zones"      class="sbtn btn-layer active">Zones (R)</button>
+      <button id="btn-zones-left" class="sbtn btn-layer">Zones (L)</button>
     </div>
-
-    <div class="ctrl-group">
-      <span class="ctrl-label">Goalie Zones</span>
-      <button id="btn-zone-slot"                class="btn-layer">Slot (L)</button>
-      <button id="btn-zone-slot-right"          class="btn-layer">Slot (R)</button>
-      <button id="btn-zone-danger"              class="btn-layer">Danger (L)</button>
-      <button id="btn-zone-danger-right"        class="btn-layer">Danger (R)</button>
-      <button id="btn-zone-passing-first"       class="btn-layer">Passing-First (L)</button>
-      <button id="btn-zone-passing-first-right" class="btn-layer">Passing-First (R)</button>
-      <button id="btn-zone-attention"           class="btn-layer">Attention (R→L)</button>
-      <button id="btn-zone-attention-right"     class="btn-layer">Attention (L→R)</button>
-      <button id="btn-zone-awareness-left"      class="btn-layer">Awareness (L)</button>
-      <button id="btn-zone-awareness"           class="btn-layer">Awareness (R)</button>
+    <div class="sheet-section">Goalie Zones</div>
+    <div class="sheet-row">
+      <button id="btn-zone-slot"                class="sbtn btn-layer">Slot (L)</button>
+      <button id="btn-zone-slot-right"          class="sbtn btn-layer">Slot (R)</button>
+      <button id="btn-zone-danger"              class="sbtn btn-layer">Danger (L)</button>
+      <button id="btn-zone-danger-right"        class="sbtn btn-layer">Danger (R)</button>
+      <button id="btn-zone-passing-first"       class="sbtn btn-layer">Passing-First (L)</button>
+      <button id="btn-zone-passing-first-right" class="sbtn btn-layer">Passing-First (R)</button>
+      <button id="btn-zone-attention"           class="sbtn btn-layer">Attention (R→L)</button>
+      <button id="btn-zone-attention-right"     class="sbtn btn-layer">Attention (L→R)</button>
+      <button id="btn-zone-awareness-left"      class="sbtn btn-layer">Awareness (L)</button>
+      <button id="btn-zone-awareness"           class="sbtn btn-layer">Awareness (R)</button>
     </div>
+  </div>
 
-    <div class="ctrl-group">
-      <span class="ctrl-label">Tools</span>
-      <button id="btn-edit-danger"  class="btn-editor">Edit Danger</button>
-      <button id="btn-edit-passing" class="btn-editor">Edit Passing</button>
-      <button id="btn-poly-editor"  class="btn-poly">Polygon</button>
-      <button id="btn-line-editor"  class="btn-line">Line</button>
-      <button id="btn-shoot"        class="btn-shoot">Shooting Line</button>
+  <!-- Tools sheet -->
+  <div id="sheet-tools" class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-section">Drawing</div>
+    <div class="sheet-row">
+      <button id="btn-poly-editor" class="sbtn btn-poly">Polygon</button>
+      <button id="btn-line-editor" class="sbtn btn-line">Line</button>
+      <button id="btn-anim-editor" class="sbtn btn-anim">Animate</button>
     </div>
+    <div class="sheet-section">Analysis</div>
+    <div class="sheet-row">
+      <button id="btn-edit-danger"  class="sbtn btn-editor">Edit Danger Zone</button>
+      <button id="btn-edit-passing" class="sbtn btn-editor">Edit Passing Zone</button>
+      <button id="btn-shoot"        class="sbtn btn-shoot">Shooting Line</button>
+      <button id="btn-ideal"        class="sbtn btn-ideal" disabled>Ideal Pos</button>
+    </div>
+  </div>
 
-    <div class="ctrl-group">
-      <span class="ctrl-label">Board</span>
-      <button id="btn-ideal" class="btn-ideal" disabled>Ideal Pos</button>
-      <button id="btn-lang"  class="btn-lang">EN</button>
-      <button id="btn-reset" class="btn-reset">Reset</button>
+  <!-- Board sheet -->
+  <div id="sheet-board" class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-section">Export</div>
+    <div class="sheet-row">
+      <button id="btn-capture-home" class="sbtn btn-capture">Cap Home</button>
+      <button id="btn-capture-away" class="sbtn btn-capture">Cap Away</button>
+      <button id="btn-capture-all"  class="sbtn btn-capture">Cap All</button>
+    </div>
+    <div class="sheet-section">Settings</div>
+    <div class="sheet-row">
+      <button id="btn-lang"  class="sbtn btn-lang">EN</button>
+      <button id="btn-reset" class="sbtn btn-reset">Reset</button>
       <div class="size-control">
         <button id="btn-size-dec">−</button>
         <span   id="size-display">50</span>
         <button id="btn-size-inc">+</button>
       </div>
     </div>
-
   </div>
+
+  <!-- Bottom tab bar -->
+  <nav class="tab-bar">
+    <button class="tab-btn" data-sheet="scenes">
+      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="8" height="8" rx="1.5"/><rect x="12" y="2" width="8" height="8" rx="1.5"/>
+        <rect x="2" y="12" width="8" height="8" rx="1.5"/><rect x="12" y="12" width="8" height="8" rx="1.5"/>
+      </svg>
+      <span>Scenes</span>
+    </button>
+    <button class="tab-btn" data-sheet="layers">
+      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 11l9-5 9 5-9 5-9-5z"/><path d="M2 15.5l9 5 9-5"/><path d="M2 6.5l9-5 9 5"/>
+      </svg>
+      <span>Layers</span>
+    </button>
+    <button class="tab-btn" data-sheet="tools">
+      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15.5 2.5l4 4-11 11H5v-3.5l11.5-11z"/>
+      </svg>
+      <span>Tools</span>
+    </button>
+    <button class="tab-btn" data-sheet="board">
+      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+        <line x1="4" y1="6" x2="18" y2="6"/>
+        <line x1="4" y1="11" x2="18" y2="11"/>
+        <line x1="4" y1="16" x2="18" y2="16"/>
+        <circle cx="9" cy="6" r="2.25" fill="currentColor" stroke="none"/>
+        <circle cx="14" cy="11" r="2.25" fill="currentColor" stroke="none"/>
+        <circle cx="8" cy="16" r="2.25" fill="currentColor" stroke="none"/>
+      </svg>
+      <span>Board</span>
+    </button>
+  </nav>
 
 
 </body>
