@@ -1,8 +1,25 @@
 # Top Shelf
 
-Interactive floorball tactical board for the browser. Drag and rotate player tokens on a regulation IFF rink, visualise shooting lines, and animate the goalkeeper to the ideal defensive position.
+Interactive floorball tactical board for the browser. Drag and rotate player tokens on a regulation IFF rink, visualise shooting lines, animate coaching scenarios, and draw play diagrams.
 
-Available as a plain JavaScript class and as a React component.
+Available as a plain JavaScript class, as a React component, and as a hosted web app.
+
+**Live demo:** https://brndkfr.github.io/top-shelf/
+
+---
+
+## Web app
+
+The hosted app is a full-screen mobile-first coaching tool. A bottom tab bar gives access to four panels:
+
+| Tab | Contents |
+|---|---|
+| **Scenes** | Load preset scenarios or scripted play animations |
+| **Layers** | Toggle rink markings and goalie-zone overlays |
+| **Tools** | Polygon editor, line tool, animation tool, zone editors |
+| **Board** | Export positions, change language, resize tokens |
+
+Tap a scenario to place teams; tap **Transition** to load a scripted multi-phase play with animated ball passing. The board fills the full screen on desktop and mobile, landscape and portrait.
 
 ---
 
@@ -62,7 +79,7 @@ new FloorballBoard(mountElement, options)
 | `away` | `{ color, accent }` | red / white | Away team colours |
 | `players` | `PlayerDef[]` | see below | Home team token definitions |
 | `opponents` | `PlayerDef[]` | see below | Away team token definitions |
-| `layers` | `{ rink, zones }` | both `true` | Initial layer visibility |
+| `layers` | `object` | `{ rink: true, zones: true }` | Initial layer visibility |
 
 ### PlayerDef
 
@@ -75,7 +92,7 @@ new FloorballBoard(mountElement, options)
 | `id` | `string` | Unique identifier within the board |
 | `x`, `y` | `number` | Initial position in SVG coordinates (viewBox 0 0 1200 700) |
 | `label` | `string` | Text displayed on the token (optional) |
-| `symbol` | `string` | Custom symbol ID suffix (optional) |
+| `symbol` | `string` | Symbol ID for the token shape — `'sym-player-goalie'` or `'sym-opponent-goalie'` |
 
 ### Default positions
 
@@ -100,24 +117,69 @@ new FloorballBoard(mountElement, options)
 
 ### Methods
 
-| Method | Description |
-|---|---|
-| `setLang(lang)` | Switch zone label language (`'en'` or `'de'`) |
-| `setTokenSize(size)` | Resize all tokens (clamped to 20–100) |
-| `setTeams(home, away)` | Update team colours; pass `undefined` to leave a side unchanged |
-| `setPlayers(defs)` | Replace home team tokens; preserves positions of matching IDs |
-| `setOpponents(defs)` | Replace away team tokens; preserves positions of matching IDs |
-| `setLayer(name, visible)` | Show or hide a layer (`'rink'` or `'zones'`) |
-| `setShootingLine(active)` | Toggle shooting line and triangle from ball to goal |
-| `moveGoalieToIdealPosition(duration?)` | Animate the defending goalkeeper to the optimal position (requires shooting line active; default 700 ms) |
-| `getState()` | Returns a snapshot of all token positions, lang, tokenSize, and shooting state |
-| `setState(state)` | Restores a previously captured snapshot |
-| `reset()` | Returns all tokens to their initial positions and hides the shooting line |
-| `on(event, handler)` | Subscribe to an event |
-| `off(event, handler)` | Unsubscribe from an event |
-| `destroy()` | Remove the board from the DOM and clean up all event listeners |
+| Method | Returns | Description |
+|---|---|---|
+| `setLang(lang)` | `this` | Switch zone label language (`'en'` or `'de'`) |
+| `setTokenSize(size)` | `this` | Resize all tokens (clamped to 20–100) |
+| `setTeams(home, away)` | `this` | Update team colours; pass `undefined` to leave a side unchanged |
+| `setPlayers(defs)` | `this` | Replace home team tokens; preserves positions of matching IDs |
+| `setOpponents(defs)` | `this` | Replace away team tokens; preserves positions of matching IDs |
+| `setLayer(name, visible)` | `this` | Show or hide a named layer (see Layers below) |
+| `setShootingLine(active)` | `this` | Toggle shooting line and triangle from ball to goal |
+| `moveGoalieToIdealPosition(duration?)` | `this` | Animate the defending goalkeeper to the optimal position (requires shooting line active; default 700 ms) |
+| `loadScenario(name)` | `this` | Reset to a named preset scenario (see Scenarios below) |
+| `getPositions()` | `{ players, opponents }` | Read current token positions as `{ id, label, symbol, x, y, angle }[]` |
+| `animatePaths(paths, duration?)` | `Promise` | Animate tokens along waypoint paths simultaneously (default 3000 ms) |
+| `stopAnimation()` | `this` | Cancel a running animation |
+| `getState()` | `object` | Returns a snapshot of all token positions, lang, tokenSize, and shooting state |
+| `setState(state)` | `this` | Restores a previously captured snapshot |
+| `reset()` | `this` | Returns all tokens to their initial positions and hides the shooting line |
+| `on(event, handler)` | `this` | Subscribe to an event |
+| `off(event, handler)` | `this` | Unsubscribe from an event |
+| `destroy()` | — | Remove the board from the DOM and clean up all event listeners |
 
-All methods except `getState()` return `this` for chaining.
+### `animatePaths(paths, duration)`
+
+Moves tokens simultaneously along multi-waypoint paths. Returns a `Promise` that resolves when the animation finishes.
+
+```js
+await board.animatePaths([
+  { id: 'player-lw', waypoints: [{ x: 545, y: 215 }, { x: 1075, y: 140 }] },
+  { id: 'player-c',  waypoints: [{ x: 400, y: 350 }, { x: 895, y: 350 }] },
+], 1200);
+```
+
+### Layers
+
+Pass any of these names to `setLayer(name, visible)`:
+
+| Name | What it shows |
+|---|---|
+| `rink` | Rink surface, goal markings, and bench labels |
+| `zones` | Tactical zone labels for the right goal (Pocket, High Slot, Low Slot, Playmaker) |
+| `zones-left` | Same labels mirrored for the left goal |
+| `zone-slot` | Goalkeeper slot zone — left goal |
+| `zone-slot-right` | Goalkeeper slot zone — right goal |
+| `zone-danger` | Danger zone overlay — left goal |
+| `zone-danger-right` | Danger zone overlay — right goal |
+| `zone-passing-first` | Pass-first zone overlay — left goal |
+| `zone-passing-first-right` | Pass-first zone overlay — right goal |
+| `zone-attention` | Attention zone (defending right-to-left) |
+| `zone-attention-right` | Attention zone (defending left-to-right) |
+| `zone-awareness` | Awareness zone — right goal |
+| `zone-awareness-left` | Awareness zone — left goal |
+
+### Scenarios
+
+Pass any of these names to `loadScenario(name)`:
+
+| Name | Description |
+|---|---|
+| `neutral` | Default open positions, no layers |
+| `defensiv-212` | Home team in deep 2:1:2 box defending left goal |
+| `forechecking` | Home team pressing in opponent's half |
+| `triangle-attack` | Home team in offensive triangles attacking right goal |
+| `corner-play` | S1 with ball in upper-right corner; C in slot; S2 far post |
 
 ### Events
 
@@ -125,7 +187,7 @@ All methods except `getState()` return `this` for chaining.
 |---|---|---|
 | `tokenMoved` | `{ id, x, y, angle }` | A token is dragged to a new position |
 | `tokenRotated` | `{ id, angle }` | A token is clicked (rotates 45° per click) |
-| `goalSwitched` | `{ target }` | The ball is clicked while shooting line is active, switching the target goal |
+| `goalSwitched` | `{ target }` | The ball is clicked while shooting line is active |
 
 ```js
 board.on('tokenMoved', ({ id, x, y }) => {
@@ -145,7 +207,7 @@ All constructor options are accepted as props. Changes to `lang`, `tokenSize`, `
 | `away` | `{ color, accent }` |
 | `players` | `PlayerDef[]` |
 | `opponents` | `PlayerDef[]` |
-| `layers` | `{ rink?, zones? }` |
+| `layers` | `object` |
 | `onTokenMoved` | `(payload) => void` |
 | `onTokenRotated` | `(payload) => void` |
 | `onGoalSwitched` | `(payload) => void` |
@@ -156,7 +218,7 @@ All constructor options are accepted as props. Changes to `lang`, `tokenSize`, `
 
 ## Zone labels
 
-The zones overlay labels the tactical areas in front of the goal. Terms follow standard European coaching vocabulary.
+The zones overlay labels tactical areas in front of the goal using standard European coaching vocabulary.
 
 | Zone | EN | DE |
 |---|---|---|
@@ -164,6 +226,8 @@ The zones overlay labels the tactical areas in front of the goal. Terms follow s
 | Mid-range shooting area | High Slot | Hoher Slot |
 | Close-range area at the crease | Low Slot | Naher Slot |
 | Behind-goal playmaking area | Playmaker | Playmaker |
+
+Rink structure labels (Team Bench, Penalty Bench, Officials) follow IFF Rules of the Game 2026 terminology and are rendered in the selected language.
 
 ---
 
@@ -176,7 +240,7 @@ The zones overlay labels the tactical areas in front of the goal. Terms follow s
 | Click the ball (shooting line active) | Switch the target goal |
 | `moveGoalieToIdealPosition()` | Animate goalkeeper along the arc between goal line centre and ball |
 
-Tokens are constrained to the SVG viewBox (0 0 1200 700) and cannot be dragged off the rink.
+Tokens are constrained to the SVG viewBox (0 0 1200 700) and cannot be dragged off the rink. Touch drag is fully supported; `touch-action: none` is applied to the SVG element.
 
 ---
 
@@ -187,6 +251,8 @@ pnpm dev          # Start Vite dev server at localhost:5173
 pnpm test         # Run Vitest in watch mode
 pnpm test:run     # Run tests once (CI)
 ```
+
+Tests are co-located with source files (`FloorballBoard.test.js` beside `FloorballBoard.js`). The runner is Vitest + jsdom; SVG APIs missing from jsdom are stubbed in `test-setup.js`.
 
 ---
 
@@ -226,9 +292,11 @@ The SVG coordinate system maps the IFF standard court (40 m × 20 m) to a 1000 �
 
 Key measurements (in SVG units, scale 1 unit = 4 cm):
 
-| Element | IFF term | Dimensions |
+| Element | IFF term | Dimensions / position |
 |---|---|---|
-| Playing field | — | 1000 × 500 |
+| Playing field | — | 1000 × 500, origin (100, 100) |
 | Goal crease | Goal Crease | 100 × 125 |
-| Small crease | Goalkeeper Area | 25 × 62.5 |
-| Goal line distance from boards | — | 71.25 from left edge |
+| Goalkeeper area | Goalkeeper Area | 25 × 62.5 |
+| Left goal line | — | x = 171.25 (SVG space) |
+| Right goal line | — | x = 1028.75 (SVG space) |
+| Centre | — | x = 600, y = 350 |
