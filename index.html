@@ -143,8 +143,27 @@
       text-align: center;
       font-variant-numeric: tabular-nums;
     }
+
+    @media (max-width: 600px) {
+      body { padding: 12px 8px; gap: 12px; }
+      h1 { font-size: 1rem; }
+      button { padding: 10px 14px; }
+      .ctrl-group { padding: 6px 8px; }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      html, body { height: 100dvh; overflow: hidden; }
+      body { flex-direction: row; padding: 0; gap: 0; align-items: stretch; }
+      h1 { display: none; }
+      #mount { flex: 0 0 auto; height: 100dvh; width: auto; max-width: unset; }
+      #mount svg { width: auto !important; height: 100dvh !important; }
+      #editor-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: unset; border-radius: 0; }
+      .controls { flex-direction: column; flex-wrap: nowrap; overflow-y: auto; height: 100dvh; padding: 8px; gap: 8px; align-items: stretch; width: 200px; flex-shrink: 0; justify-content: flex-start; }
+      .ctrl-group { flex-direction: column; align-items: stretch; }
+      button { padding: 8px 10px; font-size: 0.8rem; }
+    }
   </style>
-  <script type="module" crossorigin src="/top-shelf/assets/index-Dkf1VNbD.js"></script>
+  <script type="module" crossorigin src="/top-shelf/assets/index-DRqIpYX9.js"></script>
 </head>
 <body>
 
