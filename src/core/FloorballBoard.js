@@ -247,6 +247,30 @@ export class FloorballBoard {
             dominant-baseline="central"
             fill="rgba(255,130,130,0.9)">Slot</text>
     </g>
+    <g id="${u}-zone-queue-left" display="none">
+      <rect id="${u}-zone-queue-left-fill"
+            x="5" y="120" width="78" height="460" rx="8"
+            fill="rgba(150,150,150,0.08)"
+            stroke="rgba(150,150,150,0.35)" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text id="${u}-zone-queue-left-label"
+            x="44" y="350" text-anchor="middle" dominant-baseline="central"
+            font-family="system-ui, -apple-system, sans-serif"
+            font-size="13" font-weight="600" letter-spacing="1"
+            fill="rgba(200,200,200,0.55)" pointer-events="none"
+            transform="rotate(-90,44,350)">Queue</text>
+    </g>
+    <g id="${u}-zone-queue-right" display="none">
+      <rect id="${u}-zone-queue-right-fill"
+            x="1117" y="120" width="78" height="460" rx="8"
+            fill="rgba(150,150,150,0.08)"
+            stroke="rgba(150,150,150,0.35)" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text id="${u}-zone-queue-right-label"
+            x="1156" y="350" text-anchor="middle" dominant-baseline="central"
+            font-family="system-ui, -apple-system, sans-serif"
+            font-size="13" font-weight="600" letter-spacing="1"
+            fill="rgba(200,200,200,0.55)" pointer-events="none"
+            transform="rotate(90,1156,350)">Queue</text>
+    </g>
   </g>
 
   <g id="${u}-rink-labels" pointer-events="none"></g>
@@ -719,7 +743,8 @@ export class FloorballBoard {
     if (name === 'zone-awareness'       || name === 'zone-attention'       ||
         name === 'zone-danger'          || name === 'zone-slot'            || name === 'zone-passing-first' ||
         name === 'zone-awareness-left'  || name === 'zone-attention-right' ||
-        name === 'zone-danger-right'    || name === 'zone-slot-right'      || name === 'zone-passing-first-right') {
+        name === 'zone-danger-right'    || name === 'zone-slot-right'      || name === 'zone-passing-first-right' ||
+        name === 'zone-queue-left'      || name === 'zone-queue-right') {
       this._q(name).setAttribute('display', visible ? '' : 'none');
       return this;
     }
@@ -880,6 +905,7 @@ export class FloorballBoard {
       'zone-attention', 'zone-awareness', 'zone-passing-first', 'zone-danger', 'zone-slot',
       'zone-attention-right', 'zone-awareness-left', 'zone-passing-first-right',
       'zone-danger-right', 'zone-slot-right',
+      'zone-queue-left', 'zone-queue-right',
     ];
   }
 

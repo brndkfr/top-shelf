@@ -19,7 +19,7 @@ export const GOAL_LINE_CENTERS = {
 
 export const GOALIE_STAND_OFFSET = 65;
 
-export const DEFAULT_TOKEN_SIZE = 50;
+export const DEFAULT_TOKEN_SIZE = 40;
 export const TOKEN_SIZE_STEP    = 5;
 export const TOKEN_SIZE_MIN     = 20;
 export const TOKEN_SIZE_MAX     = 100;

@@ -311,6 +311,11 @@
       <button id="btn-zone-awareness-left"      class="sbtn btn-layer">Awareness (L)</button>
       <button id="btn-zone-awareness"           class="sbtn btn-layer">Awareness (R)</button>
     </div>
+    <div class="sheet-section">Queue Zones</div>
+    <div class="sheet-row">
+      <button id="btn-zone-queue-left"  class="sbtn btn-layer">Queue (Home)</button>
+      <button id="btn-zone-queue-right" class="sbtn btn-layer">Queue (Away)</button>
+    </div>
   </div>
 
   <!-- Tools sheet -->
@@ -353,7 +358,7 @@
       <button id="btn-reset-zoom" class="sbtn btn-reset">Reset Zoom</button>
       <div class="size-control">
         <button id="btn-size-dec">−</button>
-        <span   id="size-display">50</span>
+        <span   id="size-display">40</span>
         <button id="btn-size-inc">+</button>
       </div>
     </div>
@@ -399,7 +404,7 @@
     const board = new FloorballBoard(document.getElementById('mount'));
     let lang     = 'en';
     let shooting = false;
-    let tokenSize = 50;
+    let tokenSize = 40;
     let _attackerCount = 0;
     let _defenderCount = 0;
 
@@ -419,6 +424,8 @@
       'zone-passing-first-right':'btn-zone-passing-first-right',
       'zone-danger-right':       'btn-zone-danger-right',
       'zone-slot-right':         'btn-zone-slot-right',
+      'zone-queue-left':         'btn-zone-queue-left',
+      'zone-queue-right':        'btn-zone-queue-right',
     };
 
     function syncLayerButtons(activeLayers) {
@@ -527,6 +534,16 @@
       board.setLayer('zone-slot-right', on);
     });
 
+    $('btn-zone-queue-left').addEventListener('click', () => {
+      const on = $('btn-zone-queue-left').classList.toggle('active');
+      board.setLayer('zone-queue-left', on);
+    });
+
+    $('btn-zone-queue-right').addEventListener('click', () => {
+      const on = $('btn-zone-queue-right').classList.toggle('active');
+      board.setLayer('zone-queue-right', on);
+    });
+
     $('btn-shoot').addEventListener('click', () => {
       shooting = !shooting;
       board.setShootingLine(shooting);
@@ -570,13 +587,13 @@
 
     $('btn-add-attacker').addEventListener('click', () => {
       _attackerCount++;
-      const newDef = { id: `player-custom-${_attackerCount}`, label: `A${_attackerCount}`, x: 300 + _attackerCount * 40, y: 350 };
+      const newDef = { id: `player-custom-${_attackerCount}`, label: `A${_attackerCount}`, x: 44, y: 155 + (_attackerCount - 1) * 55 };
       board.setPlayers([...board.getPositions().players, newDef]);
     });
 
     $('btn-add-defender').addEventListener('click', () => {
       _defenderCount++;
-      const newDef = { id: `opponent-custom-${_defenderCount}`, label: `D${_defenderCount}`, x: 700 + _defenderCount * 40, y: 350 };
+      const newDef = { id: `opponent-custom-${_defenderCount}`, label: `D${_defenderCount}`, x: 1156, y: 155 + (_defenderCount - 1) * 55 };
       board.setOpponents([...board.getPositions().opponents, newDef]);
     });
 
