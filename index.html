@@ -286,6 +286,8 @@
       <button id="btn-scenario-hokey-pokey" class="sbtn btn-anim">Hokey-Pokey</button>
       <button id="btn-scenario-wing"        class="sbtn btn-anim">Wing Decision</button>
       <button id="btn-scenario-dbl-pass"    class="sbtn btn-anim">360° Pass</button>
+      <button id="btn-scenario-laufduell"   class="sbtn btn-anim">Laufduell</button>
+      <button id="btn-scenario-trans43"     class="sbtn btn-anim">4:3 Transition</button>
     </div>
   </div>
 
@@ -344,12 +346,15 @@
       <button id="btn-clear-board"   class="sbtn btn-reset">Clear Board</button>
       <button id="btn-add-attacker"  class="sbtn btn-anim">+ Attacker</button>
       <button id="btn-add-defender"  class="sbtn btn-shoot">+ Defender</button>
+      <button id="btn-add-cone"      class="sbtn btn-layer">+ Cone</button>
+      <button id="btn-clear-cones"   class="sbtn btn-reset">Clear Cones</button>
     </div>
     <div class="sheet-section">Export</div>
     <div class="sheet-row">
       <button id="btn-capture-home" class="sbtn btn-capture">Cap Home</button>
       <button id="btn-capture-away" class="sbtn btn-capture">Cap Away</button>
       <button id="btn-capture-all"  class="sbtn btn-capture">Cap All</button>
+      <button id="btn-png"          class="sbtn btn-capture">PNG</button>
     </div>
     <div class="sheet-section">Settings</div>
     <div class="sheet-row">
@@ -438,7 +443,7 @@
       $('btn-ideal').disabled = true;
     }
 
-    const SCENARIO_BTNS = ['btn-scenario-neutral','btn-scenario-def','btn-scenario-press','btn-scenario-atk','btn-scenario-corner','btn-scenario-transition','btn-scenario-backcheck','btn-scenario-hokey-pokey','btn-scenario-wing','btn-scenario-dbl-pass'];
+    const SCENARIO_BTNS = ['btn-scenario-neutral','btn-scenario-def','btn-scenario-press','btn-scenario-atk','btn-scenario-corner','btn-scenario-transition','btn-scenario-backcheck','btn-scenario-hokey-pokey','btn-scenario-wing','btn-scenario-dbl-pass','btn-scenario-laufduell','btn-scenario-trans43'];
     function setActiveScenarioBtn(activeId) {
       SCENARIO_BTNS.forEach(id => $(id).classList.toggle('active', id === activeId));
     }
@@ -585,6 +590,14 @@
       _defenderCount = 0;
     });
 
+    $('btn-add-cone').addEventListener('click', () => {
+      board.addCone(600, 350);
+    });
+
+    $('btn-clear-cones').addEventListener('click', () => {
+      board.clearCones();
+    });
+
     $('btn-add-attacker').addEventListener('click', () => {
       _attackerCount++;
       const newDef = { id: `player-custom-${_attackerCount}`, label: `A${_attackerCount}`, x: 44, y: 155 + (_attackerCount - 1) * 55 };
@@ -624,6 +637,33 @@
     $('btn-capture-home').addEventListener('click', (e) => captureAndCopy('home', e.currentTarget));
     $('btn-capture-away').addEventListener('click', (e) => captureAndCopy('away', e.currentTarget));
     $('btn-capture-all' ).addEventListener('click', (e) => captureAndCopy('all',  e.currentTarget));
+
+    $('btn-png').addEventListener('click', () => {
+      const svg = document.querySelector('#mount svg');
+      if (!svg) return;
+      const W = 1200, H = 700;
+      const xml  = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' });
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width  = W * 2;
+        canvas.height = H * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(2, 2);
+        ctx.drawImage(img, 0, 0, W, H);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b => {
+          const a = document.createElement('a');
+          a.download = 'floorball-board.png';
+          a.href = URL.createObjectURL(b);
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        }, 'image/png');
+      };
+      img.src = url;
+    });
 
     $('btn-size-dec').addEventListener('click', () => {
       tokenSize = Math.max(20, tokenSize - 5);
@@ -1756,6 +1796,74 @@
       triangle: [{x:660,y:200},{x:950,y:400},{x:1025,y:350}],
     };
 
+    const LAUFDUELL = {
+      scenario: null,
+      title: { en: 'Laufduell – Goal!', de: 'Laufduell – Tor!' },
+      description: {
+        en: 'A starts with ball and races directly to goal. D may only backcheck after A crosses the centre line.',
+        de: 'A startet mit Ball und zieht direkt aufs Tor. D darf erst backchecken, wenn A die Mittellinie überquert hat.',
+      },
+      players: [
+        { id:'player-lw', label:'A', x:510, y:205 },
+      ],
+      opponents: [
+        { id:'opponent-g',  label:'G', symbol:'sym-opponent-goalie', x:1025, y:350 },
+        { id:'opponent-ld', label:'D', x:730, y:205 },
+      ],
+      ballStart: { x:510, y:205 },
+      ballPhases: [
+        { x:960, y:205 },
+      ],
+      moveDuration: 1400,
+      passLines: [],
+      paths: [
+        { id:'player-lw',   type:'player',   waypoints:[{x:510,y:205},{x:960,y:205}] },
+        { id:'opponent-ld', type:'opponent', waypoints:[{x:730,y:205},{x:870,y:230}] },
+      ],
+      triangle: [{x:900,y:165},{x:960,y:205},{x:1025,y:350}],
+    };
+
+    const TRANSITION_43 = {
+      scenario: null,
+      title: { en: '4:3 Offensive Transition', de: '4:3 Offensiv-Transition' },
+      description: {
+        en: '4 attackers (incl. passer P at centre) vs 3 defenders. On turnover, E1 and E2 join from the sideline: 5:4.',
+        de: '4 Angreifer (inkl. Passeur P an Mittellinie) gegen 3. Bei Ballgewinn kommen E1/E2 für 5:4-Überzahl.',
+      },
+      players: [
+        { id:'player-lw', label:'P',  x:600, y:350 },
+        { id:'player-rw', label:'A1', x:790, y:190 },
+        { id:'player-c',  label:'A2', x:840, y:350 },
+        { id:'player-rd', label:'A3', x:790, y:500 },
+      ],
+      opponents: [
+        { id:'opponent-g',  label:'G',  symbol:'sym-opponent-goalie', x:1025, y:350 },
+        { id:'opponent-lw', label:'D1', x:880, y:225 },
+        { id:'opponent-c',  label:'D2', x:900, y:350 },
+        { id:'opponent-rw', label:'D3', x:880, y:475 },
+        { id:'opponent-ld', label:'E1', x:610, y:190 },
+        { id:'opponent-rd', label:'E2', x:610, y:510 },
+      ],
+      ballStart: { x:600, y:350 },
+      ballPhases: [
+        { x:840, y:350, ms:400 },
+        { x:1000, y:350 },
+      ],
+      moveDuration: 1200,
+      passLines: [
+        { x1:600, y1:350, x2:840, y2:350 },
+        { x1:840, y1:350, x2:1000, y2:350 },
+      ],
+      paths: [
+        { id:'player-lw',   type:'player',   waypoints:[{x:600,y:350},{x:700,y:350}] },
+        { id:'player-rw',   type:'player',   waypoints:[{x:790,y:190},{x:940,y:215}] },
+        { id:'player-c',    type:'player',   waypoints:[{x:840,y:350},{x:1000,y:350}] },
+        { id:'opponent-ld', type:'opponent', waypoints:[{x:610,y:190},{x:750,y:245}] },
+        { id:'opponent-rd', type:'opponent', waypoints:[{x:610,y:510},{x:750,y:440}] },
+      ],
+      triangle: [{x:940,y:215},{x:1000,y:350},{x:1025,y:350}],
+    };
+
     function loadScriptedScene(scene) {
       if (scene.scenario) {
         board.loadScenario(scene.scenario);
@@ -1884,6 +1992,16 @@
     $('btn-scenario-dbl-pass').addEventListener('click', () => {
       loadScriptedScene(DOUBLE_PASS_CROSS);
       setActiveScenarioBtn('btn-scenario-dbl-pass');
+    });
+
+    $('btn-scenario-laufduell').addEventListener('click', () => {
+      loadScriptedScene(LAUFDUELL);
+      setActiveScenarioBtn('btn-scenario-laufduell');
+    });
+
+    $('btn-scenario-trans43').addEventListener('click', () => {
+      loadScriptedScene(TRANSITION_43);
+      setActiveScenarioBtn('btn-scenario-trans43');
     });
 
     // ── Sheet navigation ──────────────────────────────────────────────────────

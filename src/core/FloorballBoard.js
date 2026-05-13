@@ -129,6 +129,10 @@ export class FloorballBoard {
       <circle cx="12" cy="12" r="11" fill="#39ff14" stroke="#1a7a00" stroke-width="1.5"/>
       <circle cx="8" cy="8" r="4" fill="rgba(255,255,255,0.35)"/>
     </symbol>
+    <symbol id="${u}-sym-cone" viewBox="0 0 100 100">
+      <polygon points="50,6 94,88 6,88" fill="rgba(255,140,0,0.88)" stroke="rgba(180,80,0,0.9)" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="6" y="88" width="88" height="8" rx="4" fill="rgba(180,80,0,0.7)"/>
+    </symbol>
     <marker id="${u}-arrow-head" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
       <path d="M0,0 L0,6 L8,3 z" fill="rgba(255,255,255,0.85)"/>
     </marker>
@@ -544,7 +548,7 @@ export class FloorballBoard {
     if (!this._dragging) return;
     const token = this._dragging;
     if (!this._dragMoved) {
-      if (token.dataset.type !== 'ball') {
+      if (token.dataset.type === 'player' || token.dataset.type === 'opponent') {
         const angle = (parseFloat(token.dataset.angle ?? '0') + 45) % 360;
         token.dataset.angle = angle;
         this._updateTransform(token);
@@ -847,6 +851,7 @@ export class FloorballBoard {
   reset() {
     this._ballOwner = null;
     this._svg.querySelectorAll(`.${this._uid}-token`).forEach(token => {
+      if (token.dataset.type === 'cone') return;
       if (token.dataset.type === 'ball') {
         token.dataset.x = '600'; token.dataset.y = '350';
       } else {
@@ -896,6 +901,37 @@ export class FloorballBoard {
   setBallOwner(tokenId) {
     this._ballOwner = tokenId ?? null;
     if (this._ballOwner) this._placeBallAtOwner();
+    return this;
+  }
+
+  addCone(x, y) {
+    const u     = this._uid;
+    const layer = this._q('tokens');
+    const ball  = this._q('ball');
+    const idx   = layer.querySelectorAll('[data-type="cone"]').length + 1;
+    const id    = `cone-${idx}`;
+    const g     = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('id',    `${u}-${id}`);
+    g.setAttribute('class', `${u}-token`);
+    g.dataset.type  = 'cone';
+    g.dataset.tid   = id;
+    g.dataset.x     = x;
+    g.dataset.y     = y;
+    g.dataset.angle = '0';
+    this._updateTransform(g);
+    const use = document.createElementNS(SVG_NS, 'use');
+    use.setAttribute('href',   `#${u}-sym-cone`);
+    use.setAttribute('x',      '-14');
+    use.setAttribute('y',      '-14');
+    use.setAttribute('width',  '28');
+    use.setAttribute('height', '28');
+    g.appendChild(use);
+    layer.insertBefore(g, ball);
+    return this;
+  }
+
+  clearCones() {
+    this._svg.querySelectorAll(`.${this._uid}-token[data-type="cone"]`).forEach(t => t.remove());
     return this;
   }
 
