@@ -190,6 +190,28 @@
     .btn-line           { border-color: #40c8e8; color: #40c8e8; }
     .btn-line.active    { background: #40c8e8; }
 
+    /* ── Scene subtitle overlay ─────────────────────────────────────────────── */
+    #scene-subtitle {
+      display: none;
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      text-align: center;
+      max-width: 90%;
+      pointer-events: none;
+      z-index: 20;
+      white-space: normal;
+    }
+    #scene-subtitle.visible { display: block; }
+    .sub-title { font-weight: 600; margin-bottom: 2px; }
+    .sub-desc  { opacity: 0.85; font-size: 12px; line-height: 1.4; }
+
     /* ── Size control ────────────────────────────────────────────────────────── */
     .size-control {
       display: flex;
@@ -218,11 +240,16 @@
       font-variant-numeric: tabular-nums;
     }
   </style>
-  <script type="module" crossorigin src="/top-shelf/assets/index-B0yX4h4D.js"></script>
+  <script type="module" crossorigin src="/top-shelf/assets/index-CKWsTrwz.js"></script>
 </head>
 <body>
 
   <div id="mount"></div>
+
+  <div id="scene-subtitle">
+    <div id="sub-title-text" class="sub-title"></div>
+    <div id="sub-desc-text"  class="sub-desc"></div>
+  </div>
 
   <!-- Active tool status bar -->
   <div id="editor-bar" class="editor-bar">
@@ -253,6 +280,13 @@
     <div class="sheet-section">Scripted</div>
     <div class="sheet-row">
       <button id="btn-scenario-transition" class="sbtn btn-anim">Transition</button>
+    </div>
+    <div class="sheet-section">Training</div>
+    <div class="sheet-row">
+      <button id="btn-scenario-backcheck"   class="sbtn btn-anim">2:1 Backcheck</button>
+      <button id="btn-scenario-hokey-pokey" class="sbtn btn-anim">Hokey-Pokey</button>
+      <button id="btn-scenario-wing"        class="sbtn btn-anim">Wing Decision</button>
+      <button id="btn-scenario-dbl-pass"    class="sbtn btn-anim">360° Pass</button>
     </div>
   </div>
 
@@ -301,6 +335,12 @@
   <!-- Board sheet -->
   <div id="sheet-board" class="sheet">
     <div class="sheet-handle"></div>
+    <div class="sheet-section">Setup</div>
+    <div class="sheet-row">
+      <button id="btn-clear-board"   class="sbtn btn-reset">Clear Board</button>
+      <button id="btn-add-attacker"  class="sbtn btn-anim">+ Attacker</button>
+      <button id="btn-add-defender"  class="sbtn btn-shoot">+ Defender</button>
+    </div>
     <div class="sheet-section">Export</div>
     <div class="sheet-row">
       <button id="btn-capture-home" class="sbtn btn-capture">Cap Home</button>
