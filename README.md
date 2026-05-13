@@ -17,9 +17,11 @@ The hosted app is a full-screen mobile-first coaching tool. A bottom tab bar giv
 | **Scenes** | Load preset scenarios or scripted play animations |
 | **Layers** | Toggle rink markings and goalie-zone overlays |
 | **Tools** | Polygon editor, line tool, animation tool, zone editors |
-| **Board** | Export positions, change language, resize tokens |
+| **Board** | Setup (clear board, add attackers/defenders), export positions, change language, resize tokens |
 
 Tap a scenario to place teams; tap **Transition** to load a scripted multi-phase play with animated ball passing. The board fills the full screen on desktop and mobile, landscape and portrait.
+
+**Setup mode:** The Board tab's Setup section lets you start with a blank field. **Clear Board** removes all tokens. **+ Attacker** and **+ Defender** add individual tokens labelled A1, A2… or D1, D2…, ready to drag into position. Drag the ball onto any player to give them possession — the ball snaps to just in front of the player in the direction they face and follows all movements and rotations.
 
 ---
 
@@ -125,6 +127,7 @@ new FloorballBoard(mountElement, options)
 | `setPlayers(defs)` | `this` | Replace home team tokens; preserves positions of matching IDs |
 | `setOpponents(defs)` | `this` | Replace away team tokens; preserves positions of matching IDs |
 | `setLayer(name, visible)` | `this` | Show or hide a named layer (see Layers below) |
+| `setBallOwner(tokenId)` | `this` | Snap the ball in front of the token with the given id; pass `null` to release |
 | `setShootingLine(active)` | `this` | Toggle shooting line and triangle from ball to goal |
 | `moveGoalieToIdealPosition(duration?)` | `this` | Animate the defending goalkeeper to the optimal position (requires shooting line active; default 700 ms) |
 | `loadScenario(name)` | `this` | Reset to a named preset scenario (see Scenarios below) |
@@ -237,10 +240,18 @@ Rink structure labels (Team Bench, Penalty Bench, Officials) follow IFF Rules of
 |---|---|
 | Drag a token | Move it to a new position |
 | Click a token (no drag) | Rotate it 45° |
+| Drag ball onto a player token | Snap ball in front of that player (ball follows when player is dragged or rotated) |
+| Drag ball away from a player | Release ownership; ball stays where dropped |
 | Click the ball (shooting line active) | Switch the target goal |
 | `moveGoalieToIdealPosition()` | Animate goalkeeper along the arc between goal line centre and ball |
 
 Tokens are constrained to the SVG viewBox (0 0 1200 700) and cannot be dragged off the rink. Touch drag is fully supported; `touch-action: none` is applied to the SVG element.
+
+### Ball ownership
+
+The ball is always visible on the field. Drag it onto a player token (within the token's radius) to assign ownership — the ball snaps to just in front of the player in the direction they face. Once owned, the ball moves and rotates with the player. Drag the ball away from the player to release ownership.
+
+`setBallOwner(tokenId)` assigns ownership programmatically. Pass `null` to release.
 
 ---
 

@@ -68,6 +68,9 @@ export class FloorballBoard {
     this._cancelGoalieAnim = null;
     this._animFrameId      = null;
 
+    // Ball ownership
+    this._ballOwner = null;
+
     // Zoom / pan state
     this._vb       = { x: 0, y: 0, w: 1200, h: 700 };
     this._pinch    = null;   // { dist } when two fingers are down
@@ -447,6 +450,21 @@ export class FloorballBoard {
     this._updateTransform(goalie);
   }
 
+  _placeBallAtOwner() {
+    if (!this._ballOwner) return;
+    const owner = this._q(this._ballOwner);
+    const ball  = this._q('ball');
+    if (!owner || !ball) return;
+    const px  = parseFloat(owner.dataset.x);
+    const py  = parseFloat(owner.dataset.y);
+    const ang = parseFloat(owner.dataset.angle ?? '0') * Math.PI / 180;
+    const off = this._tokenSize / 2 + 12;
+    ball.dataset.x = px + Math.cos(ang) * off;
+    ball.dataset.y = py + Math.sin(ang) * off;
+    this._updateTransform(ball);
+    if (this._shootingActive) this._updateShootingLine();
+  }
+
   _calcIdealGoaliePos(bx, by) {
     const origin = GOAL_LINE_CENTERS[this._shootingTarget];
     const dx = bx - origin.x;
@@ -480,6 +498,7 @@ export class FloorballBoard {
     const fp = this._toSvgPoint(clientX, clientY);
     this._dragOffset.x = fp.x - parseFloat(token.dataset.x);
     this._dragOffset.y = fp.y - parseFloat(token.dataset.y);
+    if (token.dataset.type === 'ball') this._ballOwner = null;
   }
 
   _handleMove(clientX, clientY) {
@@ -492,6 +511,9 @@ export class FloorballBoard {
     if (this._dragging.id === this._id('ball') && this._shootingActive) {
       this._updateShootingLine();
     }
+    if (this._dragging.dataset.tid === this._ballOwner) {
+      this._placeBallAtOwner();
+    }
   }
 
   _handleUp() {
@@ -502,6 +524,7 @@ export class FloorballBoard {
         const angle = (parseFloat(token.dataset.angle ?? '0') + 45) % 360;
         token.dataset.angle = angle;
         this._updateTransform(token);
+        if (token.dataset.tid === this._ballOwner) this._placeBallAtOwner();
         this._emit('tokenRotated', { id: token.id, angle });
       } else if (this._shootingActive) {
         this._shootingTarget = this._shootingTarget === 'right' ? 'left' : 'right';
@@ -509,6 +532,23 @@ export class FloorballBoard {
         this._emit('goalSwitched', { target: this._shootingTarget });
       }
     } else {
+      if (token.dataset.type === 'ball') {
+        // Snap ball to nearest player token if close enough
+        const bx = parseFloat(token.dataset.x);
+        const by = parseFloat(token.dataset.y);
+        const snapDist = this._tokenSize / 2;
+        let nearest = null, nearestDist = Infinity;
+        this._svg.querySelectorAll(`.${this._uid}-token:not([data-type="ball"])`).forEach(t => {
+          const dx = parseFloat(t.dataset.x) - bx;
+          const dy = parseFloat(t.dataset.y) - by;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < snapDist && d < nearestDist) { nearestDist = d; nearest = t; }
+        });
+        if (nearest) {
+          this._ballOwner = nearest.dataset.tid;
+          this._placeBallAtOwner();
+        }
+      }
       this._emit('tokenMoved', {
         id:    token.id,
         x:     parseFloat(token.dataset.x),
@@ -780,6 +820,7 @@ export class FloorballBoard {
   }
 
   reset() {
+    this._ballOwner = null;
     this._svg.querySelectorAll(`.${this._uid}-token`).forEach(token => {
       if (token.dataset.type === 'ball') {
         token.dataset.x = '600'; token.dataset.y = '350';
@@ -824,6 +865,12 @@ export class FloorballBoard {
     updateSym(`${this._uid}-sym-opponent-goalie`,  a.color, a.accent);
     this._svg.querySelectorAll('[data-type="player"] text').forEach(t => t.setAttribute('fill', h.accent));
     this._svg.querySelectorAll('[data-type="opponent"] text').forEach(t => t.setAttribute('fill', a.accent));
+    return this;
+  }
+
+  setBallOwner(tokenId) {
+    this._ballOwner = tokenId ?? null;
+    if (this._ballOwner) this._placeBallAtOwner();
     return this;
   }
 
