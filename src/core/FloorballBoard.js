@@ -47,7 +47,7 @@ export class FloorballBoard {
     this._opts = {
       lang:      'en',
       tokenSize: DEFAULT_TOKEN_SIZE,
-      layers:    { rink: true, zones: true },
+      layers:    { rink: true },
       home:      { color: '#003DA5', accent: '#FFCD00' },
       away:      { color: '#8b1a2a', accent: '#ffffff' },
       players:   DEFAULT_PLAYERS,
