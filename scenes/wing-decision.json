@@ -1,0 +1,47 @@
+{
+  "button": "Wing Decision",
+  "category": "training",
+  "order": 4,
+  "scenario": null,
+  "title": { "en": "Wing Decision", "de": "Entscheidung des Flügels" },
+  "description": {
+    "en": "A plays to B. C overlaps. B lays off to C. C back to A at the boards. A through to B at the far post.",
+    "de": "A passt zu B. C überläuft. B legt quer zu C. C zurück zu A am Band. A durch zu B am langen Pfosten."
+  },
+  "players": [
+    { "id": "player-g",  "label": "G",  "symbol": "sym-player-goalie", "x": 175, "y": 350 },
+    { "id": "player-ld", "label": "V1", "x": 380, "y": 350 },
+    { "id": "player-rd", "label": "A",  "x": 450, "y": 195 },
+    { "id": "player-c",  "label": "C",  "x": 700, "y": 370 },
+    { "id": "player-lw", "label": "B",  "x": 700, "y": 170 },
+    { "id": "player-rw", "label": "V2", "x": 380, "y": 480 }
+  ],
+  "opponents": [
+    { "id": "opponent-g",  "label": "G",  "symbol": "sym-opponent-goalie", "x": 1025, "y": 350 },
+    { "id": "opponent-ld", "label": "V1", "x": 920, "y": 215 },
+    { "id": "opponent-rd", "label": "V2", "x": 920, "y": 485 },
+    { "id": "opponent-c",  "label": "C",  "x": 800, "y": 350 },
+    { "id": "opponent-lw", "label": "A1", "x": 700, "y": 215 },
+    { "id": "opponent-rw", "label": "A2", "x": 700, "y": 485 }
+  ],
+  "ballStart": { "x": 450, "y": 195 },
+  "ballPhases": [
+    { "x": 700, "y": 170, "ms": 300 },
+    { "x": 730, "y": 250, "ms": 250 },
+    { "x": 555, "y": 140, "ms": 300 },
+    { "x": 980, "y": 240 }
+  ],
+  "moveDuration": 1200,
+  "passLines": [
+    { "x1": 450, "y1": 195, "x2": 700, "y2": 170 },
+    { "x1": 700, "y1": 170, "x2": 730, "y2": 250 },
+    { "x1": 730, "y1": 250, "x2": 555, "y2": 140 },
+    { "x1": 555, "y1": 140, "x2": 980, "y2": 240 }
+  ],
+  "paths": [
+    { "id": "player-rd", "type": "player", "waypoints": [{"x":450,"y":195},{"x":555,"y":140}] },
+    { "id": "player-lw", "type": "player", "waypoints": [{"x":700,"y":170},{"x":980,"y":240}] },
+    { "id": "player-c",  "type": "player", "waypoints": [{"x":700,"y":370},{"x":730,"y":250}] }
+  ],
+  "triangle": [{"x":555,"y":140},{"x":980,"y":240},{"x":1025,"y":350}]
+}

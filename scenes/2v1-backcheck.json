@@ -1,0 +1,36 @@
+{
+  "button": "2:1 Backcheck",
+  "category": "training",
+  "order": 2,
+  "scenario": null,
+  "title": { "en": "2:1 with Backchecking", "de": "2:1 mit Rückcheck" },
+  "description": {
+    "en": "C in the corner passes to S in the slot. 2:1 vs D1. Once the ball crosses centre, D2 backchecks.",
+    "de": "C in der Ecke passt zu S im Slot. 2:1 gegen D1. Sobald der Ball die Mittellinie überquert, checkt D2 zurück."
+  },
+  "players": [
+    { "id": "player-c",  "label": "C", "x": 125, "y": 575 },
+    { "id": "player-lw", "label": "S", "x": 540, "y": 350 }
+  ],
+  "opponents": [
+    { "id": "opponent-g",  "label": "G",  "symbol": "sym-opponent-goalie", "x": 1025, "y": 350 },
+    { "id": "opponent-ld", "label": "D1", "x": 800, "y": 300 },
+    { "id": "opponent-rd", "label": "D2", "x": 540, "y": 185 }
+  ],
+  "ballStart": { "x": 125, "y": 575 },
+  "ballPhases": [
+    { "x": 540, "y": 350, "ms": 400 },
+    { "x": 970, "y": 300 }
+  ],
+  "moveDuration": 1200,
+  "passLines": [
+    { "x1": 125, "y1": 575, "x2": 540, "y2": 350 },
+    { "x1": 540, "y1": 350, "x2": 970, "y2": 300 }
+  ],
+  "paths": [
+    { "id": "player-c",    "type": "player",   "waypoints": [{"x":125,"y":575},{"x":700,"y":450}] },
+    { "id": "player-lw",   "type": "player",   "waypoints": [{"x":540,"y":350},{"x":970,"y":300}] },
+    { "id": "opponent-rd", "type": "opponent", "waypoints": [{"x":540,"y":185},{"x":800,"y":270}] }
+  ],
+  "triangle": [{"x":700,"y":450},{"x":970,"y":300},{"x":1025,"y":350}]
+}

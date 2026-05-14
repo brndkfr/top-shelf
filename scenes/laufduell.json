@@ -1,0 +1,29 @@
+{
+  "button": "Laufduell",
+  "category": "training",
+  "order": 6,
+  "scenario": null,
+  "title": { "en": "Laufduell - Goal!", "de": "Laufduell - Tor!" },
+  "description": {
+    "en": "A starts with ball and races directly to goal. D may only backcheck after A crosses the centre line.",
+    "de": "A startet mit Ball und zieht direkt aufs Tor. D darf erst backchecken, wenn A die Mittellinie überquert hat."
+  },
+  "players": [
+    { "id": "player-lw", "label": "A", "x": 510, "y": 205 }
+  ],
+  "opponents": [
+    { "id": "opponent-g",  "label": "G", "symbol": "sym-opponent-goalie", "x": 1025, "y": 350 },
+    { "id": "opponent-ld", "label": "D", "x": 730, "y": 205 }
+  ],
+  "ballStart": { "x": 510, "y": 205 },
+  "ballPhases": [
+    { "x": 960, "y": 205 }
+  ],
+  "moveDuration": 1400,
+  "passLines": [],
+  "paths": [
+    { "id": "player-lw",   "type": "player",   "waypoints": [{"x":510,"y":205},{"x":960,"y":205}] },
+    { "id": "opponent-ld", "type": "opponent", "waypoints": [{"x":730,"y":205},{"x":870,"y":230}] }
+  ],
+  "triangle": [{"x":900,"y":165},{"x":960,"y":205},{"x":1025,"y":350}]
+}

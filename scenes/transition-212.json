@@ -1,0 +1,28 @@
+{
+  "button": "Transition",
+  "category": "scripted",
+  "order": 1,
+  "scenario": "defensiv-212",
+  "title": { "en": "Transition 2:1:2", "de": "Transition 2:1:2" },
+  "description": {
+    "en": "V1 passes to S1, S1 relays to C. S1 sprints to corner, C drives to slot, S2 forms the triangle.",
+    "de": "V1 passt zu S1, S1 zu C. S1 sprintet in die Ecke, C treibt zum Slot, S2 bildet das Dreieck."
+  },
+  "ballStart": { "x": 295, "y": 215 },
+  "ballPhases": [
+    { "x": 545, "y": 215, "ms": 350 },
+    { "x": 400, "y": 350, "ms": 400 },
+    { "x": 895, "y": 350 }
+  ],
+  "moveDuration": 1200,
+  "passLines": [
+    { "x1": 295, "y1": 215, "x2": 545, "y2": 215 },
+    { "x1": 545, "y1": 215, "x2": 400, "y2": 350 }
+  ],
+  "paths": [
+    { "id": "player-lw", "type": "player", "waypoints": [{"x":545,"y":215},{"x":720,"y":145},{"x":1075,"y":140}] },
+    { "id": "player-c",  "type": "player", "waypoints": [{"x":400,"y":350},{"x":650,"y":325},{"x":895,"y":350}] },
+    { "id": "player-rw", "type": "player", "waypoints": [{"x":510,"y":485},{"x":895,"y":470}] }
+  ],
+  "triangle": [{"x":1075,"y":140},{"x":895,"y":350},{"x":895,"y":470}]
+}

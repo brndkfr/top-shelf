@@ -1,0 +1,45 @@
+{
+  "button": "360° Pass",
+  "category": "training",
+  "order": 5,
+  "scenario": null,
+  "title": { "en": "360° Double-Pass", "de": "360° Doppelpass" },
+  "description": {
+    "en": "P1 double-pass with P2. P1 continues and plays a cross-pass (Querpass) to running P3 who shoots.",
+    "de": "P1 Doppelpass mit P2. P1 läuft weiter und spielt Querpass zu P3, der aufs Tor schiesst."
+  },
+  "players": [
+    { "id": "player-g",  "label": "G",  "symbol": "sym-player-goalie", "x": 175, "y": 350 },
+    { "id": "player-ld", "label": "V1", "x": 380, "y": 480 },
+    { "id": "player-rd", "label": "P3", "x": 430, "y": 400 },
+    { "id": "player-c",  "label": "P2", "x": 430, "y": 200 },
+    { "id": "player-lw", "label": "P1", "x": 560, "y": 200 },
+    { "id": "player-rw", "label": "V2", "x": 380, "y": 220 }
+  ],
+  "opponents": [
+    { "id": "opponent-g",  "label": "G",  "symbol": "sym-opponent-goalie", "x": 1025, "y": 350 },
+    { "id": "opponent-ld", "label": "V1", "x": 920, "y": 215 },
+    { "id": "opponent-rd", "label": "V2", "x": 920, "y": 485 },
+    { "id": "opponent-c",  "label": "C",  "x": 800, "y": 350 },
+    { "id": "opponent-lw", "label": "A1", "x": 700, "y": 215 },
+    { "id": "opponent-rw", "label": "A2", "x": 700, "y": 485 }
+  ],
+  "ballStart": { "x": 560, "y": 200 },
+  "ballPhases": [
+    { "x": 430, "y": 200, "ms": 250 },
+    { "x": 660, "y": 200, "ms": 250 },
+    { "x": 950, "y": 400 }
+  ],
+  "moveDuration": 1200,
+  "passLines": [
+    { "x1": 560, "y1": 200, "x2": 430, "y2": 200 },
+    { "x1": 430, "y1": 200, "x2": 660, "y2": 200 },
+    { "x1": 660, "y1": 200, "x2": 950, "y2": 400 }
+  ],
+  "paths": [
+    { "id": "player-lw", "type": "player", "waypoints": [{"x":560,"y":200},{"x":660,"y":200}] },
+    { "id": "player-c",  "type": "player", "waypoints": [{"x":430,"y":200},{"x":530,"y":200}] },
+    { "id": "player-rd", "type": "player", "waypoints": [{"x":430,"y":400},{"x":950,"y":400}] }
+  ],
+  "triangle": [{"x":660,"y":200},{"x":950,"y":400},{"x":1025,"y":350}]
+}

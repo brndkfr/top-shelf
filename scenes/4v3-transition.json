@@ -1,0 +1,43 @@
+{
+  "button": "4:3 Transition",
+  "category": "training",
+  "order": 7,
+  "scenario": null,
+  "title": { "en": "4:3 Offensive Transition", "de": "4:3 Offensiv-Transition" },
+  "description": {
+    "en": "4 attackers (incl. passer P at centre) vs 3 defenders. On turnover, E1 and E2 join from the sideline: 5:4.",
+    "de": "4 Angreifer (inkl. Passeur P an Mittellinie) gegen 3. Bei Ballgewinn kommen E1/E2 für 5:4-Überzahl."
+  },
+  "players": [
+    { "id": "player-lw", "label": "P",  "x": 600, "y": 350 },
+    { "id": "player-rw", "label": "A1", "x": 790, "y": 190 },
+    { "id": "player-c",  "label": "A2", "x": 840, "y": 350 },
+    { "id": "player-rd", "label": "A3", "x": 790, "y": 500 }
+  ],
+  "opponents": [
+    { "id": "opponent-g",  "label": "G",  "symbol": "sym-opponent-goalie", "x": 1025, "y": 350 },
+    { "id": "opponent-lw", "label": "D1", "x": 880, "y": 225 },
+    { "id": "opponent-c",  "label": "D2", "x": 900, "y": 350 },
+    { "id": "opponent-rw", "label": "D3", "x": 880, "y": 475 },
+    { "id": "opponent-ld", "label": "E1", "x": 610, "y": 190 },
+    { "id": "opponent-rd", "label": "E2", "x": 610, "y": 510 }
+  ],
+  "ballStart": { "x": 600, "y": 350 },
+  "ballPhases": [
+    { "x": 840, "y": 350, "ms": 400 },
+    { "x": 1000, "y": 350 }
+  ],
+  "moveDuration": 1200,
+  "passLines": [
+    { "x1": 600, "y1": 350, "x2": 840, "y2": 350 },
+    { "x1": 840, "y1": 350, "x2": 1000, "y2": 350 }
+  ],
+  "paths": [
+    { "id": "player-lw",   "type": "player",   "waypoints": [{"x":600,"y":350},{"x":700,"y":350}] },
+    { "id": "player-rw",   "type": "player",   "waypoints": [{"x":790,"y":190},{"x":940,"y":215}] },
+    { "id": "player-c",    "type": "player",   "waypoints": [{"x":840,"y":350},{"x":1000,"y":350}] },
+    { "id": "opponent-ld", "type": "opponent", "waypoints": [{"x":610,"y":190},{"x":750,"y":245}] },
+    { "id": "opponent-rd", "type": "opponent", "waypoints": [{"x":610,"y":510},{"x":750,"y":440}] }
+  ],
+  "triangle": [{"x":940,"y":215},{"x":1000,"y":350},{"x":1025,"y":350}]
+}
