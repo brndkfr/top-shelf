@@ -1,22 +1,29 @@
+import { gsap } from 'gsap';
+
 export function animateToken(token, targetX, targetY, targetAngle, updateTransform, duration = 700) {
-  const startX     = parseFloat(token.dataset.x);
-  const startY     = parseFloat(token.dataset.y);
   const startAngle = parseFloat(token.dataset.angle ?? '0');
   // shortest-path delta on the angle circle
   const delta = ((targetAngle - startAngle) % 360 + 540) % 360 - 180;
-  const start = performance.now();
-  let rafId = null;
 
-  function step(now) {
-    const t    = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
-    token.dataset.x     = startX     + (targetX - startX) * ease;
-    token.dataset.y     = startY     + (targetY - startY) * ease;
-    token.dataset.angle = startAngle + delta * ease;
-    updateTransform(token);
-    if (t < 1) rafId = requestAnimationFrame(step);
-  }
+  const proxy = {
+    x:     parseFloat(token.dataset.x),
+    y:     parseFloat(token.dataset.y),
+    angle: startAngle,
+  };
 
-  rafId = requestAnimationFrame(step);
-  return () => { if (rafId !== null) cancelAnimationFrame(rafId); };
+  const tween = gsap.to(proxy, {
+    x:     targetX,
+    y:     targetY,
+    angle: startAngle + delta,
+    duration: duration / 1000,
+    ease: 'power2.out',
+    onUpdate() {
+      token.dataset.x     = proxy.x;
+      token.dataset.y     = proxy.y;
+      token.dataset.angle = proxy.angle;
+      updateTransform(token);
+    },
+  });
+
+  return () => tween.kill();
 }

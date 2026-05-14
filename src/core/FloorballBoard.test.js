@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { gsap } from 'gsap';
 import { FloorballBoard } from './FloorballBoard.js';
 import { TOKEN_SIZE_MIN, TOKEN_SIZE_MAX, DEFAULT_PLAYERS } from './constants.js';
 import { SCENARIOS } from './scenarios.js';
+
+const fastForward = () =>
+  gsap.globalTimeline.totalTime(gsap.globalTimeline.totalTime() + 100);
 
 let mount, board;
 
@@ -308,6 +312,74 @@ describe('loadScenario', () => {
 
   it('returns the board instance for chaining', () => {
     expect(board.loadScenario('forechecking')).toBe(board);
+  });
+});
+
+// ── rotateTokenTo ─────────────────────────────────────────────────────────────
+
+describe('rotateTokenTo', () => {
+  afterEach(() => { gsap.killTweensOf('*'); });
+
+  it('rotates the token to the target angle via shortest path', () => {
+    const { players } = board.getPositions();
+    const id = players[0].id;
+    const token = mount.querySelector(`[data-tid="${id}"]`);
+    token.dataset.angle = '350';
+    board.rotateTokenTo(id, 10, 100);
+    fastForward();
+    expect(parseFloat(token.dataset.angle)).toBeCloseTo(370);
+  });
+
+  it('returns null for unknown id', () => {
+    expect(board.rotateTokenTo('does-not-exist', 90)).toBeNull();
+  });
+});
+
+// ── findNearestPlayer ─────────────────────────────────────────────────────────
+
+describe('findNearestPlayer', () => {
+  it('returns the closest player within maxDist', () => {
+    const { players } = board.getPositions();
+    const target = players[0];
+    const found = board.findNearestPlayer(target.x + 5, target.y + 5, 80);
+    expect(found).not.toBeNull();
+    expect(found.id).toBe(target.id);
+  });
+
+  it('returns null when no player is within maxDist', () => {
+    expect(board.findNearestPlayer(-9999, -9999, 80)).toBeNull();
+  });
+});
+
+// ── trackGoalieToBall / Winkelspiel ───────────────────────────────────────────
+
+describe('trackGoalieToBall', () => {
+  it('moves the defending goalie toward the ideal position (mid-range ball)', () => {
+    const goalie = mount.querySelector('[data-tid="opponent-g"]');
+    // Ball at (600, 350): distance 428.75 → offset 25 + (228.75/300)*55 ≈ 66.94 → x ≈ 961.81
+    for (let i = 0; i < 80; i++) board.trackGoalieToBall(600, 350);
+    expect(parseFloat(goalie.dataset.x)).toBeCloseTo(961.81, 1);
+  });
+
+  it('steps the goalie out for very far balls (offset capped at 80)', () => {
+    const goalie = mount.querySelector('[data-tid="opponent-g"]');
+    // Ball at (300, 350): distance 728.75 > 500 → offset 80 → x ≈ 948.75
+    for (let i = 0; i < 80; i++) board.trackGoalieToBall(300, 350);
+    expect(parseFloat(goalie.dataset.x)).toBeCloseTo(948.75, 0);
+  });
+
+  it('pulls the goalie deep into the crease for close balls', () => {
+    const goalie = mount.querySelector('[data-tid="opponent-g"]');
+    // Close ball at (900, 350) → distance 128.75, offset 25 → x ≈ 1003.75
+    for (let i = 0; i < 80; i++) board.trackGoalieToBall(900, 350);
+    expect(parseFloat(goalie.dataset.x)).toBeCloseTo(1003.75, 0);
+  });
+
+  it('approaches ideal position close to the ball with a small offset', async () => {
+    const { idealGoalieOffset } = await import('./constants.js');
+    expect(idealGoalieOffset(100)).toBe(25);
+    expect(idealGoalieOffset(800)).toBe(80);
+    expect(idealGoalieOffset(350)).toBeCloseTo(25 + (150/300)*55);
   });
 });
 

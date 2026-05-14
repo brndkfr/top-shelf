@@ -1,10 +1,11 @@
 import {
-  SVG_NS, GOALS, GOAL_POSTS, GOAL_LINE_CENTERS, GOALIE_STAND_OFFSET,
+  SVG_NS, GOALS, GOAL_POSTS, GOAL_LINE_CENTERS, GOALIE_STAND_OFFSET, idealGoalieOffset,
   DEFAULT_TOKEN_SIZE, TOKEN_SIZE_MIN, TOKEN_SIZE_MAX,
   DEFAULT_PLAYERS, DEFAULT_OPPONENTS, ZONE_LABELS, ZONE_LABELS_LEFT, RINK_LABELS,
   PLAYER_PATH, GOALIE_PATH, GOALIE_CAGE,
 } from './constants.js';
 import { animateToken } from './animation.js';
+import { gsap } from 'gsap';
 import { SCENARIOS } from './scenarios.js';
 import rinkSvgRaw   from '../assets/rink.svg?raw';
 import zonesSvgRaw  from '../assets/zones.svg?raw';
@@ -283,11 +284,11 @@ export class FloorballBoard {
 
   <polygon id="${u}-shooting-triangle"
            points="600,350 1028.75,330 1028.75,370"
-           fill="rgba(232,200,64,0.22)" stroke="rgba(232,200,64,0.5)"
+           fill="rgba(57,255,20,0.18)" stroke="rgba(57,255,20,0.55)"
            stroke-width="1" display="none"/>
   <line id="${u}-shooting-line"
         x1="600" y1="350" x2="1036.25" y2="350"
-        stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-dasharray="10,5"
+        stroke="rgba(57,255,20,0.85)" stroke-width="2" stroke-dasharray="10,5"
         marker-end="url(#${u}-arrow-head)" display="none"/>
 
   <g id="${u}-tokens"></g>
@@ -498,9 +499,10 @@ export class FloorballBoard {
     const dx = bx - origin.x;
     const dy = by - origin.y;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    const offset = idealGoalieOffset(len);
     return {
-      x:     origin.x + (dx / len) * GOALIE_STAND_OFFSET,
-      y:     origin.y + (dy / len) * GOALIE_STAND_OFFSET,
+      x:     origin.x + (dx / len) * offset,
+      y:     origin.y + (dy / len) * offset,
       angle: Math.atan2(dy, dx) * 180 / Math.PI,
     };
   }
@@ -904,6 +906,28 @@ export class FloorballBoard {
     return this;
   }
 
+  moveBallTo(x, y) {
+    const ball = this._q('ball');
+    if (!ball) return this;
+    ball.dataset.x = x;
+    ball.dataset.y = y;
+    this._updateTransform(ball);
+    if (this._shootingActive) this._updateShootingLine();
+    return this;
+  }
+
+  getBallPosition() {
+    const ball = this._q('ball');
+    return ball
+      ? { x: parseFloat(ball.dataset.x), y: parseFloat(ball.dataset.y) }
+      : null;
+  }
+
+  updateShootingLine() {
+    if (this._shootingActive) this._updateShootingLine();
+    return this;
+  }
+
   addCone(x, y) {
     const u     = this._uid;
     const layer = this._q('tokens');
@@ -981,35 +1005,90 @@ export class FloorballBoard {
   }
 
   animatePaths(paths, duration = 3000) {
-    return new Promise(resolve => {
-      const layer = this._q('tokens');
-      const entries = paths
-        .map(({ id, waypoints }) => {
-          const token = [...layer.querySelectorAll('[data-tid]')]
-            .find(t => t.dataset.tid === id);
-          return token ? { token, waypoints } : null;
-        })
-        .filter(Boolean);
-      const start = performance.now();
-      const tick = (now) => {
-        const t = Math.min((now - start) / duration, 1);
-        entries.forEach(({ token, waypoints }) => {
-          const pos = lerpWaypoints(waypoints, t);
+    const layer = this._q('tokens');
+    const entries = paths
+      .map(({ id, waypoints }) => {
+        const token = [...layer.querySelectorAll('[data-tid]')]
+          .find(t => t.dataset.tid === id);
+        return token ? { token, waypoints } : null;
+      })
+      .filter(Boolean);
+
+    if (this._pathsTimeline) this._pathsTimeline.kill();
+
+    const tl = gsap.timeline();
+    const dur = duration / 1000;
+    entries.forEach(({ token, waypoints }) => {
+      const proxy = { t: 0 };
+      tl.to(proxy, {
+        t: 1,
+        duration: dur,
+        ease: 'none',
+        onUpdate: () => {
+          const pos = lerpWaypoints(waypoints, proxy.t);
           token.dataset.x = pos.x;
           token.dataset.y = pos.y;
           this._updateTransform(token);
-        });
-        if (t < 1) { this._animFrameId = requestAnimationFrame(tick); }
-        else        { this._animFrameId = null; resolve(); }
-      };
-      if (this._animFrameId) cancelAnimationFrame(this._animFrameId);
-      this._animFrameId = requestAnimationFrame(tick);
+        },
+      }, 0);
     });
+    this._pathsTimeline = tl;
+    return tl;
   }
 
   stopAnimation() {
-    if (this._animFrameId) { cancelAnimationFrame(this._animFrameId); this._animFrameId = null; }
+    if (this._pathsTimeline) { this._pathsTimeline.kill(); this._pathsTimeline = null; }
     return this;
+  }
+
+  rotateTokenTo(id, deg, ms = 250) {
+    const token = [...this._q('tokens').querySelectorAll('[data-tid]')]
+      .find(t => t.dataset.tid === id);
+    if (!token) return null;
+
+    const startAngle = parseFloat(token.dataset.angle ?? '0');
+    const delta = ((deg - startAngle) % 360 + 540) % 360 - 180;
+    const proxy = { angle: startAngle };
+
+    return gsap.to(proxy, {
+      angle: startAngle + delta,
+      duration: ms / 1000,
+      ease: 'power2.out',
+      onUpdate: () => {
+        token.dataset.angle = proxy.angle;
+        this._updateTransform(token);
+      },
+    });
+  }
+
+  trackGoalieToBall(bx, by, smoothing = 0.18) {
+    const id     = this._shootingTarget === 'right' ? 'opponent-g' : 'player-g';
+    const goalie = this._q(id);
+    if (!goalie) return this;
+    const ideal = this._calcIdealGoaliePos(bx, by);
+    const cx = parseFloat(goalie.dataset.x);
+    const cy = parseFloat(goalie.dataset.y);
+    const ca = parseFloat(goalie.dataset.angle ?? '0');
+    const angleDelta = ((ideal.angle - ca) % 360 + 540) % 360 - 180;
+    goalie.dataset.x     = cx + (ideal.x - cx) * smoothing;
+    goalie.dataset.y     = cy + (ideal.y - cy) * smoothing;
+    goalie.dataset.angle = ca + angleDelta * smoothing;
+    this._updateTransform(goalie);
+    return this;
+  }
+
+  findNearestPlayer(x, y, maxDist = 80) {
+    const tokens = [...this._q('tokens').querySelectorAll('[data-type="player"]')];
+    let best = null;
+    for (const t of tokens) {
+      const dx = parseFloat(t.dataset.x) - x;
+      const dy = parseFloat(t.dataset.y) - y;
+      const dist = Math.hypot(dx, dy);
+      if (dist <= maxDist && (!best || dist < best.dist)) {
+        best = { id: t.dataset.tid, dist };
+      }
+    }
+    return best;
   }
 
   resetZoom() {

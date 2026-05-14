@@ -19,6 +19,14 @@ export const GOAL_LINE_CENTERS = {
 
 export const GOALIE_STAND_OFFSET = 65;
 
+// Winkelspiel: goalie distance from the goal line as a function of ball distance.
+// Close ball → deep in the crease (small offset). Far ball → step out to cut the angle.
+export function idealGoalieOffset(ballDist) {
+  if (ballDist <= 200) return 25;
+  if (ballDist >= 500) return 80;
+  return 25 + ((ballDist - 200) / 300) * 55;
+}
+
 export const DEFAULT_TOKEN_SIZE = 40;
 export const TOKEN_SIZE_STEP    = 5;
 export const TOKEN_SIZE_MIN     = 20;

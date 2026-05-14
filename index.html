@@ -71,6 +71,33 @@
     }
     .tbar-btn:active { background: rgba(255,255,255,0.2); }
 
+    /* ── Scrub slider ────────────────────────────────────────────────────────── */
+    .anim-scrub {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 110px;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.18);
+      outline: none;
+      cursor: pointer;
+    }
+    .anim-scrub::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #39ff14;
+      border: 1px solid rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+    .anim-scrub::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #39ff14;
+      border: 1px solid rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+
     /* ── Bottom tab bar ──────────────────────────────────────────────────────── */
     .tab-bar {
       position: fixed;
@@ -257,6 +284,10 @@
     <button id="btn-poly-clear" class="tbar-btn" style="display:none">Clear</button>
     <button id="btn-copy-coords" class="tbar-btn">Copy</button>
     <button id="btn-anim-play"  class="tbar-btn" style="display:none">Play</button>
+    <button id="btn-anim-pause" class="tbar-btn" style="display:none">Pause</button>
+    <button id="btn-anim-step"  class="tbar-btn" style="display:none">⏭</button>
+    <button id="btn-anim-speed" class="tbar-btn" style="display:none">1×</button>
+    <input  id="anim-scrub"     class="anim-scrub" type="range" min="0" max="1000" value="0" style="display:none">
     <button id="btn-anim-reset" class="tbar-btn" style="display:none">Reset</button>
     <button id="btn-anim-clear" class="tbar-btn" style="display:none">Clear</button>
   </div>
@@ -404,6 +435,7 @@
 
   <script type="module">
     import { FloorballBoard } from './src/index.js';
+    import { gsap } from 'gsap';
 
     const board = new FloorballBoard(document.getElementById('mount'));
     let lang     = 'en';
@@ -1391,6 +1423,10 @@
       playing: false,
       scriptedScene: null,
       scriptedPlay: null,
+      timeline: null,
+      speed: 1,
+      paused: false,
+      scrubbing: false,
     };
 
     function renderAnimPaths() {
@@ -1498,6 +1534,7 @@
 
     function deactivateAnimTool() {
       board.stopAnimation();
+      if (animTool.timeline) { animTool.timeline.kill(); animTool.timeline = null; }
       animTool.group?.remove();
       animTool.group        = null;
       animTool.overlay      = null;
@@ -1510,6 +1547,10 @@
       $('scene-subtitle').classList.remove('visible');
       $('editor-bar').style.display = 'none';
       $('btn-anim-play').style.display  = 'none';
+      $('btn-anim-pause').style.display = 'none';
+      $('btn-anim-step').style.display  = 'none';
+      $('btn-anim-speed').style.display = 'none';
+      $('anim-scrub').style.display     = 'none';
       $('btn-anim-reset').style.display = 'none';
       $('btn-anim-clear').style.display = 'none';
       $('btn-copy-coords').style.display = '';
@@ -1536,10 +1577,63 @@
       });
     });
 
+    $('btn-anim-pause').addEventListener('click', () => {
+      const tl = animTool.timeline;
+      if (!tl) return;
+      if (animTool.paused) {
+        tl.resume();
+        animTool.paused = false;
+        $('btn-anim-pause').textContent = 'Pause';
+      } else {
+        tl.pause();
+        animTool.paused = true;
+        $('btn-anim-pause').textContent = 'Resume';
+      }
+    });
+
+    $('btn-anim-step').addEventListener('click', () => {
+      const tl = animTool.timeline;
+      if (!tl) return;
+      const labels = tl.labels;
+      const phaseLabels = Object.keys(labels)
+        .filter(l => l.startsWith('phase-'))
+        .sort((a, b) => labels[a] - labels[b]);
+      const now = tl.time();
+      const next = phaseLabels.find(l => labels[l] > now + 0.001);
+      tl.pause();
+      animTool.paused = true;
+      $('btn-anim-pause').textContent = 'Resume';
+      if (next) tl.seek(next);
+      else      tl.seek(tl.duration());
+    });
+
+    $('btn-anim-speed').addEventListener('click', () => {
+      const cycle = [1, 2, 0.5];
+      const idx = cycle.indexOf(animTool.speed);
+      animTool.speed = cycle[(idx + 1) % cycle.length];
+      $('btn-anim-speed').textContent = `${animTool.speed}×`;
+      if (animTool.timeline) animTool.timeline.timeScale(animTool.speed);
+    });
+
+    $('anim-scrub').addEventListener('input', () => {
+      const tl = animTool.timeline;
+      if (!tl) return;
+      animTool.scrubbing = true;
+      tl.pause();
+      animTool.paused = true;
+      $('btn-anim-pause').textContent = 'Resume';
+      tl.progress(parseInt($('anim-scrub').value, 10) / 1000);
+    });
+    $('anim-scrub').addEventListener('change', () => { animTool.scrubbing = false; });
+
     $('btn-anim-reset').addEventListener('click', () => {
       board.stopAnimation();
+      if (animTool.timeline) { animTool.timeline.kill(); animTool.timeline = null; }
       animTool.playing = false;
+      animTool.paused  = false;
       $('btn-anim-play').textContent = 'Play';
+      $('btn-anim-pause').textContent = 'Pause';
+      $('anim-scrub').value = 0;
       if (animTool.scriptedScene) {
         loadScriptedScene(animTool.scriptedScene);
         return;
@@ -1580,19 +1674,6 @@
       path.setAttribute('fill', 'rgba(255,220,40,0.9)');
       marker.appendChild(path);
       defs.appendChild(marker);
-    }
-
-    function animateCircle(el, x1, y1, x2, y2, ms) {
-      return new Promise(resolve => {
-        const start = performance.now();
-        (function frame(now) {
-          const t = Math.min((now - start) / ms, 1);
-          el.setAttribute('cx', x1 + (x2 - x1) * t);
-          el.setAttribute('cy', y1 + (y2 - y1) * t);
-          if (t < 1) requestAnimationFrame(frame);
-          else resolve();
-        })(performance.now());
-      });
     }
 
     const TRANSITION_212 = {
@@ -1883,17 +1964,9 @@
       ensureLineArrow(svg);
       ensurePassArrow(svg);
 
-      const ballEl = document.createElementNS(NS, 'circle');
-      ballEl.setAttribute('id', 'scripted-ball');
-      ballEl.setAttribute('cx', scene.ballStart.x);
-      ballEl.setAttribute('cy', scene.ballStart.y);
-      ballEl.setAttribute('r', '8');
-      ballEl.setAttribute('fill', 'rgba(255,255,180,0.95)');
-      ballEl.setAttribute('stroke', 'rgba(200,200,100,0.9)');
-      ballEl.setAttribute('stroke-width', '2');
-      ballEl.setAttribute('pointer-events', 'none');
-      ballEl.classList.add('scripted-overlay');
-      animTool.group.appendChild(ballEl);
+      // Use the real board ball for scripted scenes — no overlay circle.
+      board.setBallOwner(null);
+      board.moveBallTo(scene.ballStart.x, scene.ballStart.y);
 
       scene.passLines.forEach(({ x1, y1, x2, y2 }) => {
         const ln = document.createElementNS(NS, 'line');
@@ -1924,33 +1997,82 @@
       renderAnimPaths();
 
       animTool.scriptedScene = scene;
-      animTool.scriptedPlay  = async function () {
+      animTool.scriptedPlay  = function () {
         if (animTool.playing) return;
         animTool.playing = true;
         $('btn-anim-play').textContent = '▶ Playing…';
 
-        ballEl.setAttribute('cx', scene.ballStart.x);
-        ballEl.setAttribute('cy', scene.ballStart.y);
+        board.setBallOwner(null);
+        board.moveBallTo(scene.ballStart.x, scene.ballStart.y);
         animTool.group.querySelectorAll('.anim-path-el').forEach(el => el.remove());
 
-        const phases = scene.ballPhases;
-        let prevX = scene.ballStart.x, prevY = scene.ballStart.y;
-        for (let i = 0; i < phases.length - 1; i++) {
-          await animateCircle(ballEl, prevX, prevY, phases[i].x, phases[i].y, phases[i].ms ?? 350);
-          prevX = phases[i].x; prevY = phases[i].y;
-        }
-        const last = phases[phases.length - 1];
-        const dur  = scene.moveDuration ?? 1200;
-        const playerPaths = [...animTool.paths.entries()].map(([id, { waypoints }]) => ({ id, waypoints }));
-        await Promise.all([
-          board.animatePaths(playerPaths, dur),
-          animateCircle(ballEl, prevX, prevY, last.x, last.y, dur),
-        ]);
+        if (animTool.timeline) animTool.timeline.kill();
+        const tl = gsap.timeline({
+          onUpdate() {
+            if (!animTool.scrubbing) {
+              $('anim-scrub').value = Math.round(tl.progress() * 1000);
+            }
+          },
+          onComplete() {
+            animTool.playing = false;
+            animTool.paused  = false;
+            $('btn-anim-play').textContent = 'Play';
+            $('btn-anim-pause').textContent = 'Pause';
+            $('anim-scrub').value = 1000;
+            renderAnimPaths();
+          },
+        });
+        tl.timeScale(animTool.speed);
 
-        animTool.playing = false;
-        $('btn-anim-play').textContent = 'Play';
-        renderAnimPaths();
+        const ballProxy = { x: scene.ballStart.x, y: scene.ballStart.y };
+        const tweenBallTo = (x, y, dur) => tl.to(ballProxy, {
+          x, y, duration: dur / 1000, ease: 'none',
+          onUpdate() {
+            board.moveBallTo(ballProxy.x, ballProxy.y);
+            board.trackGoalieToBall(ballProxy.x, ballProxy.y);
+          },
+        });
+
+        const phases = scene.ballPhases;
+        let prevBall = { x: scene.ballStart.x, y: scene.ballStart.y };
+        phases.forEach((phase, i) => {
+          const isLast = i === phases.length - 1;
+          const dur = isLast ? (scene.moveDuration ?? 1200) : (phase.ms ?? 350);
+          tl.addLabel(`phase-${i}`);
+
+          const passer = board.findNearestPlayer(prevBall.x, prevBall.y);
+          if (passer) {
+            const players = board.getPositions().players;
+            const p = players.find(pl => pl.id === passer.id);
+            if (p) {
+              const deg = Math.atan2(phase.y - p.y, phase.x - p.x) * 180 / Math.PI;
+              const rot = board.rotateTokenTo(passer.id, deg, 250);
+              if (rot) tl.add(rot, `phase-${i}`);
+            }
+          }
+
+          tweenBallTo(phase.x, phase.y, dur);
+          if (isLast) {
+            const playerPaths = [...animTool.paths.entries()]
+              .map(([id, { waypoints }]) => ({ id, waypoints }));
+            if (playerPaths.length) {
+              tl.add(board.animatePaths(playerPaths, dur), `phase-${i}`);
+            }
+          }
+          prevBall = { x: phase.x, y: phase.y };
+        });
+
+        animTool.timeline = tl;
       };
+
+      // Show playback controls for scripted scenes
+      $('btn-anim-pause').style.display = '';
+      $('btn-anim-step').style.display  = '';
+      $('btn-anim-speed').style.display = '';
+      $('anim-scrub').style.display     = '';
+      $('anim-scrub').value = 0;
+      animTool.paused = false;
+      $('btn-anim-pause').textContent = 'Pause';
 
       if (scene.title && scene.description) {
         $('sub-title-text').textContent = scene.title[lang] ?? scene.title.en;

@@ -19,7 +19,23 @@ The hosted app is a full-screen mobile-first coaching tool. A bottom tab bar giv
 | **Tools** | Polygon editor, line tool, animation tool, zone editors |
 | **Board** | Setup (clear board, add attackers/defenders), export positions, change language, resize tokens |
 
-Tap a scenario to place teams; tap **Transition** to load a scripted multi-phase play with animated ball passing. The board fills the full screen on desktop and mobile, landscape and portrait.
+Tap a scenario to place teams or pick a scripted drill (**Transition 2:1:2**, **2:1 with Backchecking**, **Hokey-Pokey Transition**, **Wing Decision**, **Laufduell**, **4:3 Powerplay**, **2:1 Backcheck**) to load a multi-phase animated play. The board fills the full screen on desktop and mobile, landscape and portrait.
+
+**Scripted drill playback.** Once a drill is loaded, the floating editor bar exposes:
+
+| Control | Behaviour |
+|---|---|
+| **Play** | Run the timeline from the start |
+| **Pause / Resume** | Freeze and unfreeze the timeline mid-drill |
+| **⏭ Step** | Pause and jump to the next pass phase |
+| **Speed** | Cycle 1× / 2× / 0.5× — applied live via `timeline.timeScale` |
+| **Scrub slider** | Scrub through the drill — pauses on input |
+| **Reset** | Re-load the drill at its start position |
+
+Scripted drills include automatic visual coaching:
+- **Passer rotates** to face the next receiver before each pass.
+- **Goalie Winkelspiel** — the defending goalie steps out to cut the angle on far shots and pulls back deep on close shots.
+- **Shooting line + triangle** track the ball through every pass when the shooting line is active.
 
 **Setup mode:** The Board tab's Setup section lets you start with a blank field. **Clear Board** removes all tokens. **+ Attacker** and **+ Defender** add individual tokens labelled A1, A2… or D1, D2…, ready to drag into position. Drag the ball onto any player to give them possession — the ball snaps to just in front of the player in the direction they face and follows all movements and rotations.
 
@@ -128,11 +144,17 @@ new FloorballBoard(mountElement, options)
 | `setOpponents(defs)` | `this` | Replace away team tokens; preserves positions of matching IDs |
 | `setLayer(name, visible)` | `this` | Show or hide a named layer (see Layers below) |
 | `setBallOwner(tokenId)` | `this` | Snap the ball in front of the token with the given id; pass `null` to release |
+| `moveBallTo(x, y)` | `this` | Place the ball at the given SVG coordinates (live-updates the shooting line when active) |
+| `getBallPosition()` | `{ x, y } \| null` | Read current ball position |
 | `setShootingLine(active)` | `this` | Toggle shooting line and triangle from ball to goal |
+| `updateShootingLine()` | `this` | Force-refresh the shooting line (used when the ball is moved externally) |
 | `moveGoalieToIdealPosition(duration?)` | `this` | Animate the defending goalkeeper to the optimal position (requires shooting line active; default 700 ms) |
+| `trackGoalieToBall(bx, by, smoothing?)` | `this` | Winkelspiel: exponentially lerp the defending goalie toward the distance-aware ideal position (callable per-frame from a tween onUpdate) |
+| `rotateTokenTo(id, deg, ms?)` | `gsap.Tween \| null` | Rotate a token to a target angle along the shortest arc (default 250 ms) |
+| `findNearestPlayer(x, y, maxDist?)` | `{ id, dist } \| null` | Return the closest player token within `maxDist` (default 80 units) |
 | `loadScenario(name)` | `this` | Reset to a named preset scenario (see Scenarios below) |
 | `getPositions()` | `{ players, opponents }` | Read current token positions as `{ id, label, symbol, x, y, angle }[]` |
-| `animatePaths(paths, duration?)` | `Promise` | Animate tokens along waypoint paths simultaneously (default 3000 ms) |
+| `animatePaths(paths, duration?)` | `gsap.Timeline` | Animate tokens along waypoint paths simultaneously (default 3000 ms). Thenable — `await` and `.then()` work |
 | `stopAnimation()` | `this` | Cancel a running animation |
 | `getState()` | `object` | Returns a snapshot of all token positions, lang, tokenSize, and shooting state |
 | `setState(state)` | `this` | Restores a previously captured snapshot |
@@ -143,7 +165,7 @@ new FloorballBoard(mountElement, options)
 
 ### `animatePaths(paths, duration)`
 
-Moves tokens simultaneously along multi-waypoint paths. Returns a `Promise` that resolves when the animation finishes.
+Moves tokens simultaneously along multi-waypoint paths. Returns a `gsap.Timeline` — thenable, so `await` and `.then()` both work. The timeline can also be `.add()`-ed to a parent timeline for composed scenes.
 
 ```js
 await board.animatePaths([
@@ -151,6 +173,10 @@ await board.animatePaths([
   { id: 'player-c',  waypoints: [{ x: 400, y: 350 }, { x: 895, y: 350 }] },
 ], 1200);
 ```
+
+### Animation engine
+
+All motion is driven by [GSAP](https://gsap.com). `animatePaths`, `rotateTokenTo`, `moveGoalieToIdealPosition`, and the internal `animateToken` helper all build gsap tweens against a `{ x, y, angle }` proxy and write `data-x` / `data-y` / `data-angle` per frame; `_updateTransform` then sets the SVG `transform` attribute.
 
 ### Layers
 
