@@ -71,6 +71,33 @@
     }
     .tbar-btn:active { background: rgba(255,255,255,0.2); }
 
+    /* ── Scrub slider ────────────────────────────────────────────────────────── */
+    .anim-scrub {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 110px;
+      height: 4px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.18);
+      outline: none;
+      cursor: pointer;
+    }
+    .anim-scrub::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #39ff14;
+      border: 1px solid rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+    .anim-scrub::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #39ff14;
+      border: 1px solid rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+
     /* ── Bottom tab bar ──────────────────────────────────────────────────────── */
     .tab-bar {
       position: fixed;
@@ -211,6 +238,61 @@
     .sub-title { font-weight: 600; margin-bottom: 2px; }
     .sub-desc  { opacity: 0.85; font-size: 12px; line-height: 1.4; }
 
+    /* ── Field rotation ─────────────────────────────────────────────────────── */
+    #field-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.field-rotated #mount { position: relative; }
+
+    body.field-rotated #field-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      --fh: min(100vw, calc((100dvh - 64px) * 7 / 12));
+      width: calc(var(--fh) * 12 / 7);
+      height: var(--fh);
+      transform: translate(-50%, -50%) rotate(-90deg);
+      display: block;
+    }
+
+    body.field-rotated #field-wrap svg {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+    }
+
+    .rotate-fab {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 250;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(28,28,30,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: rgba(255,255,255,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .rotate-fab.active {
+      color: #4a9eff;
+      background: rgba(74,158,255,0.15);
+      border-color: rgba(74,158,255,0.5);
+    }
+
     /* ── Size control ────────────────────────────────────────────────────────── */
     .size-control {
       display: flex;
@@ -239,11 +321,20 @@
       font-variant-numeric: tabular-nums;
     }
   </style>
-  <script type="module" crossorigin src="/top-shelf/assets/index-BT_Xl9X9.js"></script>
+  <script type="module" crossorigin src="/top-shelf/assets/index-BWtI-sAS.js"></script>
 </head>
 <body>
 
-  <div id="mount"></div>
+  <div id="mount">
+    <div id="field-wrap"></div>
+  </div>
+
+  <button id="btn-rotate-field" class="rotate-fab" title="Rotate field">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 2v6h-6"/>
+      <path d="M21 13a9 9 0 1 1-3-7.7L21 8"/>
+    </svg>
+  </button>
 
   <div id="scene-subtitle">
     <div id="sub-title-text" class="sub-title"></div>
@@ -258,6 +349,10 @@
     <button id="btn-poly-clear" class="tbar-btn" style="display:none">Clear</button>
     <button id="btn-copy-coords" class="tbar-btn">Copy</button>
     <button id="btn-anim-play"  class="tbar-btn" style="display:none">Play</button>
+    <button id="btn-anim-pause" class="tbar-btn" style="display:none">Pause</button>
+    <button id="btn-anim-step"  class="tbar-btn" style="display:none">⏭</button>
+    <button id="btn-anim-speed" class="tbar-btn" style="display:none">1×</button>
+    <input  id="anim-scrub"     class="anim-scrub" type="range" min="0" max="1000" value="0" style="display:none">
     <button id="btn-anim-reset" class="tbar-btn" style="display:none">Reset</button>
     <button id="btn-anim-clear" class="tbar-btn" style="display:none">Clear</button>
   </div>
