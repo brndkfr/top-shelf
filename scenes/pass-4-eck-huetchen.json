@@ -1,0 +1,46 @@
+{
+  "button": "Pass-4-Eck Hütchen",
+  "category": "training",
+  "order": 20,
+  "variantOf": "pass-4-eck",
+  "scenario": null,
+  "title": { "en": "Pass-4-Corner - Cone Dribble", "de": "Pass-4-Eck - Hütchenvariante" },
+  "description": {
+    "en": "Same 2v2 + 4 outside stations. Three cones are placed vertically in the centre. The ball team tries to dribble or pass through the cones. Cone spacing can be varied to increase or decrease difficulty.",
+    "de": "Gleiche Grundstruktur 2 gegen 2 mit 4 Aussenstationen. Drei Huetchen stehen vertikal in der Feldmitte. Das Team mit Ball versucht durch die Huetchen zu dribbeln oder zu passen. Abstand zwischen den Huetchen variierbar."
+  },
+  "players": [
+    { "id": "player-ld", "label": "A1", "x": 163, "y": 163 },
+    { "id": "player-rd", "label": "A2", "x": 1038, "y": 163 },
+    { "id": "player-lw", "label": "A3", "x": 163, "y": 538 },
+    { "id": "player-rw", "label": "A4", "x": 1038, "y": 538 },
+    { "id": "player-c",  "label": "V1", "x": 420, "y": 320 },
+    { "id": "player-g",  "label": "V2", "x": 630, "y": 430 }
+  ],
+  "opponents": [
+    { "id": "opponent-c",  "label": "D1", "x": 640, "y": 265 },
+    { "id": "opponent-lw", "label": "D2", "x": 475, "y": 415 }
+  ],
+  "ballStart": { "x": 420, "y": 320 },
+  "ballPhases": [
+    { "x": 560, "y": 275, "ms": 280 },
+    { "x": 600, "y": 390, "ms": 280 },
+    { "x": 1038, "y": 163 }
+  ],
+  "moveDuration": 1300,
+  "passLines": [
+    { "x1": 600, "y1": 390, "x2": 1038, "y2": 163 }
+  ],
+  "paths": [
+    {
+      "id": "player-c",
+      "type": "player",
+      "waypoints": [
+        { "x": 420, "y": 320 },
+        { "x": 560, "y": 275 },
+        { "x": 600, "y": 390 },
+        { "x": 660, "y": 345 }
+      ]
+    }
+  ]
+}

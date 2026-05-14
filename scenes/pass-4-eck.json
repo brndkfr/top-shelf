@@ -1,0 +1,48 @@
+{
+  "button": "Pass-4-Eck",
+  "category": "training",
+  "order": 10,
+  "variantOf": null,
+  "scenario": null,
+  "title": { "en": "Pass-4-Corner", "de": "Pass-4-Eck" },
+  "description": {
+    "en": "2v2 with 4 outside corner stations (6v2 possession). The ball team maintains possession through quick passing. Outside stations play one-touch. After 30 s the coach whistles and stations rotate in for a fresh 2v2.",
+    "de": "2 gegen 2 mit 4 Aussenstationen (6 gegen 2). Das Team mit Ball haelt Ballbesitz durch schnelles Passspiel. Aussenstationen spielen direkt weiter. Nach 30 Sekunden pfeift der Trainer - Stationsspielerinnen kommen ins Feld."
+  },
+  "players": [
+    { "id": "player-ld", "label": "A1", "x": 163, "y": 163 },
+    { "id": "player-rd", "label": "A2", "x": 1038, "y": 163 },
+    { "id": "player-lw", "label": "A3", "x": 163, "y": 538 },
+    { "id": "player-rw", "label": "A4", "x": 1038, "y": 538 },
+    { "id": "player-c",  "label": "V1", "x": 450, "y": 290 },
+    { "id": "player-g",  "label": "V2", "x": 630, "y": 430 }
+  ],
+  "opponents": [
+    { "id": "opponent-c",  "label": "D1", "x": 640, "y": 265 },
+    { "id": "opponent-lw", "label": "D2", "x": 475, "y": 415 }
+  ],
+  "ballStart": { "x": 450, "y": 290 },
+  "ballPhases": [
+    { "x": 163, "y": 163, "ms": 400 },
+    { "x": 630, "y": 430, "ms": 400 },
+    { "x": 1038, "y": 538 }
+  ],
+  "moveDuration": 1200,
+  "passLines": [
+    { "x1": 450, "y1": 290, "x2": 163, "y2": 163 },
+    { "x1": 163, "y1": 163, "x2": 630, "y2": 430 },
+    { "x1": 630, "y1": 430, "x2": 1038, "y2": 538 }
+  ],
+  "paths": [
+    {
+      "id": "player-c",
+      "type": "player",
+      "waypoints": [{ "x": 450, "y": 290 }, { "x": 530, "y": 355 }]
+    },
+    {
+      "id": "player-g",
+      "type": "player",
+      "waypoints": [{ "x": 630, "y": 430 }, { "x": 545, "y": 375 }]
+    }
+  ]
+}
