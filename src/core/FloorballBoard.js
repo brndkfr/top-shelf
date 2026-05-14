@@ -86,6 +86,7 @@ export class FloorballBoard {
     this._renderAllTokens();
     this._renderZoneLabels();
     this._renderRinkLabels();
+    this._renderGrid();
     if (!this._opts.layers.zones) this._q('zone-labels').setAttribute('display', 'none');
     if (!this._opts.layers.rink)  this._q('rink-labels').setAttribute('display', 'none');
     this._bindEvents();
@@ -433,6 +434,105 @@ export class FloorballBoard {
     });
   }
 
+  _renderGrid() {
+    const COLS = 8, ROWS = 4;
+    const X0 = 100, Y0 = 100, CW = 125, CH = 125;
+    const COL_LETTERS = 'ABCDEFGH';
+
+    const mk = (tag) => document.createElementNS(SVG_NS, tag);
+
+    const g = mk('g');
+    g.setAttribute('id', this._id('layer-grid'));
+    g.setAttribute('display', 'none');
+
+    const gridLine = (x1, y1, x2, y2, isEdge) => {
+      const ln = mk('line');
+      ln.setAttribute('x1', x1); ln.setAttribute('y1', y1);
+      ln.setAttribute('x2', x2); ln.setAttribute('y2', y2);
+      ln.setAttribute('stroke', 'rgba(255,255,255,0.22)');
+      ln.setAttribute('stroke-width', isEdge ? '1.5' : '1');
+      ln.setAttribute('pointer-events', 'none');
+      g.appendChild(ln);
+    };
+
+    for (let c = 0; c <= COLS; c++) {
+      gridLine(X0 + c * CW, Y0, X0 + c * CW, Y0 + ROWS * CH, c === 0 || c === COLS);
+    }
+    for (let r = 0; r <= ROWS; r++) {
+      gridLine(X0, Y0 + r * CH, X0 + COLS * CW, Y0 + r * CH, r === 0 || r === ROWS);
+    }
+
+    const axisText = (x, y, anchor, baseline, content) => {
+      const t = mk('text');
+      t.setAttribute('x', x); t.setAttribute('y', y);
+      t.setAttribute('text-anchor', anchor);
+      t.setAttribute('dominant-baseline', baseline);
+      t.setAttribute('fill', 'rgba(255,255,255,0.42)');
+      t.setAttribute('font-size', '14');
+      t.setAttribute('font-weight', '600');
+      t.setAttribute('font-family', 'monospace');
+      t.setAttribute('pointer-events', 'none');
+      t.textContent = content;
+      g.appendChild(t);
+    };
+
+    for (let c = 0; c < COLS; c++) axisText(X0 + c * CW + CW / 2, Y0 - 7, 'middle', 'auto', COL_LETTERS[c]);
+    for (let r = 0; r < ROWS; r++) axisText(X0 - 7, Y0 + r * CH + CH / 2, 'end', 'central', r + 1);
+
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        const x = X0 + c * CW, y = Y0 + r * CH;
+        const cx = x + CW / 2, cy = y + CH / 2;
+        const svgCx = Math.round(cx), svgCy = Math.round(cy);
+        const label = `${COL_LETTERS[c]}${r + 1}`;
+
+        const rect = mk('rect');
+        rect.setAttribute('id', this._id(`grid-cell-${label}`));
+        rect.setAttribute('x', x); rect.setAttribute('y', y);
+        rect.setAttribute('width', CW); rect.setAttribute('height', CH);
+        rect.setAttribute('fill', 'transparent');
+        rect.setAttribute('data-grid-label', label);
+        rect.setAttribute('data-grid-cx', svgCx);
+        rect.setAttribute('data-grid-cy', svgCy);
+        rect.style.cursor = 'crosshair';
+        g.appendChild(rect);
+
+        const lbl = mk('text');
+        lbl.setAttribute('x', cx); lbl.setAttribute('y', cy - 10);
+        lbl.setAttribute('text-anchor', 'middle'); lbl.setAttribute('dominant-baseline', 'auto');
+        lbl.setAttribute('fill', 'rgba(255,255,255,0.32)');
+        lbl.setAttribute('font-size', '22'); lbl.setAttribute('font-weight', '700');
+        lbl.setAttribute('font-family', 'monospace'); lbl.setAttribute('pointer-events', 'none');
+        lbl.textContent = label;
+        g.appendChild(lbl);
+
+        const coord = mk('text');
+        coord.setAttribute('x', cx); coord.setAttribute('y', cy + 15);
+        coord.setAttribute('text-anchor', 'middle'); coord.setAttribute('dominant-baseline', 'auto');
+        coord.setAttribute('fill', 'rgba(255,255,255,0.18)');
+        coord.setAttribute('font-size', '11'); coord.setAttribute('font-family', 'monospace');
+        coord.setAttribute('pointer-events', 'none');
+        coord.textContent = `${svgCx},${svgCy}`;
+        g.appendChild(coord);
+      }
+    }
+
+    g.addEventListener('click', (e) => {
+      const cell = e.target.closest('[data-grid-label]');
+      if (!cell) return;
+      this._svg.dispatchEvent(new CustomEvent('grid-cell-click', {
+        detail: {
+          label: cell.dataset.gridLabel,
+          cx: parseInt(cell.dataset.gridCx),
+          cy: parseInt(cell.dataset.gridCy),
+        },
+        bubbles: true,
+      }));
+    });
+
+    this._svg.insertBefore(g, this._q('shooting-triangle'));
+  }
+
   _fillZoneLabels(layer, labels) {
     layer.innerHTML = '';
     labels.forEach(z => {
@@ -746,6 +846,10 @@ export class FloorballBoard {
   }
 
   setLayer(name, visible) {
+    if (name === 'grid') {
+      this._q('layer-grid').setAttribute('display', visible ? '' : 'none');
+      return this;
+    }
     if (name === 'zone-awareness'       || name === 'zone-attention'       ||
         name === 'zone-danger'          || name === 'zone-slot'            || name === 'zone-passing-first' ||
         name === 'zone-awareness-left'  || name === 'zone-attention-right' ||

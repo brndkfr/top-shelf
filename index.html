@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Top Shelf — Floorball Board</title>
+  <script>try{if(localStorage.getItem('ts.theme')==='editorial')document.documentElement.classList.add('theme-editorial');}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -320,6 +324,284 @@
       text-align: center;
       font-variant-numeric: tabular-nums;
     }
+
+    /* ── Editorial theme (opt-in via html.theme-editorial) ──────────────── */
+    html.theme-editorial {
+      --paper: #F4F1EA;
+      --ink:   #14130F;
+      --ink-2: #4A4742;
+      --rule:  rgba(20,19,15,0.14);
+      --accent:#B23A1A;
+      --ochre: #C68A2E;
+    }
+    html.theme-editorial,
+    html.theme-editorial body { background: var(--paper); color: var(--ink); }
+    html.theme-editorial body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    }
+
+    /* Editor bar */
+    html.theme-editorial .editor-bar {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: 0 1px 2px rgba(20,19,15,0.05);
+      border-radius: 4px;
+    }
+    html.theme-editorial .editor-bar code {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ink-2);
+    }
+    html.theme-editorial .tbar-btn {
+      background: transparent;
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border-radius: 3px;
+    }
+    html.theme-editorial .tbar-btn:hover  { border-color: var(--ink); }
+    html.theme-editorial .tbar-btn:active { background: var(--ink); color: var(--paper); }
+
+    /* Scrub slider */
+    html.theme-editorial .anim-scrub { background: var(--rule); height: 2px; border-radius: 0; }
+    html.theme-editorial .anim-scrub::-webkit-slider-thumb {
+      background: var(--accent); border: none; width: 12px; height: 12px;
+    }
+    html.theme-editorial .anim-scrub::-moz-range-thumb {
+      background: var(--accent); border: none; width: 12px; height: 12px;
+    }
+
+    /* Tab bar — table of contents */
+    html.theme-editorial .tab-bar {
+      background: var(--paper);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-top: 1px solid var(--rule);
+    }
+    html.theme-editorial .tab-btn {
+      color: var(--ink-2);
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 16px 4px 14px;
+      position: relative;
+      flex-direction: row;
+      gap: 8px;
+      justify-content: center;
+    }
+    html.theme-editorial .tab-btn svg { display: none; }
+    html.theme-editorial .tab-btn::before {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.95rem;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--ochre);
+    }
+    html.theme-editorial .tab-btn[data-sheet="scenes"]::before { content: 'I.'; }
+    html.theme-editorial .tab-btn[data-sheet="layers"]::before { content: 'II.'; }
+    html.theme-editorial .tab-btn[data-sheet="tools"]::before  { content: 'III.'; }
+    html.theme-editorial .tab-btn[data-sheet="board"]::before  { content: 'IV.'; }
+    html.theme-editorial .tab-btn.active { color: var(--ink); }
+    html.theme-editorial .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      width: 28px;
+      height: 2px;
+      background: var(--accent);
+      transform: translateX(-50%);
+    }
+
+    /* Sheet & backdrop */
+    html.theme-editorial .sheet {
+      background: var(--paper);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-top: 1px solid var(--rule);
+      border-radius: 0;
+      color: var(--ink);
+      padding: 16px 22px 90px;
+    }
+    html.theme-editorial .sheet-handle { background: var(--ink-2); opacity: 0.25; }
+    html.theme-editorial .sheet-section {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--ink);
+      margin: 18px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--rule);
+    }
+    html.theme-editorial .sheet-section:first-of-type { margin-top: 4px; }
+    html.theme-editorial .sheet-row { gap: 6px; }
+    html.theme-editorial .sheet-backdrop.open {
+      display: block;
+      background: rgba(244,241,234,0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* Sheet buttons — typographic, monochrome with category glyphs */
+    html.theme-editorial .sbtn {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      color: var(--ink);
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      padding: 9px 14px;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    html.theme-editorial .sbtn:hover { border-color: var(--ink); }
+    html.theme-editorial .sbtn.active {
+      background: var(--ink) !important;
+      color: var(--paper) !important;
+      border-color: var(--ink);
+    }
+    html.theme-editorial .sbtn::before {
+      font-family: 'Fraunces', serif;
+      font-size: 0.95em;
+      font-weight: 400;
+      color: var(--ochre);
+      line-height: 1;
+    }
+    html.theme-editorial .sbtn.active::before { color: var(--paper); }
+
+    html.theme-editorial .btn-layer::before   { content: '\00a7'; }      /* § */
+    html.theme-editorial .btn-anim::before    { content: '\25B8'; color: var(--accent); } /* ▸ */
+    html.theme-editorial .btn-shoot::before   { content: '\2715'; }      /* ✕ */
+    html.theme-editorial .btn-poly::before    { content: '\25B1'; }      /* ▱ */
+    html.theme-editorial .btn-line::before    { content: '\2015'; }      /* ― */
+    html.theme-editorial .btn-editor::before  { content: '\270E'; }      /* ✎ */
+    html.theme-editorial .btn-capture::before { content: '\2761'; }      /* ❡ */
+    html.theme-editorial .btn-ideal::before   { content: '\25C9'; }      /* ◉ */
+    html.theme-editorial .btn-reset::before   { content: '\21BA'; color: var(--accent); } /* ↺ */
+    html.theme-editorial .btn-reset           { border-left: 2px solid var(--accent); }
+    html.theme-editorial .btn-lang::before    { content: none; }
+    html.theme-editorial .btn-lang,
+    html.theme-editorial #btn-theme {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+    }
+    html.theme-editorial #btn-theme::before { content: none; }
+
+    /* Override classic colored borders with neutral hairlines */
+    html.theme-editorial .btn-layer,
+    html.theme-editorial .btn-shoot,
+    html.theme-editorial .btn-ideal,
+    html.theme-editorial .btn-lang,
+    html.theme-editorial .btn-capture,
+    html.theme-editorial .btn-anim,
+    html.theme-editorial .btn-editor,
+    html.theme-editorial .btn-poly,
+    html.theme-editorial .btn-line {
+      border-color: var(--rule);
+      color: var(--ink);
+    }
+    html.theme-editorial .btn-reset {
+      border-color: var(--rule);
+      color: var(--ink);
+      border-left-color: var(--accent);
+    }
+
+    /* Scene subtitle — pull quote */
+    html.theme-editorial #scene-subtitle {
+      background: transparent;
+      border-top: none;
+      color: var(--ink);
+      padding: 10px 24px 14px;
+      bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+      max-width: 38ch;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+    }
+    html.theme-editorial .sub-title {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.05rem;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    html.theme-editorial .sub-desc {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      opacity: 1;
+      line-height: 1.5;
+    }
+
+    /* Rotate FAB — paper square */
+    html.theme-editorial .rotate-fab {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      color: var(--ink);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      width: 32px;
+      height: 32px;
+    }
+    html.theme-editorial .rotate-fab.active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    html.theme-editorial .rotate-fab svg { width: 16px; height: 16px; }
+
+    /* Size control */
+    html.theme-editorial .size-control {
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+    }
+    html.theme-editorial .size-control button { color: var(--ink); }
+    html.theme-editorial #size-display {
+      color: var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    /* ── Grid coordinate readout ─────────────────────────────────────────────── */
+    #grid-readout {
+      display: none;
+      position: fixed;
+      bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 4px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18,18,18,0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 10px;
+      border: 0.5px solid rgba(255,255,255,0.18);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 25;
+      pointer-events: none;
+    }
+    #grid-readout.visible { display: block; }
   </style>
 </head>
 <body>
@@ -370,19 +652,7 @@
       <button id="btn-scenario-atk"        class="sbtn btn-layer">Triangles</button>
       <button id="btn-scenario-corner"     class="sbtn btn-layer">Corner</button>
     </div>
-    <div class="sheet-section">Scripted</div>
-    <div class="sheet-row">
-      <button id="btn-scenario-transition" class="sbtn btn-anim">Transition</button>
-    </div>
-    <div class="sheet-section">Training</div>
-    <div class="sheet-row">
-      <button id="btn-scenario-backcheck"   class="sbtn btn-anim">2:1 Backcheck</button>
-      <button id="btn-scenario-hokey-pokey" class="sbtn btn-anim">Hokey-Pokey</button>
-      <button id="btn-scenario-wing"        class="sbtn btn-anim">Wing Decision</button>
-      <button id="btn-scenario-dbl-pass"    class="sbtn btn-anim">360° Pass</button>
-      <button id="btn-scenario-laufduell"   class="sbtn btn-anim">Laufduell</button>
-      <button id="btn-scenario-trans43"     class="sbtn btn-anim">4:3 Transition</button>
-    </div>
+    <div id="scenes-list"></div>
   </div>
 
   <!-- Layers sheet -->
@@ -430,6 +700,10 @@
       <button id="btn-shoot"        class="sbtn btn-shoot">Shooting Line</button>
       <button id="btn-ideal"        class="sbtn btn-ideal" disabled>Ideal Pos</button>
     </div>
+    <div class="sheet-section">Dev</div>
+    <div class="sheet-row">
+      <button id="btn-grid" class="sbtn btn-editor">Grid</button>
+    </div>
   </div>
 
   <!-- Board sheet -->
@@ -453,6 +727,7 @@
     <div class="sheet-section">Settings</div>
     <div class="sheet-row">
       <button id="btn-lang"       class="sbtn btn-lang">EN</button>
+      <button id="btn-theme"      class="sbtn btn-lang" title="Toggle theme">CLASSIC</button>
       <button id="btn-reset"      class="sbtn btn-reset">Reset</button>
       <button id="btn-reset-zoom" class="sbtn btn-reset">Reset Zoom</button>
       <div class="size-control">
@@ -462,6 +737,8 @@
       </div>
     </div>
   </div>
+
+  <div id="grid-readout"></div>
 
   <!-- Bottom tab bar -->
   <nav class="tab-bar">
@@ -500,6 +777,8 @@
   <script type="module">
     import { FloorballBoard } from './src/index.js';
     import { gsap } from 'gsap';
+    const _sceneModules = import.meta.glob('./scenes/*.json', { eager: true, import: 'default' });
+    const SCENES = Object.values(_sceneModules).sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
 
     const board = new FloorballBoard(document.getElementById('field-wrap'));
     let lang     = 'en';
@@ -538,9 +817,20 @@
       $('btn-ideal').disabled = true;
     }
 
-    const SCENARIO_BTNS = ['btn-scenario-neutral','btn-scenario-def','btn-scenario-press','btn-scenario-atk','btn-scenario-corner','btn-scenario-transition','btn-scenario-backcheck','btn-scenario-hokey-pokey','btn-scenario-wing','btn-scenario-dbl-pass','btn-scenario-laufduell','btn-scenario-trans43'];
+    const SCENARIO_BTNS = ['btn-scenario-neutral','btn-scenario-def','btn-scenario-press','btn-scenario-atk','btn-scenario-corner'];
+    let activeSceneBtn = null;
+
     function setActiveScenarioBtn(activeId) {
+      activeSceneBtn?.classList.remove('active');
+      activeSceneBtn = null;
       SCENARIO_BTNS.forEach(id => $(id).classList.toggle('active', id === activeId));
+    }
+
+    function setActiveSceneBtn(btn) {
+      SCENARIO_BTNS.forEach(id => $(id).classList.remove('active'));
+      activeSceneBtn?.classList.remove('active');
+      activeSceneBtn = btn;
+      btn?.classList.add('active');
     }
 
     $('btn-scenario-neutral').addEventListener('click', () => {
@@ -655,16 +945,48 @@
       board.moveGoalieToIdealPosition();
     });
 
+    // ── Grid overlay (dev) ────────────────────────────────────────────────────
+    let gridVisible = false;
+    let gridReadoutTimer = null;
+    $('btn-grid').addEventListener('click', () => {
+      gridVisible = !gridVisible;
+      board.setLayer('grid', gridVisible);
+      $('btn-grid').classList.toggle('active', gridVisible);
+    });
+    $('mount').addEventListener('grid-cell-click', (e) => {
+      const { label, cx, cy } = e.detail;
+      const fx = cx - 100, fy = cy - 100;
+      const mx = (fx / 25).toFixed(1), my = (fy / 25).toFixed(1);
+      $('grid-readout').textContent = `${label}   x=${cx} y=${cy}   field (${fx}, ${fy})   ${mx}m, ${my}m`;
+      $('grid-readout').classList.add('visible');
+      navigator.clipboard?.writeText(`{ "x": ${cx}, "y": ${cy} }`).catch(() => {});
+      clearTimeout(gridReadoutTimer);
+      gridReadoutTimer = setTimeout(() => $('grid-readout').classList.remove('visible'), 5000);
+    });
+
     $('btn-lang').addEventListener('click', () => {
       lang = lang === 'en' ? 'de' : 'en';
       board.setLang(lang);
       $('btn-lang').textContent = lang.toUpperCase();
       $('btn-lang').classList.toggle('active', lang === 'de');
+      renderSceneButtons();
       if ($('scene-subtitle').classList.contains('visible') && animTool.scriptedScene) {
         const sc = animTool.scriptedScene;
         $('sub-title-text').textContent = sc.title?.[lang] ?? sc.title?.en ?? '';
         $('sub-desc-text').textContent  = sc.description?.[lang] ?? sc.description?.en ?? '';
       }
+    });
+
+    const _syncThemeBtn = () => {
+      const editorial = document.documentElement.classList.contains('theme-editorial');
+      $('btn-theme').textContent = editorial ? 'EDITORIAL' : 'CLASSIC';
+      $('btn-theme').classList.toggle('active', editorial);
+    };
+    _syncThemeBtn();
+    $('btn-theme').addEventListener('click', () => {
+      const editorial = document.documentElement.classList.toggle('theme-editorial');
+      try { localStorage.setItem('ts.theme', editorial ? 'editorial' : 'classic'); } catch (e) {}
+      _syncThemeBtn();
     });
 
     $('btn-reset').addEventListener('click', () => {
@@ -1731,6 +2053,37 @@
 
     // ── Scripted scenes ───────────────────────────────────────────────────────
 
+    const SCENE_CATEGORIES = [
+      { key: 'scripted', label: { en: 'Scripted', de: 'Szenarien' } },
+      { key: 'training', label: { en: 'Training', de: 'Training'  } },
+    ];
+
+    function renderSceneButtons() {
+      const container = $('scenes-list');
+      container.innerHTML = '';
+      for (const cat of SCENE_CATEGORIES) {
+        const group = SCENES.filter(s => s.category === cat.key);
+        if (!group.length) continue;
+        const section = document.createElement('div');
+        section.className = 'sheet-section';
+        section.textContent = cat.label[lang] ?? cat.label.en;
+        container.appendChild(section);
+        const row = document.createElement('div');
+        row.className = 'sheet-row';
+        for (const scene of group) {
+          const btn = document.createElement('button');
+          btn.className = 'sbtn btn-anim';
+          btn.textContent = scene.button ?? scene.title[lang] ?? scene.title.en;
+          btn.addEventListener('click', () => {
+            loadScriptedScene(scene);
+            setActiveSceneBtn(btn);
+          });
+          row.appendChild(btn);
+        }
+        container.appendChild(row);
+      }
+    }
+
     function ensurePassArrow(svg) {
       if (svg.querySelector('#pass-arrow')) return;
       const defs = svg.querySelector('defs');
@@ -1746,267 +2099,6 @@
       marker.appendChild(path);
       defs.appendChild(marker);
     }
-
-    const TRANSITION_212 = {
-      scenario: 'defensiv-212',
-      title: { en: 'Transition 2:1:2', de: 'Transition 2:1:2' },
-      description: {
-        en: 'V1 passes to S1, S1 relays to C. S1 sprints to corner, C drives to slot, S2 forms the triangle.',
-        de: 'V1 passt zu S1, S1 zu C. S1 sprintet in die Ecke, C treibt zum Slot, S2 bildet das Dreieck.',
-      },
-      ballStart:  { x: 295, y: 215 },
-      ballPhases: [
-        { x: 545, y: 215, ms: 350 },
-        { x: 400, y: 350, ms: 400 },
-        { x: 895, y: 350 },
-      ],
-      moveDuration: 1200,
-      passLines: [
-        { x1: 295, y1: 215, x2: 545, y2: 215 },
-        { x1: 545, y1: 215, x2: 400, y2: 350 },
-      ],
-      paths: [
-        { id: 'player-lw', type: 'player', waypoints: [{x:545,y:215},{x:720,y:145},{x:1075,y:140}] },
-        { id: 'player-c',  type: 'player', waypoints: [{x:400,y:350},{x:650,y:325},{x:895,y:350}] },
-        { id: 'player-rw', type: 'player', waypoints: [{x:510,y:485},{x:895,y:470}] },
-      ],
-      triangle: [{x:1075,y:140},{x:895,y:350},{x:895,y:470}],
-    };
-
-    const DRILL_2V1_BACKCHECK = {
-      scenario: null,
-      title: { en: '2:1 with Backchecking', de: '2:1 mit Rückcheck' },
-      description: {
-        en: 'C in the corner passes to S in the slot. 2:1 vs D1. Once the ball crosses centre, D2 backchecks.',
-        de: 'C in der Ecke passt zu S im Slot. 2:1 gegen D1. Sobald der Ball die Mittellinie überquert, checkt D2 zurück.',
-      },
-      players: [
-        { id:'player-c',  label:'C', x:125, y:575 },
-        { id:'player-lw', label:'S', x:540, y:350 },
-      ],
-      opponents: [
-        { id:'opponent-g',  label:'G',  symbol:'sym-opponent-goalie', x:1025, y:350 },
-        { id:'opponent-ld', label:'D1', x:800, y:300 },
-        { id:'opponent-rd', label:'D2', x:540, y:185 },
-      ],
-      ballStart: { x:125, y:575 },
-      ballPhases: [
-        { x:540, y:350, ms:400 },
-        { x:970, y:300 },
-      ],
-      moveDuration: 1200,
-      passLines: [
-        { x1:125, y1:575, x2:540, y2:350 },
-        { x1:540, y1:350, x2:970, y2:300 },
-      ],
-      paths: [
-        { id:'player-c',    type:'player',   waypoints:[{x:125,y:575},{x:700,y:450}] },
-        { id:'player-lw',   type:'player',   waypoints:[{x:540,y:350},{x:970,y:300}] },
-        { id:'opponent-rd', type:'opponent', waypoints:[{x:540,y:185},{x:800,y:270}] },
-      ],
-      triangle: [{x:700,y:450},{x:970,y:300},{x:1025,y:350}],
-    };
-
-    const HOKEY_POKEY_TRANSITION = {
-      scenario: null,
-      title: { en: 'Hokey-Pokey Transition', de: 'Hokey-Pokey Transition' },
-      description: {
-        en: 'V1 double-pass with V2. V1 plays Hokey-Pokey lateral back to overlapping V2. V2 fires forward to S1.',
-        de: 'V1 Doppelpass mit V2. V1 spielt Hokey-Pokey-Querpass zurück zu V2. V2 passt vorwärts zu S1.',
-      },
-      players: [
-        { id:'player-g',  label:'G',  symbol:'sym-player-goalie', x:175,  y:350 },
-        { id:'player-ld', label:'V1', x:185, y:160 },
-        { id:'player-rd', label:'V2', x:265, y:440 },
-        { id:'player-c',  label:'C',  x:430, y:350 },
-        { id:'player-lw', label:'S1', x:620, y:185 },
-        { id:'player-rw', label:'S2', x:620, y:480 },
-      ],
-      opponents: [
-        { id:'opponent-g',  label:'G',  symbol:'sym-opponent-goalie', x:1025, y:350 },
-        { id:'opponent-ld', label:'V1', x:860, y:175 },
-        { id:'opponent-rd', label:'V2', x:860, y:525 },
-        { id:'opponent-c',  label:'C',  x:715, y:350 },
-        { id:'opponent-lw', label:'A1', x:645, y:160 },
-        { id:'opponent-rw', label:'A2', x:645, y:545 },
-      ],
-      ballStart: { x:185, y:160 },
-      ballPhases: [
-        { x:265, y:440, ms:350 },
-        { x:315, y:175, ms:350 },
-        { x:315, y:280, ms:250 },
-        { x:815, y:165 },
-      ],
-      moveDuration: 1200,
-      passLines: [
-        { x1:185, y1:160, x2:265, y2:440 },
-        { x1:265, y1:440, x2:315, y2:175 },
-        { x1:315, y1:175, x2:315, y2:280 },
-        { x1:315, y1:280, x2:815, y2:165 },
-      ],
-      paths: [
-        { id:'player-ld', type:'player', waypoints:[{x:185,y:160},{x:350,y:175}] },
-        { id:'player-rd', type:'player', waypoints:[{x:265,y:440},{x:450,y:330}] },
-        { id:'player-lw', type:'player', waypoints:[{x:620,y:185},{x:930,y:155}] },
-      ],
-      triangle: [{x:815,y:165},{x:930,y:155},{x:1025,y:350}],
-    };
-
-    const WING_DECISION = {
-      scenario: null,
-      title: { en: 'Wing Decision', de: 'Entscheidung des Flügels' },
-      description: {
-        en: 'A plays to B. C overlaps. B lays off to C. C back to A at the boards. A through to B at the far post.',
-        de: 'A passt zu B. C überläuft. B legt quer zu C. C zurück zu A am Band. A durch zu B am langen Pfosten.',
-      },
-      players: [
-        { id:'player-g',  label:'G',  symbol:'sym-player-goalie', x:175,  y:350 },
-        { id:'player-ld', label:'V1', x:380, y:350 },
-        { id:'player-rd', label:'A',  x:450, y:195 },
-        { id:'player-c',  label:'C',  x:700, y:370 },
-        { id:'player-lw', label:'B',  x:700, y:170 },
-        { id:'player-rw', label:'V2', x:380, y:480 },
-      ],
-      opponents: [
-        { id:'opponent-g',  label:'G',  symbol:'sym-opponent-goalie', x:1025, y:350 },
-        { id:'opponent-ld', label:'V1', x:920, y:215 },
-        { id:'opponent-rd', label:'V2', x:920, y:485 },
-        { id:'opponent-c',  label:'C',  x:800, y:350 },
-        { id:'opponent-lw', label:'A1', x:700, y:215 },
-        { id:'opponent-rw', label:'A2', x:700, y:485 },
-      ],
-      ballStart: { x:450, y:195 },
-      ballPhases: [
-        { x:700, y:170, ms:300 },
-        { x:730, y:250, ms:250 },
-        { x:555, y:140, ms:300 },
-        { x:980, y:240 },
-      ],
-      moveDuration: 1200,
-      passLines: [
-        { x1:450, y1:195, x2:700, y2:170 },
-        { x1:700, y1:170, x2:730, y2:250 },
-        { x1:730, y1:250, x2:555, y2:140 },
-        { x1:555, y1:140, x2:980, y2:240 },
-      ],
-      paths: [
-        { id:'player-rd', type:'player', waypoints:[{x:450,y:195},{x:555,y:140}] },
-        { id:'player-lw', type:'player', waypoints:[{x:700,y:170},{x:980,y:240}] },
-        { id:'player-c',  type:'player', waypoints:[{x:700,y:370},{x:730,y:250}] },
-      ],
-      triangle: [{x:555,y:140},{x:980,y:240},{x:1025,y:350}],
-    };
-
-    const DOUBLE_PASS_CROSS = {
-      scenario: null,
-      title: { en: '360° Double-Pass', de: '360° Doppelpass' },
-      description: {
-        en: 'P1 double-pass with P2. P1 continues and plays a cross-pass (Querpass) to running P3 who shoots.',
-        de: 'P1 Doppelpass mit P2. P1 läuft weiter und spielt Querpass zu P3, der aufs Tor schiesst.',
-      },
-      players: [
-        { id:'player-g',  label:'G',  symbol:'sym-player-goalie', x:175,  y:350 },
-        { id:'player-ld', label:'V1', x:380, y:480 },
-        { id:'player-rd', label:'P3', x:430, y:400 },
-        { id:'player-c',  label:'P2', x:430, y:200 },
-        { id:'player-lw', label:'P1', x:560, y:200 },
-        { id:'player-rw', label:'V2', x:380, y:220 },
-      ],
-      opponents: [
-        { id:'opponent-g',  label:'G',  symbol:'sym-opponent-goalie', x:1025, y:350 },
-        { id:'opponent-ld', label:'V1', x:920, y:215 },
-        { id:'opponent-rd', label:'V2', x:920, y:485 },
-        { id:'opponent-c',  label:'C',  x:800, y:350 },
-        { id:'opponent-lw', label:'A1', x:700, y:215 },
-        { id:'opponent-rw', label:'A2', x:700, y:485 },
-      ],
-      ballStart: { x:560, y:200 },
-      ballPhases: [
-        { x:430, y:200, ms:250 },
-        { x:660, y:200, ms:250 },
-        { x:950, y:400 },
-      ],
-      moveDuration: 1200,
-      passLines: [
-        { x1:560, y1:200, x2:430, y2:200 },
-        { x1:430, y1:200, x2:660, y2:200 },
-        { x1:660, y1:200, x2:950, y2:400 },
-      ],
-      paths: [
-        { id:'player-lw', type:'player', waypoints:[{x:560,y:200},{x:660,y:200}] },
-        { id:'player-c',  type:'player', waypoints:[{x:430,y:200},{x:530,y:200}] },
-        { id:'player-rd', type:'player', waypoints:[{x:430,y:400},{x:950,y:400}] },
-      ],
-      triangle: [{x:660,y:200},{x:950,y:400},{x:1025,y:350}],
-    };
-
-    const LAUFDUELL = {
-      scenario: null,
-      title: { en: 'Laufduell – Goal!', de: 'Laufduell – Tor!' },
-      description: {
-        en: 'A starts with ball and races directly to goal. D may only backcheck after A crosses the centre line.',
-        de: 'A startet mit Ball und zieht direkt aufs Tor. D darf erst backchecken, wenn A die Mittellinie überquert hat.',
-      },
-      players: [
-        { id:'player-lw', label:'A', x:510, y:205 },
-      ],
-      opponents: [
-        { id:'opponent-g',  label:'G', symbol:'sym-opponent-goalie', x:1025, y:350 },
-        { id:'opponent-ld', label:'D', x:730, y:205 },
-      ],
-      ballStart: { x:510, y:205 },
-      ballPhases: [
-        { x:960, y:205 },
-      ],
-      moveDuration: 1400,
-      passLines: [],
-      paths: [
-        { id:'player-lw',   type:'player',   waypoints:[{x:510,y:205},{x:960,y:205}] },
-        { id:'opponent-ld', type:'opponent', waypoints:[{x:730,y:205},{x:870,y:230}] },
-      ],
-      triangle: [{x:900,y:165},{x:960,y:205},{x:1025,y:350}],
-    };
-
-    const TRANSITION_43 = {
-      scenario: null,
-      title: { en: '4:3 Offensive Transition', de: '4:3 Offensiv-Transition' },
-      description: {
-        en: '4 attackers (incl. passer P at centre) vs 3 defenders. On turnover, E1 and E2 join from the sideline: 5:4.',
-        de: '4 Angreifer (inkl. Passeur P an Mittellinie) gegen 3. Bei Ballgewinn kommen E1/E2 für 5:4-Überzahl.',
-      },
-      players: [
-        { id:'player-lw', label:'P',  x:600, y:350 },
-        { id:'player-rw', label:'A1', x:790, y:190 },
-        { id:'player-c',  label:'A2', x:840, y:350 },
-        { id:'player-rd', label:'A3', x:790, y:500 },
-      ],
-      opponents: [
-        { id:'opponent-g',  label:'G',  symbol:'sym-opponent-goalie', x:1025, y:350 },
-        { id:'opponent-lw', label:'D1', x:880, y:225 },
-        { id:'opponent-c',  label:'D2', x:900, y:350 },
-        { id:'opponent-rw', label:'D3', x:880, y:475 },
-        { id:'opponent-ld', label:'E1', x:610, y:190 },
-        { id:'opponent-rd', label:'E2', x:610, y:510 },
-      ],
-      ballStart: { x:600, y:350 },
-      ballPhases: [
-        { x:840, y:350, ms:400 },
-        { x:1000, y:350 },
-      ],
-      moveDuration: 1200,
-      passLines: [
-        { x1:600, y1:350, x2:840, y2:350 },
-        { x1:840, y1:350, x2:1000, y2:350 },
-      ],
-      paths: [
-        { id:'player-lw',   type:'player',   waypoints:[{x:600,y:350},{x:700,y:350}] },
-        { id:'player-rw',   type:'player',   waypoints:[{x:790,y:190},{x:940,y:215}] },
-        { id:'player-c',    type:'player',   waypoints:[{x:840,y:350},{x:1000,y:350}] },
-        { id:'opponent-ld', type:'opponent', waypoints:[{x:610,y:190},{x:750,y:245}] },
-        { id:'opponent-rd', type:'opponent', waypoints:[{x:610,y:510},{x:750,y:440}] },
-      ],
-      triangle: [{x:940,y:215},{x:1000,y:350},{x:1025,y:350}],
-    };
 
     function loadScriptedScene(scene) {
       if (scene.scenario) {
@@ -2154,40 +2246,7 @@
       closeSheet();
     }
 
-    $('btn-scenario-transition').addEventListener('click', () => {
-      loadScriptedScene(TRANSITION_212);
-      setActiveScenarioBtn('btn-scenario-transition');
-    });
-
-    $('btn-scenario-backcheck').addEventListener('click', () => {
-      loadScriptedScene(DRILL_2V1_BACKCHECK);
-      setActiveScenarioBtn('btn-scenario-backcheck');
-    });
-
-    $('btn-scenario-hokey-pokey').addEventListener('click', () => {
-      loadScriptedScene(HOKEY_POKEY_TRANSITION);
-      setActiveScenarioBtn('btn-scenario-hokey-pokey');
-    });
-
-    $('btn-scenario-wing').addEventListener('click', () => {
-      loadScriptedScene(WING_DECISION);
-      setActiveScenarioBtn('btn-scenario-wing');
-    });
-
-    $('btn-scenario-dbl-pass').addEventListener('click', () => {
-      loadScriptedScene(DOUBLE_PASS_CROSS);
-      setActiveScenarioBtn('btn-scenario-dbl-pass');
-    });
-
-    $('btn-scenario-laufduell').addEventListener('click', () => {
-      loadScriptedScene(LAUFDUELL);
-      setActiveScenarioBtn('btn-scenario-laufduell');
-    });
-
-    $('btn-scenario-trans43').addEventListener('click', () => {
-      loadScriptedScene(TRANSITION_43);
-      setActiveScenarioBtn('btn-scenario-trans43');
-    });
+    renderSceneButtons();
 
     // ── Sheet navigation ──────────────────────────────────────────────────────
     let activeSheet = null;
