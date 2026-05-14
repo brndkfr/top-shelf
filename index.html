@@ -238,6 +238,61 @@
     .sub-title { font-weight: 600; margin-bottom: 2px; }
     .sub-desc  { opacity: 0.85; font-size: 12px; line-height: 1.4; }
 
+    /* ── Field rotation ─────────────────────────────────────────────────────── */
+    #field-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.field-rotated #mount { position: relative; }
+
+    body.field-rotated #field-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      --fh: min(100vw, calc((100dvh - 64px) * 7 / 12));
+      width: calc(var(--fh) * 12 / 7);
+      height: var(--fh);
+      transform: translate(-50%, -50%) rotate(-90deg);
+      display: block;
+    }
+
+    body.field-rotated #field-wrap svg {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+    }
+
+    .rotate-fab {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 250;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(28,28,30,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: rgba(255,255,255,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .rotate-fab.active {
+      color: #4a9eff;
+      background: rgba(74,158,255,0.15);
+      border-color: rgba(74,158,255,0.5);
+    }
+
     /* ── Size control ────────────────────────────────────────────────────────── */
     .size-control {
       display: flex;
@@ -269,7 +324,16 @@
 </head>
 <body>
 
-  <div id="mount"></div>
+  <div id="mount">
+    <div id="field-wrap"></div>
+  </div>
+
+  <button id="btn-rotate-field" class="rotate-fab" title="Rotate field">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 2v6h-6"/>
+      <path d="M21 13a9 9 0 1 1-3-7.7L21 8"/>
+    </svg>
+  </button>
 
   <div id="scene-subtitle">
     <div id="sub-title-text" class="sub-title"></div>
@@ -437,7 +501,7 @@
     import { FloorballBoard } from './src/index.js';
     import { gsap } from 'gsap';
 
-    const board = new FloorballBoard(document.getElementById('mount'));
+    const board = new FloorballBoard(document.getElementById('field-wrap'));
     let lang     = 'en';
     let shooting = false;
     let tokenSize = 40;
@@ -612,6 +676,13 @@
 
     $('btn-reset-zoom').addEventListener('click', () => {
       board.resetZoom();
+    });
+
+    let fieldRotated = false;
+    $('btn-rotate-field').addEventListener('click', () => {
+      fieldRotated = !fieldRotated;
+      document.body.classList.toggle('field-rotated', fieldRotated);
+      $('btn-rotate-field').classList.toggle('active', fieldRotated);
     });
 
     $('btn-clear-board').addEventListener('click', () => {
